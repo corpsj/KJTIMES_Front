@@ -7,11 +7,12 @@ import { createClient } from "@/utils/supabase/client";
 type ArticleRow = {
   id: string;
   title: string;
+  slug?: string | null;
   status: string;
   created_at: string;
   published_at?: string | null;
   views?: number | null;
-  categories?: { name?: string | null } | null;
+  categories?: { name?: string | null }[] | null;
 };
 
 const statusOptions = [
@@ -56,7 +57,7 @@ export default function AdminArticles() {
     setLoading(true);
     let query = supabase
       .from("articles")
-      .select("id, title, status, created_at, published_at, views, categories(name)")
+      .select("id, title, slug, status, created_at, published_at, views, categories(name)")
       .order("created_at", { ascending: false });
 
     if (statusFilter !== "all") {
@@ -130,9 +131,11 @@ export default function AdminArticles() {
               articles.map((article) => (
                 <div key={article.id} className="admin2-row">
                   <div>
-                    <div className="admin2-row-title">{article.title}</div>
+                    <div className="admin2-row-title">
+                      <Link href={`/admin/write?id=${article.id}`}>{article.title}</Link>
+                    </div>
                     <div className="admin2-row-meta">
-                      {article.categories?.name || "미분류"} · {new Date(article.published_at || article.created_at).toLocaleString("ko-KR")}
+                      {article.categories?.[0]?.name || "미분류"} · {new Date(article.published_at || article.created_at).toLocaleString("ko-KR")}
                     </div>
                   </div>
                   <div className="admin2-status-column">
@@ -143,7 +146,11 @@ export default function AdminArticles() {
                   <div className="admin2-row-meta">조회 {article.views?.toLocaleString() || 0}</div>
                   <div className="admin2-row-actions">
                     <Link href={`/admin/write?id=${article.id}`}>편집</Link>
-                    <Link href={`/admin/write?id=${article.id}`}>미리보기</Link>
+                    {article.slug && (article.status === "shared" || article.status === "published") ? (
+                      <Link href={`/share/${article.slug}`} target="_blank">공유 보기</Link>
+                    ) : (
+                      <span className="admin2-row-meta">공유 발행 필요</span>
+                    )}
                   </div>
                 </div>
               ))

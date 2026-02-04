@@ -10,7 +10,7 @@ type ArticleRow = {
   status: string;
   views?: number | null;
   created_at: string;
-  categories?: { name?: string | null } | null;
+  categories?: { name?: string | null }[] | null;
 };
 
 type StatsState = {
@@ -238,7 +238,7 @@ export default function AdminDashboard() {
                     <div>
                       <div className="admin2-queue-title">{article.title}</div>
                       <div className="admin2-queue-meta">
-                        {article.categories?.name || "미분류"} · {new Date(article.created_at).toLocaleDateString()}
+                        {article.categories?.[0]?.name || "미분류"} · {new Date(article.created_at).toLocaleDateString()}
                       </div>
                     </div>
                     <span className="admin2-tag admin2-tag--pending">대기</span>
@@ -260,7 +260,7 @@ export default function AdminDashboard() {
                   <div>
                     <div className="admin2-row-title">{article.title}</div>
                     <div className="admin2-row-meta">
-                      {article.categories?.name || "미분류"} · {new Date(article.created_at).toLocaleString("ko-KR")}
+                      {article.categories?.[0]?.name || "미분류"} · {new Date(article.created_at).toLocaleString("ko-KR")}
                     </div>
                   </div>
                   <div className="admin2-status-column">

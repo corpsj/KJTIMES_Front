@@ -43,7 +43,7 @@ end $$;
 
 -- Add new constraint
 alter table articles add constraint articles_status_check 
-  check (status in ('draft', 'pending_review', 'scheduled', 'published', 'archived', 'rejected'));
+  check (status in ('draft', 'pending_review', 'scheduled', 'published', 'shared', 'archived', 'rejected'));
 
 -- 4. Create Junction and Revision tables
 create table if not exists article_tags (
@@ -97,4 +97,15 @@ begin
     create policy "Editors can manage revisions" on article_revisions for all using ( exists (select 1 from profiles where id = auth.uid() and role in ('admin', 'editor')) );
   end if;
 
+end $$;
+
+-- 7. Update public read policy for share-only articles
+do $$
+begin
+  if exists (select from pg_policies where tablename = 'articles' and policyname = 'Public articles are viewable by everyone') then
+    drop policy "Public articles are viewable by everyone" on articles;
+  end if;
+  create policy "Public articles are viewable by everyone"
+    on articles for select
+    using ( status in ('published', 'shared') and published_at <= now() );
 end $$;

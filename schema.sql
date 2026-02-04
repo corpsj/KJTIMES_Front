@@ -69,7 +69,7 @@ create table articles (
   category_id uuid references categories(id),
   
   -- Workflow & Scheduling
-  status text check (status in ('draft', 'pending_review', 'scheduled', 'published', 'archived', 'rejected')) default 'draft',
+  status text check (status in ('draft', 'pending_review', 'scheduled', 'published', 'shared', 'archived', 'rejected')) default 'draft',
   published_at timestamptz, -- New: Scheduled publishing time
   
   views integer default 0,
@@ -104,7 +104,7 @@ alter table article_revisions enable row level security;
 -- Everyone can view published articles
 create policy "Public articles are viewable by everyone"
   on articles for select
-  using ( status = 'published' and published_at <= now() );
+  using ( status in ('published', 'shared') and published_at <= now() );
 
 -- Admins/Editors can do everything
 create policy "Editors can manage all articles"

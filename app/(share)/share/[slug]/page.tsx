@@ -1,5 +1,6 @@
-import { Container, Image, Text, Title, Box, Group, Stack, Divider, TypographyStylesProvider, Center, Grid } from "@mantine/core";
+import { Container, Image, Text, Title, Box, Stack, Divider, Center, Grid } from "@mantine/core";
 import { createClient } from "@/utils/supabase/server";
+import styles from "./page.module.css";
 
 export const revalidate = 60;
 
@@ -7,7 +8,7 @@ export default async function SharedArticlePage({ params }: { params: { slug: st
   const supabase = await createClient();
   const { data: article } = await supabase
     .from("articles")
-    .select("title, sub_title, excerpt, summary, content, thumbnail_url, created_at, status")
+    .select("title, sub_title, excerpt, summary, content, thumbnail_url, created_at")
     .eq("slug", params.slug)
     .in("status", ["published", "shared"])
     .single();
@@ -99,7 +100,7 @@ export default async function SharedArticlePage({ params }: { params: { slug: st
           <Divider />
 
           <Text size="lg" fw={700} style={{ borderLeft: "5px solid #000", paddingLeft: "20px" }}>
-            {article.excerpt || article.summary}
+            {article.excerpt || article.summary || ""}
           </Text>
 
           {article.thumbnail_url && (
@@ -111,34 +112,14 @@ export default async function SharedArticlePage({ params }: { params: { slug: st
             />
           )}
 
-          <Box className="article-content">
-            <TypographyStylesProvider>
-              <div dangerouslySetInnerHTML={{ __html: article.content }} />
-            </TypographyStylesProvider>
+          <Box className={styles.articleContent}>
+            <div dangerouslySetInnerHTML={{ __html: article.content || "" }} />
           </Box>
         </Stack>
       </Container>
 
       {renderFooter()}
 
-      <style jsx global>{`
-        .article-content img {
-          max-width: 100%;
-          height: auto;
-          border-radius: 8px;
-          margin: 2rem 0;
-        }
-        .article-content p {
-          font-size: 1.2rem;
-          line-height: 1.8;
-          margin-bottom: 1.5rem;
-        }
-        .article-content a {
-          pointer-events: none;
-          color: inherit;
-          text-decoration: none;
-        }
-      `}</style>
     </Box>
   );
 }

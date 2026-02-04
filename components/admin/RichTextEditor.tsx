@@ -1,4 +1,5 @@
 import { useEditor, EditorContent } from '@tiptap/react';
+import { useEffect } from 'react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import Placeholder from '@tiptap/extension-placeholder';
@@ -31,6 +32,14 @@ export function RichTextEditor({ content, onChange, onImageUpload }: RichTextEdi
             },
         },
     });
+
+    useEffect(() => {
+        if (!editor || content === undefined) return;
+        const current = editor.getHTML();
+        if (current !== content) {
+            editor.commands.setContent(content, { emitUpdate: false });
+        }
+    }, [content, editor]);
 
     if (!editor) {
         return null;
