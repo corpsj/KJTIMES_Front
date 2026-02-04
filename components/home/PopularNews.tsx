@@ -1,0 +1,26 @@
+"use client";
+
+import { Stack, Title, Group, Text } from "@mantine/core";
+import { Article } from "@/types";
+
+export function PopularNews({ articles }: { articles: Article[] }) {
+    if (!articles || articles.length === 0) return null;
+
+    return (
+        <Stack gap="md">
+            <Title order={4} style={{ borderBottom: "2px solid #000", paddingBottom: "8px" }}>
+                많이 본 뉴스
+            </Title>
+            <Stack gap="sm">
+                {articles.map((article, i) => (
+                    <Group key={article.id} align="center" wrap="nowrap" style={{ cursor: "pointer" }}>
+                        <Text fw={700} c="red" w={20}>{i + 1}</Text>
+                        <Text size="sm" lineClamp={1} style={{ flex: 1 }}>
+                            {article.title}
+                        </Text>
+                    </Group>
+                ))}
+            </Stack>
+        </Stack>
+    );
+}

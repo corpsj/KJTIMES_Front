@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import { Noto_Sans_KR } from "next/font/google";
 import { ColorSchemeScript, MantineProvider } from "@mantine/core";
 import { theme } from "../theme";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
 import "./globals.css";
 import "@mantine/core/styles.css";
 
@@ -24,15 +22,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko">
+    <html lang="ko" suppressHydrationWarning>
       <head>
         <ColorSchemeScript />
       </head>
       <body className={`${notoSansKr.variable} antialiased`}>
         <MantineProvider theme={theme}>
-          <Header />
           {children}
-          <Footer />
         </MantineProvider>
       </body>
     </html>

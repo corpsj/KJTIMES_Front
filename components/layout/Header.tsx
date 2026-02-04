@@ -1,27 +1,23 @@
 "use client";
 
-import { Container, Group, Text, Title, Anchor, Box, Divider, Image, Burger, Drawer, ScrollArea, Stack } from "@mantine/core";
+import { Container, Group, Text, Anchor, Box, Divider, Image, Burger, Drawer, ScrollArea, Stack } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import Link from "next/link";
-
-const LINKS = [
-    { label: "홈", href: "/" },
-    { label: "정치", href: "/politics" },
-    { label: "경제", href: "/economy" },
-    { label: "사회", href: "/society" },
-    { label: "생활/문화", href: "/culture" },
-    { label: "오피니언", href: "/opinion" },
-    { label: "스포츠", href: "/sports" },
-];
+import { LINKS } from "@/constants/navigation";
+import { useEffect, useState } from "react";
 
 export function Header() {
     const [opened, { toggle }] = useDisclosure(false);
-    const today = new Date().toLocaleDateString("ko-KR", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-        weekday: "long",
-    });
+    const [today, setToday] = useState<string>("");
+
+    useEffect(() => {
+        setToday(new Date().toLocaleDateString("ko-KR", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+            weekday: "long",
+        }));
+    }, []);
 
     return (
         <Box component="header" mb="xl">
@@ -34,7 +30,7 @@ export function Header() {
                             {today}
                         </Text>
                         <Group gap="xs">
-                            <Anchor component={Link} href="/login" size="xs" c="dimmed" underline="never">
+                            <Anchor component={Link} href="/admin/login" size="xs" c="dimmed" underline="never">
                                 로그인
                             </Anchor>
                             <Divider orientation="vertical" h={10} />
@@ -52,8 +48,8 @@ export function Header() {
                     <Group justify="center">
                         <Link href="/" style={{ textDecoration: 'none', color: 'inherit' }}>
                             <Image
-                                src="/brand/logo-optimized.png"
-                                style={{ height: '140px', width: 'auto', display: 'block' }}
+                                src="/brand/KJ_Logo.png"
+                                style={{ height: '85px', width: 'auto', display: 'block' }}
                                 alt="광전타임즈 로고"
                             />
                         </Link>
@@ -89,12 +85,12 @@ export function Header() {
                         <Burger opened={opened} onClick={toggle} size="sm" />
                         <Link href="/" style={{ textDecoration: 'none', color: 'inherit' }}>
                             <Image
-                                src="/brand/logo-optimized.png"
+                                src="/brand/KJ_Logo.png"
                                 style={{ height: '40px', width: 'auto', display: 'block' }}
                                 alt="광전타임즈 로고"
                             />
                         </Link>
-                        <Anchor component={Link} href="/login" size="xs" c="dimmed" underline="never">
+                        <Anchor component={Link} href="/admin/login" size="xs" c="dimmed" underline="never">
                             로그인
                         </Anchor>
                     </Group>

@@ -1,0 +1,28 @@
+import { getDeviceType } from "@/utils/device";
+import { Header } from "./Header"; // This is the PC Header
+import { Footer } from "./Footer"; // This is the PC Footer
+import { MobileHeader } from "@/components/mobile/MobileHeader";
+import { MobileFooter } from "@/components/mobile/MobileFooter";
+
+export async function DeviceLayout({ children }: { children: React.ReactNode }) {
+    const deviceType = await getDeviceType();
+
+    if (deviceType === "mobile") {
+        return (
+            <>
+                <MobileHeader />
+                <main style={{ paddingBottom: '60px' }}>{children}</main>
+                <MobileFooter />
+            </>
+        );
+    }
+
+    // Desktop
+    return (
+        <>
+            <Header />
+            <main style={{ minHeight: '80vh' }}>{children}</main>
+            <Footer />
+        </>
+    );
+}
