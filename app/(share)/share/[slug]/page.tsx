@@ -1,4 +1,4 @@
-import { Container, Image, Text, Title, Box, Stack, Divider, Center, Grid } from "@mantine/core";
+import { Container, Image, Text, Title, Box, Stack, Divider, Center, Grid, GridCol } from "@mantine/core";
 import { createClient } from "@/utils/supabase/server";
 import styles from "./page.module.css";
 
@@ -17,7 +17,7 @@ export default async function SharedArticlePage({ params }: { params: { slug: st
     <Box py="xl" px="md" style={{ borderBottom: "2px solid #000" }}>
       <Container size="lg">
         <Grid gutter="xl" align="center">
-          <Grid.Col span={{ base: 12, md: 5 }}>
+          <GridCol span={{ base: 12, md: 5 }}>
             <Box>
               <Image
                 src="/brand/KJ_Logo.png"
@@ -30,8 +30,8 @@ export default async function SharedArticlePage({ params }: { params: { slug: st
                 창간특별호
               </Text>
             </Box>
-          </Grid.Col>
-          <Grid.Col span={{ base: 12, md: 7 }}>
+          </GridCol>
+          <GridCol span={{ base: 12, md: 7 }}>
             <Box style={{ borderLeft: "2px solid #eee", paddingLeft: "20px" }}>
               <Text size="xl" fw={700} style={{ lineHeight: 1.4 }}>
                 진실을 찾는 시선
@@ -39,7 +39,7 @@ export default async function SharedArticlePage({ params }: { params: { slug: st
                 내일을 준비하는 기록
               </Text>
             </Box>
-          </Grid.Col>
+          </GridCol>
         </Grid>
       </Container>
     </Box>
