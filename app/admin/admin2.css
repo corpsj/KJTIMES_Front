@@ -78,6 +78,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
 .admin2-brand-mark {
@@ -98,11 +99,17 @@
   border: 1px solid rgba(255, 255, 255, 0.5);
 }
 
+.admin2-brand-logo {
+  width: min(320px, 100%);
+  height: auto;
+  display: block;
+}
+
 .admin2-brand-title {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: none;
 }
 
 .admin2-brand-sub {

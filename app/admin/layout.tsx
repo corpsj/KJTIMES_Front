@@ -3,6 +3,7 @@
 import "./admin2.css";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { Noto_Serif_KR } from "next/font/google";
 import { createClient } from "@/utils/supabase/client";
@@ -15,7 +16,6 @@ const displayFont = Noto_Serif_KR({
 });
 
 const navItems = [
-  { href: "/admin", label: "데스크" },
   { href: "/admin/articles", label: "기사 데스크" },
   { href: "/admin/write", label: "작성 스튜디오" },
   { href: "/admin/media", label: "미디어" },
@@ -70,18 +70,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const userName = user.user_metadata?.full_name || "Administrator";
   const userInitial = userName?.[0]?.toUpperCase() || "A";
-  const currentNavLabel = navItems.find((item) => pathname === item.href)?.label || "데스크";
+  const currentNavLabel = navItems.find((item) => pathname === item.href)?.label || "기사 데스크";
 
   return (
     <div className={`admin2 admin2-shell ${displayFont.variable}`}>
       <header className="admin2-topbar">
         <div className="admin2-topbar-row">
           <div className="admin2-brand">
-            <div className="admin2-brand-mark" />
-            <div>
-              <div className="admin2-brand-title admin2-display">KJ TIMES CMS</div>
-              <div className="admin2-brand-sub">Editorial Command Center</div>
-            </div>
+            <Image
+              src="/brand/KJ_sloganLogo.png"
+              alt="Kwangjeon Times"
+              width={320}
+              height={58}
+              className="admin2-brand-logo"
+              priority
+            />
+            <div className="admin2-brand-title admin2-display">광전타임즈 편집국</div>
           </div>
           <div className="admin2-badge">{currentNavLabel}</div>
           <div className="admin2-user">
