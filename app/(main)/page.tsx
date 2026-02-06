@@ -14,11 +14,11 @@ export default async function Home() {
   const { data: articles } = await supabase
     .from("articles")
     .select(`
-      id, title, summary, thumbnail_url, created_at,
+      id, title, summary, excerpt, thumbnail_url, created_at, published_at, views,
       categories (name, slug)
     `)
     .eq("status", "published")
-    .order("created_at", { ascending: false })
+    .order("published_at", { ascending: false })
     .limit(20);
 
   const safeArticles = articles || [];

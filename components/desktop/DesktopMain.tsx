@@ -9,6 +9,10 @@ import { PopularNews } from "@/components/home/PopularNews";
 import { Article } from "@/types";
 
 export function DesktopMain({ articles }: { articles: Article[] }) {
+    const popularArticles = [...articles]
+        .sort((a, b) => (b.views || 0) - (a.views || 0))
+        .slice(0, 5);
+
     return (
         <Container size="xl">
             <Grid gutter={40}>
@@ -25,8 +29,8 @@ export function DesktopMain({ articles }: { articles: Article[] }) {
                 {/* RIGHT COLUMN: Opinion & Ad */}
                 <GridCol span={3} order={3}>
                     <Stack gap="xl">
-                        <Opinion />
-                        <PopularNews articles={articles.slice(8, 13)} />
+                        <Opinion articles={articles} />
+                        <PopularNews articles={popularArticles} />
                     </Stack>
                 </GridCol>
             </Grid>

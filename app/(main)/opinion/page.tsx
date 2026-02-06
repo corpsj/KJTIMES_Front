@@ -1,10 +1,10 @@
-import { Container, Title, Text } from "@mantine/core";
+import { CategoryPageTemplate } from "@/components/layout/CategoryPageTemplate";
+import { fetchCategoryArticles } from "@/utils/articles";
 
-export default function Opinion() {
-    return (
-        <Container size="xl" py="xl">
-            <Title order={1}>오피니언</Title>
-            <Text c="dimmed">오피니언 섹션입니다.</Text>
-        </Container>
-    );
+export const revalidate = 60;
+
+export default async function Opinion() {
+    const articles = await fetchCategoryArticles("opinion");
+
+    return <CategoryPageTemplate title="오피니언" articles={articles} />;
 }

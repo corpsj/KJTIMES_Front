@@ -1,6 +1,7 @@
 "use client";
 
-import { Container, Text, Group, Box, Divider } from "@mantine/core";
+import { Container, Text, Group, Box, Anchor } from "@mantine/core";
+import Link from "next/link";
 
 export function Footer() {
     return (
@@ -19,10 +20,22 @@ export function Footer() {
                             Copyright © Kwangjeon Times. All rights reserved.
                         </Text>
                     </Box>
-                    <Group gap="lg">
-                        <Text size="sm" c="dimmed">회사소개</Text>
-                        <Text size="sm" c="dimmed">광고안내</Text>
-                        <Text size="sm" c="dimmed">개인정보처리방침</Text>
+                    <Group gap="lg" wrap="wrap">
+                        <Anchor component={Link} href="/about" size="sm" c="dimmed" underline="never">
+                            회사소개
+                        </Anchor>
+                        <Anchor component={Link} href="/advertise" size="sm" c="dimmed" underline="never">
+                            광고안내
+                        </Anchor>
+                        <Anchor component={Link} href="/privacy" size="sm" c="dimmed" underline="never">
+                            개인정보처리방침
+                        </Anchor>
+                        <Anchor component={Link} href="/editorial" size="sm" c="dimmed" underline="never">
+                            편집원칙
+                        </Anchor>
+                        <Anchor component={Link} href="/corrections" size="sm" c="dimmed" underline="never">
+                            정정보도/오류신고
+                        </Anchor>
                     </Group>
                 </Group>
             </Container>

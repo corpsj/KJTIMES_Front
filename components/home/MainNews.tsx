@@ -1,6 +1,7 @@
 "use client";
 
-import { Stack, Title, Group, Text, Image } from "@mantine/core";
+import { Stack, Title, Group, Text, Image, Box } from "@mantine/core";
+import Link from "next/link";
 import { Article } from "@/types";
 
 export function MainNews({ articles }: { articles: Article[] }) {
@@ -14,21 +15,32 @@ export function MainNews({ articles }: { articles: Article[] }) {
             {articles.map((article) => (
                 <Group key={article.id} align="flex-start" wrap="nowrap">
                     <Stack gap={4} style={{ flex: 1 }}>
-                        <Text fw={700} lineClamp={2} style={{ cursor: 'pointer' }}>
+                        <Text
+                            component={Link}
+                            href={`/article/${article.id}`}
+                            fw={700}
+                            lineClamp={2}
+                            style={{ cursor: 'pointer', textDecoration: "none" }}
+                            c="dark.9"
+                        >
                             {article.title}
                         </Text>
-                        <Text size="xs" c="dimmed" lineClamp={2}>
-                            {article.summary}
-                        </Text>
+                        {(article.summary || article.excerpt) && (
+                            <Text size="xs" c="dimmed" lineClamp={2}>
+                                {article.summary || article.excerpt}
+                            </Text>
+                        )}
                     </Stack>
                     {article.thumbnail_url && (
-                        <Image
-                            src={article.thumbnail_url}
-                            w={80}
-                            h={60}
-                            radius="sm"
-                            alt="thumb"
-                        />
+                        <Box component={Link} href={`/article/${article.id}`} style={{ flexShrink: 0 }}>
+                            <Image
+                                src={article.thumbnail_url}
+                                w={80}
+                                h={60}
+                                radius="sm"
+                                alt={`${article.title} 썸네일`}
+                            />
+                        </Box>
                     )}
                 </Group>
             ))}

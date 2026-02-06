@@ -1,23 +1,19 @@
 "use client";
 
-import { Container, Group, Text, Anchor, Box, Divider, Image, Burger, Drawer, ScrollArea, Stack } from "@mantine/core";
+import { Container, Group, Text, Anchor, Box, Divider, Image, Burger, Drawer, ScrollArea, Stack, TextInput, Button } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import Link from "next/link";
 import { LINKS } from "@/constants/navigation";
-import { useEffect, useState } from "react";
 
 export function Header() {
     const [opened, { toggle }] = useDisclosure(false);
-    const [today, setToday] = useState<string>("");
-
-    useEffect(() => {
-        setToday(new Date().toLocaleDateString("ko-KR", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-            weekday: "long",
-        }));
-    }, []);
+    const today = new Intl.DateTimeFormat("ko-KR", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        weekday: "long",
+        timeZone: "Asia/Seoul",
+    }).format(new Date());
 
     return (
         <Box component="header" mb="xl">
@@ -25,10 +21,29 @@ export function Header() {
             <Box visibleFrom="md">
                 {/* Top Utility Bar */}
                 <Container size="xl" py="xs">
-                    <Group justify="space-between">
+                    <Group justify="space-between" align="center">
                         <Text size="xs" c="dimmed">
                             {today}
                         </Text>
+                        <Box
+                            component="form"
+                            action="/search"
+                            method="get"
+                            style={{ flex: 1, maxWidth: 360 }}
+                        >
+                            <Group gap="xs" wrap="nowrap">
+                                <TextInput
+                                    name="q"
+                                    placeholder="검색어를 입력하세요"
+                                    size="xs"
+                                    aria-label="검색어"
+                                    style={{ flex: 1 }}
+                                />
+                                <Button type="submit" size="xs" variant="light">
+                                    검색
+                                </Button>
+                            </Group>
+                        </Box>
                         <Group gap="xs">
                             <Anchor component={Link} href="/admin/login" size="xs" c="dimmed" underline="never">
                                 로그인
@@ -94,6 +109,24 @@ export function Header() {
                             로그인
                         </Anchor>
                     </Group>
+                </Container>
+                <Divider color="gray.2" />
+
+                <Container size="md" py="xs">
+                    <Box component="form" action="/search" method="get">
+                        <Group gap="xs" wrap="nowrap">
+                            <TextInput
+                                name="q"
+                                placeholder="검색"
+                                size="sm"
+                                aria-label="검색어"
+                                style={{ flex: 1 }}
+                            />
+                            <Button type="submit" size="sm" variant="light">
+                                검색
+                            </Button>
+                        </Group>
+                    </Box>
                 </Container>
                 <Divider color="gray.2" />
 

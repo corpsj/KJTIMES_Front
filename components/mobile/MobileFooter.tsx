@@ -1,6 +1,7 @@
 "use client";
 
-import { Container, Text, Stack, Box } from "@mantine/core";
+import { Container, Text, Stack, Box, Group, Anchor } from "@mantine/core";
+import Link from "next/link";
 
 export function MobileFooter() {
     return (
@@ -12,6 +13,23 @@ export function MobileFooter() {
                         전남 함평군 함평읍 영수길 148 2층<br />
                         발행인: 선종인 | 전화: 010-1234-5678
                     </Text>
+                    <Group gap="md" justify="center" wrap="wrap">
+                        <Anchor component={Link} href="/about" size="xs" c="dimmed" underline="never">
+                            회사소개
+                        </Anchor>
+                        <Anchor component={Link} href="/advertise" size="xs" c="dimmed" underline="never">
+                            광고안내
+                        </Anchor>
+                        <Anchor component={Link} href="/privacy" size="xs" c="dimmed" underline="never">
+                            개인정보처리방침
+                        </Anchor>
+                        <Anchor component={Link} href="/editorial" size="xs" c="dimmed" underline="never">
+                            편집원칙
+                        </Anchor>
+                        <Anchor component={Link} href="/corrections" size="xs" c="dimmed" underline="never">
+                            정정보도
+                        </Anchor>
+                    </Group>
                     <Text size="xs" c="dimmed" mt="xs">
                         © Kwangjeon Times. All rights reserved.
                     </Text>

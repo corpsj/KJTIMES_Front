@@ -3,17 +3,27 @@ export interface NavigationLink {
     href: string;
 }
 
+export interface ArticleCategory {
+    name: string;
+    slug: string;
+}
+
+export interface ArticleAuthor {
+    full_name: string | null;
+}
+
 export interface Article {
     id: string;
     title: string;
-    summary: string;
-    thumbnail_url: string;
+    sub_title?: string | null;
+    summary?: string | null;
+    excerpt?: string | null;
+    thumbnail_url?: string | null;
     created_at: string;
-    categories: {
-        name: string;
-        slug: string;
-    } | {
-        name: string;
-        slug: string;
-    }[] | null;
+    published_at?: string | null;
+    updated_at?: string | null;
+    slug?: string | null;
+    views?: number | null;
+    categories: ArticleCategory | ArticleCategory[] | null;
+    author?: ArticleAuthor | null;
 }

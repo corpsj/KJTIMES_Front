@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
 
@@ -12,7 +12,7 @@ type ArticleRow = {
   created_at: string;
   published_at?: string | null;
   views?: number | null;
-  categories?: { name?: string | null }[] | null;
+  categories?: { name?: string | null }[] | { name?: string | null } | null;
 };
 
 const statusOptions = [
@@ -52,35 +52,102 @@ export default function AdminArticles() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-
-  const fetchArticles = async () => {
-    setLoading(true);
-    let query = supabase
-      .from("articles")
-      .select("id, title, slug, status, created_at, published_at, views, categories(name)")
-      .order("created_at", { ascending: false });
-
-    if (statusFilter !== "all") {
-      query = query.eq("status", statusFilter);
-    }
-
-    if (searchTerm.trim()) {
-      query = query.ilike("title", `%${searchTerm.trim()}%`);
-    }
-
-    const { data } = await query;
-    setArticles(data || []);
-    setLoading(false);
-  };
+  const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
+  const [refreshToken, setRefreshToken] = useState(0);
+  const searchTermRef = useRef("");
 
   useEffect(() => {
+    const fetchArticles = async () => {
+      setLoading(true);
+      let query = supabase
+        .from("articles")
+        .select("id, title, slug, status, created_at, published_at, views, categories(name)")
+        .order("created_at", { ascending: false });
+
+      if (statusFilter !== "all") {
+        query = query.eq("status", statusFilter);
+      }
+
+      const term = searchTermRef.current.trim();
+      if (term) {
+        query = query.ilike("title", `%${term}%`);
+      }
+
+      const { data } = await query;
+      setArticles(data || []);
+      setLoading(false);
+    };
+
     fetchArticles();
-  }, [statusFilter, supabase]);
+  }, [statusFilter, supabase, refreshToken]);
+
+  const triggerRefresh = () => {
+    setRefreshToken((prev) => prev + 1);
+  };
 
   const handleSearch = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
-      fetchArticles();
+      triggerRefresh();
     }
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+    searchTermRef.current = value;
+  };
+
+  const getCategoryName = (categories: ArticleRow["categories"]) => {
+    if (!categories) return "미분류";
+    if (Array.isArray(categories)) {
+      return categories[0]?.name || "미분류";
+    }
+    return categories.name || "미분류";
+  };
+
+  type StatusUpdatePayload = {
+    status: string;
+    updated_at: string;
+    published_at?: string | null;
+  };
+
+  const updateStatus = async (article: ArticleRow, status: string) => {
+    setActionLoadingId(article.id);
+    const payload: StatusUpdatePayload = {
+      status,
+      updated_at: new Date().toISOString(),
+    };
+
+    if (status === "published" || status === "shared") {
+      payload.published_at = article.published_at || new Date().toISOString();
+    } else if (status !== "scheduled") {
+      payload.published_at = null;
+    }
+
+    const { error } = await supabase
+      .from("articles")
+      .update(payload)
+      .eq("id", article.id);
+
+    if (error) {
+      alert(`상태 변경 실패: ${error.message}`);
+    } else {
+      triggerRefresh();
+    }
+    setActionLoadingId(null);
+  };
+
+  const deleteArticle = async (article: ArticleRow) => {
+    const confirmed = window.confirm(`"${article.title}" 기사를 삭제할까요? 이 작업은 되돌릴 수 없습니다.`);
+    if (!confirmed) return;
+
+    setActionLoadingId(article.id);
+    const { error } = await supabase.from("articles").delete().eq("id", article.id);
+    if (error) {
+      alert(`삭제 실패: ${error.message}`);
+    } else {
+      triggerRefresh();
+    }
+    setActionLoadingId(null);
   };
 
   return (
@@ -96,11 +163,11 @@ export default function AdminArticles() {
               <input
                 placeholder="기사 제목 또는 키워드 검색"
                 value={searchTerm}
-                onChange={(event) => setSearchTerm(event.target.value)}
+                onChange={(event) => handleSearchChange(event.target.value)}
                 onKeyDown={handleSearch}
               />
             </label>
-            <button className="admin2-btn admin2-btn-ghost" onClick={fetchArticles}>
+            <button className="admin2-btn admin2-btn-ghost" onClick={triggerRefresh}>
               검색
             </button>
             <Link className="admin2-btn admin2-btn-accent" href="/admin/write">
@@ -135,7 +202,7 @@ export default function AdminArticles() {
                       <Link href={`/admin/write?id=${article.id}`}>{article.title}</Link>
                     </div>
                     <div className="admin2-row-meta">
-                      {article.categories?.[0]?.name || "미분류"} · {new Date(article.published_at || article.created_at).toLocaleString("ko-KR")}
+                      {getCategoryName(article.categories)} · {new Date(article.published_at || article.created_at).toLocaleString("ko-KR")}
                     </div>
                   </div>
                   <div className="admin2-status-column">
@@ -151,6 +218,89 @@ export default function AdminArticles() {
                     ) : (
                       <span className="admin2-row-meta">공유 발행 필요</span>
                     )}
+                    {article.status === "draft" && (
+                      <button
+                        type="button"
+                        onClick={() => updateStatus(article, "pending_review")}
+                        disabled={actionLoadingId === article.id}
+                      >
+                        승인 요청
+                      </button>
+                    )}
+                    {article.status === "pending_review" && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => updateStatus(article, "published")}
+                          disabled={actionLoadingId === article.id}
+                        >
+                          승인
+                        </button>
+                        <button
+                          type="button"
+                          className="admin2-row-action--danger"
+                          onClick={() => updateStatus(article, "rejected")}
+                          disabled={actionLoadingId === article.id}
+                        >
+                          반려
+                        </button>
+                      </>
+                    )}
+                    {(article.status === "draft" || article.status === "pending_review" || article.status === "rejected") && (
+                      article.slug ? (
+                        <button
+                          type="button"
+                          onClick={() => updateStatus(article, "shared")}
+                          disabled={actionLoadingId === article.id}
+                        >
+                          공유 발행
+                        </button>
+                      ) : null
+                    )}
+                    {(article.status === "published" || article.status === "shared") && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => updateStatus(article, "draft")}
+                          disabled={actionLoadingId === article.id}
+                        >
+                          내리기
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => updateStatus(article, "archived")}
+                          disabled={actionLoadingId === article.id}
+                        >
+                          보관
+                        </button>
+                      </>
+                    )}
+                    {article.status === "archived" && (
+                      <button
+                        type="button"
+                        onClick={() => updateStatus(article, "draft")}
+                        disabled={actionLoadingId === article.id}
+                      >
+                        복구
+                      </button>
+                    )}
+                    {article.status === "rejected" && (
+                      <button
+                        type="button"
+                        onClick={() => updateStatus(article, "draft")}
+                        disabled={actionLoadingId === article.id}
+                      >
+                        재작성
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      className="admin2-row-action--danger"
+                      onClick={() => deleteArticle(article)}
+                      disabled={actionLoadingId === article.id}
+                    >
+                      삭제
+                    </button>
                   </div>
                 </div>
               ))

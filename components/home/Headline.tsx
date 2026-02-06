@@ -1,6 +1,7 @@
 "use client";
 
-import { Stack, Title, Text, Image, Grid, GridCol, Divider } from "@mantine/core";
+import { Stack, Title, Text, Image, Grid, GridCol, Divider, Box } from "@mantine/core";
+import Link from "next/link";
 import { Article } from "@/types";
 
 export function Headline({ articles }: { articles: Article[] }) {
@@ -12,21 +13,30 @@ export function Headline({ articles }: { articles: Article[] }) {
     return (
         <Stack gap="xl">
             {/* Main Headline */}
-            <Stack gap="md" style={{ cursor: "pointer" }}>
+            <Stack gap="md">
                 {mainArticle.thumbnail_url && (
-                    <Image
-                        src={mainArticle.thumbnail_url}
-                        height={300}
-                        radius="md"
-                        alt="Main Headline"
-                    />
+                    <Box component={Link} href={`/article/${mainArticle.id}`}>
+                        <Image
+                            src={mainArticle.thumbnail_url}
+                            height={300}
+                            radius="md"
+                            alt={`${mainArticle.title} 대표 이미지`}
+                        />
+                    </Box>
                 )}
-                <Title order={2} style={{ fontSize: "28px", fontWeight: 800 }}>
+                <Title
+                    order={2}
+                    style={{ fontSize: "28px", fontWeight: 800, textDecoration: "none", color: "inherit" }}
+                    component={Link}
+                    href={`/article/${mainArticle.id}`}
+                >
                     {mainArticle.title}
                 </Title>
-                <Text c="dimmed" lineClamp={3}>
-                    {mainArticle.summary}
-                </Text>
+                {(mainArticle.summary || mainArticle.excerpt) && (
+                    <Text c="dimmed" lineClamp={3}>
+                        {mainArticle.summary || mainArticle.excerpt}
+                    </Text>
+                )}
             </Stack>
 
             <Divider />
@@ -35,19 +45,30 @@ export function Headline({ articles }: { articles: Article[] }) {
             <Grid>
                 {subArticles.map((article) => (
                     <GridCol key={article.id} span={6}>
-                        <Stack gap="xs" style={{ cursor: "pointer" }}>
+                        <Stack gap="xs">
                             {article.thumbnail_url && (
-                                <Image
-                                    src={article.thumbnail_url}
-                                    height={120}
-                                    radius="sm"
-                                    alt="Sub"
-                                />
+                                <Box component={Link} href={`/article/${article.id}`}>
+                                    <Image
+                                        src={article.thumbnail_url}
+                                        height={120}
+                                        radius="sm"
+                                        alt={`${article.title} 이미지`}
+                                    />
+                                </Box>
                             )}
-                            <Title order={5}>{article.title}</Title>
-                            <Text size="sm" c="dimmed" lineClamp={2}>
-                                {article.summary}
-                            </Text>
+                            <Title
+                                order={5}
+                                component={Link}
+                                href={`/article/${article.id}`}
+                                style={{ textDecoration: "none", color: "inherit" }}
+                            >
+                                {article.title}
+                            </Title>
+                            {(article.summary || article.excerpt) && (
+                                <Text size="sm" c="dimmed" lineClamp={2}>
+                                    {article.summary || article.excerpt}
+                                </Text>
+                            )}
                         </Stack>
                     </GridCol>
                 ))}

@@ -1,17 +1,25 @@
 import { Container, Image, Text, Title, Box, Stack, Divider, Center, Grid, GridCol } from "@mantine/core";
-import { createClient } from "@/utils/supabase/server";
+import { createClient as createAnonClient } from "@supabase/supabase-js";
 import styles from "./page.module.css";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export default async function SharedArticlePage({ params }: { params: { slug: string } }) {
-  const supabase = await createClient();
-  const { data: article } = await supabase
+  const supabase = createAnonClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { auth: { persistSession: false } }
+  );
+  const { data: article, error } = await supabase
     .from("articles")
     .select("title, sub_title, excerpt, summary, content, thumbnail_url, created_at")
     .eq("slug", params.slug)
     .in("status", ["published", "shared"])
     .single();
+
+  if (error) {
+    console.error("Shared article fetch failed:", error);
+  }
 
   const renderHeader = () => (
     <Box py="xl" px="md" style={{ borderBottom: "2px solid #000" }}>

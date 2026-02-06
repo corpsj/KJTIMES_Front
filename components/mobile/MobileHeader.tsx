@@ -1,6 +1,6 @@
 "use client";
 
-import { Container, Group, Burger, Image, Drawer, Stack, Anchor, Divider, ScrollArea } from "@mantine/core";
+import { Container, Group, Burger, Image, Drawer, Stack, Anchor, Divider, ScrollArea, Box, TextInput, Button } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import Link from "next/link";
 import { LINKS } from "@/constants/navigation";
@@ -46,6 +46,20 @@ export function MobileHeader() {
             </ScrollArea>
 
             <Drawer opened={opened} onClose={toggle} title="메뉴" padding="md" size="75%">
+                <Box component="form" action="/search" method="get">
+                    <Group gap="xs" wrap="nowrap">
+                        <TextInput
+                            name="q"
+                            placeholder="검색"
+                            size="sm"
+                            aria-label="검색어"
+                            style={{ flex: 1 }}
+                        />
+                        <Button type="submit" size="sm" variant="light">
+                            검색
+                        </Button>
+                    </Group>
+                </Box>
                 <Stack gap="md">
                     {LINKS.map((link) => (
                         <Anchor

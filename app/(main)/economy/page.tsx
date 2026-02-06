@@ -1,10 +1,10 @@
-import { Container, Title, Text } from "@mantine/core";
+import { CategoryPageTemplate } from "@/components/layout/CategoryPageTemplate";
+import { fetchCategoryArticles } from "@/utils/articles";
 
-export default function Economy() {
-    return (
-        <Container size="xl" py="xl">
-            <Title order={1}>경제</Title>
-            <Text c="dimmed">경제 뉴스 섹션입니다.</Text>
-        </Container>
-    );
+export const revalidate = 60;
+
+export default async function Economy() {
+    const articles = await fetchCategoryArticles("economy");
+
+    return <CategoryPageTemplate title="경제" articles={articles} />;
 }

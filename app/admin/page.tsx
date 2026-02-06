@@ -10,7 +10,7 @@ type ArticleRow = {
   status: string;
   views?: number | null;
   created_at: string;
-  categories?: { name?: string | null }[] | null;
+  categories?: { name?: string | null }[] | { name?: string | null } | null;
 };
 
 type StatsState = {
@@ -20,6 +20,7 @@ type StatsState = {
   draftArticles: number;
   totalViews: number;
   recentArticles: ArticleRow[];
+  pendingQueue: ArticleRow[];
 };
 
 const scheduleItems = [
@@ -60,6 +61,7 @@ export default function AdminDashboard() {
     draftArticles: 0,
     totalViews: 0,
     recentArticles: [],
+    pendingQueue: [],
   });
   const [now, setNow] = useState(new Date());
 
@@ -82,6 +84,7 @@ export default function AdminDashboard() {
         const draft = articles.filter((a) => a.status === "draft").length;
         const views = articles.reduce((acc, curr) => acc + (curr.views || 0), 0);
         const recent = articles.slice(0, 6);
+        const pendingQueue = articles.filter((a) => a.status === "pending_review").slice(0, 3);
 
         setStats({
           totalArticles: total,
@@ -90,12 +93,21 @@ export default function AdminDashboard() {
           draftArticles: draft,
           totalViews: views,
           recentArticles: recent,
+          pendingQueue,
         });
       }
     };
 
     fetchStats();
   }, [supabase]);
+
+  const getCategoryName = (categories: ArticleRow["categories"]) => {
+    if (!categories) return "미분류";
+    if (Array.isArray(categories)) {
+      return categories[0]?.name || "미분류";
+    }
+    return categories.name || "미분류";
+  };
 
   const publishRate = stats.totalArticles
     ? Math.round((stats.publishedArticles / stats.totalArticles) * 100)
@@ -119,21 +131,25 @@ export default function AdminDashboard() {
         label: "총 조회수",
         value: stats.totalViews.toLocaleString(),
         meta: "최근 30일 누적",
+        tone: "blue",
       },
       {
         label: "발행률",
         value: `${publishRate}%`,
         meta: `${stats.publishedArticles}/${stats.totalArticles}`,
+        tone: "green",
       },
       {
         label: "승인 대기",
         value: stats.pendingArticles.toString(),
         meta: "데스크 확인 필요",
+        tone: "warning",
       },
       {
         label: "작성 중",
         value: stats.draftArticles.toString(),
         meta: "기자 편집 진행",
+        tone: "ink",
       },
     ],
     [publishRate, stats]
@@ -144,11 +160,13 @@ export default function AdminDashboard() {
       label: "발행 완료",
       value: stats.publishedArticles.toString(),
       meta: "오늘 기준",
+      tone: "green",
     },
     {
       label: "승인 대기",
       value: stats.pendingArticles.toString(),
       meta: "데스크 확인",
+      tone: "warning",
     },
   ];
 
@@ -167,7 +185,10 @@ export default function AdminDashboard() {
           <p className="admin2-hero-sub">{formattedDate} · {formattedTime}</p>
           <div className="admin2-kpi-grid">
             {miniKpis.map((item) => (
-              <div key={item.label} className="admin2-kpi">
+              <div
+                key={item.label}
+                className={`admin2-kpi admin2-kpi--${item.tone}`}
+              >
                 <div className="admin2-kpi-label">{item.label}</div>
                 <div className="admin2-kpi-value">{item.value}</div>
                 <div className="admin2-kpi-meta">{item.meta}</div>
@@ -219,7 +240,10 @@ export default function AdminDashboard() {
             </p>
             <div className="admin2-kpi-grid">
               {kpis.map((item) => (
-                <div key={`center-${item.label}`} className="admin2-kpi">
+                <div
+                  key={`center-${item.label}`}
+                  className={`admin2-kpi admin2-kpi--${item.tone}`}
+                >
                   <div className="admin2-kpi-label">{item.label}</div>
                   <div className="admin2-kpi-value">{item.value}</div>
                   <div className="admin2-kpi-meta">{item.meta}</div>
@@ -230,15 +254,15 @@ export default function AdminDashboard() {
           <div className="admin2-panel">
             <div className="admin2-panel-title">발행 대기 큐</div>
             <div className="admin2-queue">
-              {stats.recentArticles.length === 0 ? (
+              {stats.pendingQueue.length === 0 ? (
                 <div className="admin2-placeholder">발행 대기 기사가 없습니다.</div>
               ) : (
-                stats.recentArticles.slice(0, 3).map((article) => (
+                stats.pendingQueue.map((article) => (
                   <div key={article.id} className="admin2-queue-item">
                     <div>
                       <div className="admin2-queue-title">{article.title}</div>
                       <div className="admin2-queue-meta">
-                        {article.categories?.[0]?.name || "미분류"} · {new Date(article.created_at).toLocaleDateString()}
+                        {getCategoryName(article.categories)} · {new Date(article.created_at).toLocaleDateString()}
                       </div>
                     </div>
                     <span className="admin2-tag admin2-tag--pending">대기</span>
@@ -260,7 +284,7 @@ export default function AdminDashboard() {
                   <div>
                     <div className="admin2-row-title">{article.title}</div>
                     <div className="admin2-row-meta">
-                      {article.categories?.[0]?.name || "미분류"} · {new Date(article.created_at).toLocaleString("ko-KR")}
+                      {getCategoryName(article.categories)} · {new Date(article.created_at).toLocaleString("ko-KR")}
                     </div>
                   </div>
                   <div className="admin2-status-column">

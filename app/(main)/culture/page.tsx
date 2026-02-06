@@ -1,10 +1,10 @@
-import { Container, Title, Text } from "@mantine/core";
+import { CategoryPageTemplate } from "@/components/layout/CategoryPageTemplate";
+import { fetchCategoryArticles } from "@/utils/articles";
 
-export default function Culture() {
-    return (
-        <Container size="xl" py="xl">
-            <Title order={1}>생활/문화</Title>
-            <Text c="dimmed">생활/문화 뉴스 섹션입니다.</Text>
-        </Container>
-    );
+export const revalidate = 60;
+
+export default async function Culture() {
+    const articles = await fetchCategoryArticles("culture");
+
+    return <CategoryPageTemplate title="생활/문화" articles={articles} />;
 }

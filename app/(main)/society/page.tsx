@@ -1,10 +1,10 @@
-import { Container, Title, Text } from "@mantine/core";
+import { CategoryPageTemplate } from "@/components/layout/CategoryPageTemplate";
+import { fetchCategoryArticles } from "@/utils/articles";
 
-export default function Society() {
-    return (
-        <Container size="xl" py="xl">
-            <Title order={1}>사회</Title>
-            <Text c="dimmed">사회 뉴스 섹션입니다.</Text>
-        </Container>
-    );
+export const revalidate = 60;
+
+export default async function Society() {
+    const articles = await fetchCategoryArticles("society");
+
+    return <CategoryPageTemplate title="사회" articles={articles} />;
 }
