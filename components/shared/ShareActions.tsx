@@ -3,8 +3,19 @@
 import { Button, Group, Text } from "@mantine/core";
 import { useState } from "react";
 
-export function ShareActions({ title, url }: { title: string; url: string }) {
+export function ShareActions({
+    title,
+    url,
+    tone = "light",
+    compact = false,
+}: {
+    title: string;
+    url: string;
+    tone?: "light" | "dark";
+    compact?: boolean;
+}) {
     const [status, setStatus] = useState<string>("");
+    const isDark = tone === "dark";
 
     const copyToClipboard = async () => {
         try {
@@ -33,15 +44,37 @@ export function ShareActions({ title, url }: { title: string; url: string }) {
     };
 
     return (
-        <Group gap="sm" wrap="wrap" align="center">
-            <Button size="xs" variant="light" onClick={handleShare}>
+        <Group gap={compact ? 6 : "sm"} wrap="wrap" align="center">
+            <Button
+                size={compact ? "xs" : "sm"}
+                variant={isDark ? "default" : "light"}
+                color={isDark ? "gray" : "blue"}
+                radius="xl"
+                style={
+                    isDark
+                        ? { background: "#1a2634", borderColor: "#344457", color: "#e6edf7" }
+                        : undefined
+                }
+                onClick={handleShare}
+            >
                 공유하기
             </Button>
-            <Button size="xs" variant="subtle" onClick={copyToClipboard}>
+            <Button
+                size={compact ? "xs" : "sm"}
+                variant="subtle"
+                color={isDark ? "gray" : "blue"}
+                radius="xl"
+                style={
+                    isDark
+                        ? { color: "#bfccdc", border: "1px dashed #33475e", background: "transparent" }
+                        : undefined
+                }
+                onClick={copyToClipboard}
+            >
                 링크 복사
             </Button>
             {status && (
-                <Text size="xs" c="dimmed">
+                <Text size="xs" c={isDark ? "#9cadbf" : "dimmed"}>
                     {status}
                 </Text>
             )}

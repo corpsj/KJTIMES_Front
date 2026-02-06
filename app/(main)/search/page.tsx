@@ -4,8 +4,9 @@ import { CategoryPageTemplate } from "@/components/layout/CategoryPageTemplate";
 
 export const revalidate = 60;
 
-export default async function SearchPage({ searchParams }: { searchParams: { q?: string } }) {
-    const query = (searchParams.q || "").trim();
+export default async function SearchPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+    const { q } = await searchParams;
+    const query = (q || "").trim();
 
     if (!query) {
         return (

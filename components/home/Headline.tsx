@@ -24,14 +24,17 @@ export function Headline({ articles }: { articles: Article[] }) {
                         />
                     </Box>
                 )}
-                <Title
-                    order={2}
-                    style={{ fontSize: "28px", fontWeight: 800, textDecoration: "none", color: "inherit" }}
-                    component={Link}
+                <Link
                     href={`/article/${mainArticle.id}`}
+                    style={{ textDecoration: "none", color: "inherit" }}
                 >
-                    {mainArticle.title}
-                </Title>
+                    <Title
+                        order={2}
+                        style={{ fontSize: "28px", fontWeight: 800 }}
+                    >
+                        {mainArticle.title}
+                    </Title>
+                </Link>
                 {(mainArticle.summary || mainArticle.excerpt) && (
                     <Text c="dimmed" lineClamp={3}>
                         {mainArticle.summary || mainArticle.excerpt}
@@ -56,14 +59,14 @@ export function Headline({ articles }: { articles: Article[] }) {
                                     />
                                 </Box>
                             )}
-                            <Title
-                                order={5}
-                                component={Link}
+                            <Link
                                 href={`/article/${article.id}`}
                                 style={{ textDecoration: "none", color: "inherit" }}
                             >
-                                {article.title}
-                            </Title>
+                                <Title order={5}>
+                                    {article.title}
+                                </Title>
+                            </Link>
                             {(article.summary || article.excerpt) && (
                                 <Text size="sm" c="dimmed" lineClamp={2}>
                                     {article.summary || article.excerpt}

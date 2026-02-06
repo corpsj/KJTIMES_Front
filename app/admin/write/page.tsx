@@ -1,60 +1,206 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
-import { Title, TextInput, Button, Group, Select, Stack, Grid, Paper, Textarea, Divider, ActionIcon, LoadingOverlay, Text, Box, Collapse, FileInput, Image, TagsInput } from "@mantine/core";
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
+    Title,
+    TextInput,
+    Button,
+    Group,
+    Select,
+    Stack,
+    Grid,
+    Paper,
+    Textarea,
+    ActionIcon,
+    LoadingOverlay,
+    Text,
+    Box,
+    Collapse,
+    TagsInput,
+    Alert,
+    Modal,
+    Badge,
+} from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { RichTextEditor } from "@/components/admin/RichTextEditor";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
-import { IconDeviceFloppy, IconSend, IconArrowLeft, IconChevronDown, IconChevronUp, IconSettings, IconSeo, IconTags, IconPhoto } from "@tabler/icons-react";
+import {
+    IconDeviceFloppy,
+    IconSend,
+    IconArrowLeft,
+    IconChevronDown,
+    IconChevronUp,
+    IconSettings,
+    IconSeo,
+    IconAlertCircle,
+    IconCheck,
+    IconEye,
+} from "@tabler/icons-react";
 import Link from "next/link";
 
+const SPECIAL_ISSUE_CATEGORY_NAME = "창간특별호";
+const SPECIAL_ISSUE_CATEGORY_SLUG = "special-edition";
+const CATEGORY_CODE_MAP: Record<string, string> = {
+    [SPECIAL_ISSUE_CATEGORY_SLUG]: "x1",
+    politics: "k7",
+    economy: "m4",
+    society: "n3",
+    culture: "c8",
+    opinion: "p5",
+    sports: "s2",
+};
+const MAX_SLUG_ATTEMPTS = 20;
+
+type CategoryOption = {
+    label: string;
+    value: string;
+    slug: string;
+    isSpecialIssue: boolean;
+};
+
+const hashText = (value: string) => {
+    let hash = 5381;
+    for (let i = 0; i < value.length; i += 1) {
+        hash = ((hash << 5) + hash + value.charCodeAt(i)) >>> 0;
+    }
+    return hash >>> 0;
+};
+
+const getDayOfYear = (date: Date) => {
+    const start = Date.UTC(date.getUTCFullYear(), 0, 0);
+    const current = Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
+    return Math.floor((current - start) / 86400000);
+};
+
+const toBase36 = (value: number, length: number) => {
+    return Math.max(0, value).toString(36).padStart(length, "0");
+};
+
+const getCategoryCode = (categorySlug: string) => {
+    if (CATEGORY_CODE_MAP[categorySlug]) {
+        return CATEGORY_CODE_MAP[categorySlug];
+    }
+    const hash = hashText(categorySlug);
+    return `${toBase36(hash % 36, 1)}${toBase36(Math.floor(hash / 36) % 36, 1)}`;
+};
+
+const buildInternalSlug = (categorySlug: string, sequence: number, title: string) => {
+    const now = new Date();
+    const yearCode = toBase36(now.getUTCFullYear() % 100, 2);
+    const dayCode = toBase36(getDayOfYear(now), 2);
+    const sequenceCode = toBase36(sequence + 137, 3);
+    const signatureSeed = (hashText(`${categorySlug}:${title}`) + sequence * 97) % 1296;
+    const signatureCode = toBase36(signatureSeed, 2);
+    return `${getCategoryCode(categorySlug)}${yearCode}${dayCode}-${sequenceCode}${signatureCode}`;
+};
+
 export default function AdminWrite() {
-    // Core Fields
     const [title, setTitle] = useState("");
     const [subTitle, setSubTitle] = useState("");
     const [slug, setSlug] = useState("");
     const [content, setContent] = useState("");
     const contentRef = useRef("");
-    const [excerpt, setExcerpt] = useState(""); // Short summary
-    const [thumbnailUrl, setThumbnailUrl] = useState("");
     const [category, setCategory] = useState<string | null>(null);
     const [tags, setTags] = useState<string[]>([]);
     const [tagOptions, setTagOptions] = useState<string[]>([]);
 
-    // SEO Fields
     const [seoTitle, setSeoTitle] = useState("");
     const [seoDescription, setSeoDescription] = useState("");
     const [keywords, setKeywords] = useState("");
 
     const [supabase] = useState(() => createClient());
-    const [categories, setCategories] = useState<{ label: string, value: string }[]>([]);
+    const [categories, setCategories] = useState<CategoryOption[]>([]);
 
-    // UI State
     const [loading, setLoading] = useState(false);
     const [loadingArticle, setLoadingArticle] = useState(false);
-    const [thumbnailUploading, setThumbnailUploading] = useState(false);
     const [seoOpened, { toggle: toggleSeo }] = useDisclosure(false);
+    const [previewOpened, { open: openPreview, close: closePreview }] = useDisclosure(false);
     const [existingPublishedAt, setExistingPublishedAt] = useState<string | null>(null);
+    const [formError, setFormError] = useState<string | null>(null);
+    const [formNotice, setFormNotice] = useState<string | null>(null);
+    const [dirty, setDirty] = useState(false);
+    const [slugAutoLoading, setSlugAutoLoading] = useState(false);
+    const [slugSequence, setSlugSequence] = useState<number | null>(null);
 
     const router = useRouter();
     const searchParams = useSearchParams();
     const articleId = searchParams.get("id");
     const isEditing = Boolean(articleId);
+    const submitHandlerRef = useRef<(targetStatus?: string) => Promise<void>>(async () => {});
+    const specialCategoryId =
+        categories.find((item) => item.slug === SPECIAL_ISSUE_CATEGORY_SLUG)?.value || null;
+    const isSpecialIssueCategory = Boolean(category && specialCategoryId && category === specialCategoryId);
+    const canCopySpecialIssueLink = isSpecialIssueCategory && Boolean(articleId) && Boolean(slug);
 
-    // Fetch Categories & Tags on Load
+    const markDirty = () => {
+        setDirty(true);
+        if (formNotice) {
+            setFormNotice(null);
+        }
+    };
+
     useEffect(() => {
         const fetchLookupData = async () => {
             try {
                 const [{ data: categoryData }, { data: tagData }] = await Promise.all([
-                    supabase.from("categories").select("id, name, slug").order("name"),
+                    supabase.from("categories").select("id, name, slug"),
                     supabase.from("tags").select("name").order("name"),
                 ]);
-                if (categoryData) {
-                    setCategories(categoryData.map(c => ({ label: c.name, value: c.id })));
+
+                let fetchedCategories =
+                    (categoryData || []).filter((item) => item?.id && item?.name && item?.slug) || [];
+
+                if (!fetchedCategories.some((item) => item.slug === SPECIAL_ISSUE_CATEGORY_SLUG)) {
+                    const { data: insertedCategory, error: insertError } = await supabase
+                        .from("categories")
+                        .insert({
+                            name: SPECIAL_ISSUE_CATEGORY_NAME,
+                            slug: SPECIAL_ISSUE_CATEGORY_SLUG,
+                            description: "창간특별호 임시 공유 기사 전용",
+                        })
+                        .select("id, name, slug")
+                        .single();
+
+                    if (insertError && insertError.code !== "23505") {
+                        console.error("Failed to create special issue category", insertError);
+                    }
+
+                    if (insertedCategory?.id && insertedCategory?.name && insertedCategory?.slug) {
+                        fetchedCategories = [...fetchedCategories, insertedCategory];
+                    } else if (insertError?.code === "23505") {
+                        const { data: existingSpecialCategory } = await supabase
+                            .from("categories")
+                            .select("id, name, slug")
+                            .eq("slug", SPECIAL_ISSUE_CATEGORY_SLUG)
+                            .maybeSingle();
+
+                        if (
+                            existingSpecialCategory?.id &&
+                            existingSpecialCategory?.name &&
+                            existingSpecialCategory?.slug &&
+                            !fetchedCategories.some((item) => item.id === existingSpecialCategory.id)
+                        ) {
+                            fetchedCategories = [...fetchedCategories, existingSpecialCategory];
+                        }
+                    }
                 }
+
+                if (fetchedCategories.length > 0) {
+                    const sorted = fetchedCategories.sort((a, b) => a.name.localeCompare(b.name, "ko-KR"));
+
+                    setCategories(
+                        sorted.map((item) => ({
+                            label: item.name,
+                            value: item.id,
+                            slug: item.slug,
+                            isSpecialIssue: item.slug === SPECIAL_ISSUE_CATEGORY_SLUG,
+                        }))
+                    );
+                }
+
                 if (tagData) {
-                    setTagOptions(tagData.map(tag => tag.name));
+                    setTagOptions(tagData.map((tag) => tag.name));
                 }
             } catch (err) {
                 console.error("Failed to fetch lookup data", err);
@@ -63,7 +209,6 @@ export default function AdminWrite() {
         fetchLookupData();
     }, [supabase]);
 
-    // Fetch article when editing
     useEffect(() => {
         if (!articleId) return;
 
@@ -72,7 +217,7 @@ export default function AdminWrite() {
             try {
                 const { data, error } = await supabase
                     .from("articles")
-                    .select("id, title, sub_title, slug, content, excerpt, summary, thumbnail_url, seo_title, seo_description, keywords, category_id, published_at, status")
+                    .select("id, title, sub_title, slug, content, seo_title, seo_description, keywords, category_id, published_at, status")
                     .eq("id", articleId)
                     .single();
 
@@ -85,16 +230,18 @@ export default function AdminWrite() {
                     setTitle(data.title || "");
                     setSubTitle(data.sub_title || "");
                     setSlug(data.slug || "");
+                    setSlugSequence(null);
                     const loadedContent = data.content || "";
                     setContent(loadedContent);
                     contentRef.current = loadedContent;
-                    setExcerpt(data.excerpt || data.summary || "");
-                    setThumbnailUrl(data.thumbnail_url || "");
                     setSeoTitle(data.seo_title || "");
                     setSeoDescription(data.seo_description || "");
                     setKeywords(data.keywords || "");
                     setCategory(data.category_id || null);
                     setExistingPublishedAt(data.published_at || null);
+                    setFormError(null);
+                    setFormNotice(null);
+                    setDirty(false);
                 }
 
                 const { data: tagRows } = await supabase
@@ -124,19 +271,57 @@ export default function AdminWrite() {
         fetchArticle();
     }, [articleId, supabase]);
 
-    // Auto-generate slug from title if empty
-    const generateSlug = (text: string) => {
-        return text
+    const normalizeSlugInput = (value: string) => {
+        return value
             .toLowerCase()
-            .replace(/[^a-z0-9가-힣\s-]/g, '') // Remove special chars
-            .trim()
-            .replace(/\s+/g, '-'); // Replace spaces with dashes
+            .replace(/[^a-z0-9가-힣-]/g, "-")
+            .replace(/-{2,}/g, "-")
+            .replace(/^-+|-+$/g, "");
     };
 
-    const handleTitleChange = (val: string) => {
-        setTitle(val);
+    const copyToClipboard = async (value: string) => {
+        if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+            await navigator.clipboard.writeText(value);
+            return;
+        }
+
+        if (typeof document === "undefined") {
+            throw new Error("Clipboard unavailable");
+        }
+
+        const textarea = document.createElement("textarea");
+        textarea.value = value;
+        textarea.setAttribute("readonly", "");
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.select();
+        const copied = document.execCommand("copy");
+        document.body.removeChild(textarea);
+
+        if (!copied) {
+            throw new Error("Copy command failed");
+        }
+    };
+
+    const handleCopySpecialIssueLink = async () => {
         if (!slug) {
-            setSlug(generateSlug(val));
+            setFormError("슬러그가 없어 공유 링크를 복사할 수 없습니다.");
+            return;
+        }
+
+        if (!articleId) {
+            setFormError("임시저장 후 공유 링크를 복사할 수 있습니다.");
+            return;
+        }
+
+        const shareUrl = `${window.location.origin}/share/${slug}`;
+        try {
+            await copyToClipboard(shareUrl);
+            setFormError(null);
+            setFormNotice("공유 링크를 복사했습니다.");
+        } catch {
+            setFormError("공유 링크 복사에 실패했습니다.");
         }
     };
 
@@ -147,16 +332,129 @@ export default function AdminWrite() {
             .trim();
     };
 
-    const normalizeTags = (values: string[]) => {
-        return Array.from(
-            new Set(values.map((value) => value.trim()).filter(Boolean))
-        );
+    const plainTextContent = useMemo(() => extractPlainText(contentRef.current || content), [content]);
+    const wordCount = plainTextContent ? plainTextContent.split(/\s+/).length : 0;
+    const estimatedReadMinutes = Math.max(1, Math.ceil(wordCount / 250));
+    const selectedCategoryLabel =
+        categories.find((item) => item.value === category)?.label || "일반";
+
+    const fillSeoFromContent = () => {
+        const summaryText = extractPlainText(contentRef.current || content).slice(0, 160);
+        if (!seoTitle.trim() && title.trim()) {
+            setSeoTitle(title.trim().slice(0, 60));
+        }
+        if (!seoDescription.trim() && summaryText) {
+            setSeoDescription(summaryText);
+        }
+        markDirty();
     };
 
-    const syncArticleTags = async (articleId: string) => {
+    const normalizeTags = (values: string[]) => {
+        return Array.from(new Set(values.map((value) => value.trim()).filter(Boolean)));
+    };
+
+    const getCategorySlugById = (categoryId: string) => {
+        return categories.find((item) => item.value === categoryId)?.slug || "";
+    };
+
+    const fetchNextSequenceInCategory = async (categoryId: string) => {
+        const { count, error } = await supabase
+            .from("articles")
+            .select("id", { count: "exact", head: true })
+            .eq("category_id", categoryId);
+
+        if (error) {
+            throw new Error(`카테고리 순번 계산 실패: ${error.message}`);
+        }
+
+        return (count || 0) + 1;
+    };
+
+    const isSlugTaken = async (slugValue: string) => {
+        let query = supabase.from("articles").select("id").eq("slug", slugValue).limit(1);
+        if (articleId) {
+            query = query.neq("id", articleId);
+        }
+
+        const { data, error } = await query;
+        if (error) {
+            throw new Error(`슬러그 중복 확인 실패: ${error.message}`);
+        }
+
+        return (data || []).length > 0;
+    };
+
+    const generateInternalSlug = async (targetCategoryId: string, targetTitle: string) => {
+        const categorySlug = getCategorySlugById(targetCategoryId);
+        if (!categorySlug) {
+            throw new Error("카테고리 정보가 없어 슬러그를 생성할 수 없습니다.");
+        }
+
+        const baseSequence = await fetchNextSequenceInCategory(targetCategoryId);
+
+        for (let offset = 0; offset < MAX_SLUG_ATTEMPTS; offset += 1) {
+            const sequence = baseSequence + offset;
+            const candidate = buildInternalSlug(categorySlug, sequence, targetTitle || "");
+            const exists = await isSlugTaken(candidate);
+
+            if (!exists) {
+                return { value: candidate, sequence };
+            }
+        }
+
+        throw new Error("고유한 자동 슬러그 생성에 실패했습니다.");
+    };
+
+    const regenerateSlug = async (targetCategoryId: string) => {
+        setSlugAutoLoading(true);
+        try {
+            const nextSlug = await generateInternalSlug(targetCategoryId, title);
+            setSlug(nextSlug.value);
+            setSlugSequence(nextSlug.sequence);
+            return nextSlug.value;
+        } finally {
+            setSlugAutoLoading(false);
+        }
+    };
+
+    const handleCategoryChange = (nextCategoryId: string | null) => {
+        setCategory(nextCategoryId);
+        markDirty();
+
+        if (!nextCategoryId) {
+            setSlug("");
+            setSlugSequence(null);
+            return;
+        }
+
+        if (isEditing) return;
+
+        setFormError(null);
+        void regenerateSlug(nextCategoryId).catch((error) => {
+            setFormError(error instanceof Error ? error.message : "자동 슬러그 생성에 실패했습니다.");
+        });
+    };
+
+    const handleRegenerateSlug = async () => {
+        if (!category) {
+            setFormError("슬러그를 생성하려면 카테고리를 먼저 선택해주세요.");
+            return;
+        }
+
+        setFormError(null);
+        try {
+            await regenerateSlug(category);
+            markDirty();
+            setFormNotice("슬러그를 재생성했습니다.");
+        } catch (error) {
+            setFormError(error instanceof Error ? error.message : "슬러그 재생성에 실패했습니다.");
+        }
+    };
+
+    const syncArticleTags = async (targetArticleId: string) => {
         const normalizedTags = normalizeTags(tags);
 
-        await supabase.from("article_tags").delete().eq("article_id", articleId);
+        await supabase.from("article_tags").delete().eq("article_id", targetArticleId);
 
         if (normalizedTags.length === 0) {
             return;
@@ -189,14 +487,11 @@ export default function AdminWrite() {
             }
         }
 
-        const tagIds = [
-            ...(existingTags || []),
-            ...insertedTags,
-        ].map((tag) => tag.id);
+        const tagIds = [...(existingTags || []), ...insertedTags].map((tag) => tag.id);
 
         if (tagIds.length > 0) {
             const { error: linkError } = await supabase.from("article_tags").insert(
-                tagIds.map((tagId) => ({ article_id: articleId, tag_id: tagId }))
+                tagIds.map((tagId) => ({ article_id: targetArticleId, tag_id: tagId }))
             );
 
             if (linkError) {
@@ -211,73 +506,94 @@ export default function AdminWrite() {
         });
     };
 
+    useEffect(() => {
+        const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+            if (!dirty || loading || loadingArticle) return;
+            event.preventDefault();
+            event.returnValue = "";
+        };
+
+        window.addEventListener("beforeunload", handleBeforeUnload);
+        return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+    }, [dirty, loading, loadingArticle]);
+
     const handleSubmit = async (targetStatus: string = "draft") => {
         const contentValue = contentRef.current || content;
         if (!title || !contentValue || !category) {
-            alert("제목, 카테고리, 본문을 모두 입력해주세요.");
+            setFormError("제목, 카테고리, 본문을 모두 입력해주세요.");
             return;
         }
 
-        if (!slug) {
-            alert("URL 슬러그를 입력해주세요.");
-            return;
-        }
-
+        setFormError(null);
+        setFormNotice(null);
         setLoading(true);
 
-        const { data: { user } } = await supabase.auth.getUser();
+        let normalizedSlug = normalizeSlugInput(slug);
+        if (!isEditing || !normalizedSlug) {
+            try {
+                normalizedSlug = await regenerateSlug(category);
+            } catch (error) {
+                setFormError(error instanceof Error ? error.message : "자동 슬러그 생성에 실패했습니다.");
+                setLoading(false);
+                return;
+            }
+        }
+
+        if (!normalizedSlug) {
+            setFormError("자동 슬러그 생성에 실패했습니다.");
+            setLoading(false);
+            return;
+        }
+
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
+        const resolvedStatus = isSpecialIssueCategory && targetStatus !== "draft" ? "shared" : targetStatus;
         const plainText = extractPlainText(contentValue);
-        const fallbackExcerpt = excerpt.trim() || plainText.slice(0, 160);
-        const fallbackSummary = excerpt.trim() || plainText.slice(0, 160);
+        const fallbackExcerpt = plainText.slice(0, 160);
+        const fallbackSummary = plainText.slice(0, 160);
 
         const articleData = {
             title,
             sub_title: subTitle,
-            slug,
+            slug: normalizedSlug,
             content: contentValue,
             excerpt: fallbackExcerpt,
             summary: fallbackSummary,
-            thumbnail_url: thumbnailUrl || null,
             category_id: category,
             author_id: user?.id,
-            status: targetStatus,
+            status: resolvedStatus,
             seo_title: seoTitle || title,
             seo_description: seoDescription || fallbackExcerpt,
-            keywords: keywords,
-            published_at: (targetStatus === 'published' || targetStatus === 'shared')
-                ? (existingPublishedAt || new Date().toISOString())
-                : null,
+            keywords,
+            published_at:
+                resolvedStatus === "published" || resolvedStatus === "shared"
+                    ? existingPublishedAt || new Date().toISOString()
+                    : null,
             updated_at: new Date().toISOString(),
         };
 
         try {
             let savedId = articleId;
             if (articleId) {
-                const { error } = await supabase
-                    .from("articles")
-                    .update(articleData)
-                    .eq("id", articleId);
+                const { error } = await supabase.from("articles").update(articleData).eq("id", articleId);
 
                 if (error) {
                     if (error.code === "23505") {
-                        alert("이미 사용 중인 URL 슬러그입니다. 다른 슬러그를 입력해주세요.");
+                        setFormError("이미 사용 중인 URL 슬러그입니다.");
                     } else {
-                        alert("Error: " + error.message);
+                        setFormError(`저장 실패: ${error.message}`);
                     }
                     return;
                 }
             } else {
-                const { data, error } = await supabase
-                    .from("articles")
-                    .insert(articleData)
-                    .select("id")
-                    .single();
+                const { data, error } = await supabase.from("articles").insert(articleData).select("id").single();
 
                 if (error) {
                     if (error.code === "23505") {
-                        alert("이미 사용 중인 URL 슬러그입니다. 다른 슬러그를 입력해주세요.");
+                        setFormError("이미 사용 중인 URL 슬러그입니다.");
                     } else {
-                        alert("Error: " + error.message);
+                        setFormError(`저장 실패: ${error.message}`);
                     }
                     return;
                 }
@@ -288,176 +604,235 @@ export default function AdminWrite() {
                 await syncArticleTags(savedId);
             }
 
+            setDirty(false);
+            if (resolvedStatus === "draft") {
+                setFormNotice("임시저장이 완료되었습니다.");
+                if (!articleId && savedId) {
+                    router.replace(`/admin/write?id=${savedId}`);
+                }
+                return;
+            }
+
             router.push("/admin/articles");
+        } catch (error) {
+            setFormError(error instanceof Error ? error.message : "알 수 없는 오류가 발생했습니다.");
         } finally {
             setLoading(false);
         }
     };
 
+    submitHandlerRef.current = handleSubmit;
+
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "s") {
+                event.preventDefault();
+                if (!loading && !loadingArticle) {
+                    void submitHandlerRef.current("draft");
+                }
+            }
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [loading, loadingArticle]);
+
     const handleImageUpload = async (file: File): Promise<string> => {
-        const fileExt = file.name.split('.').pop();
+        const fileExt = file.name.split(".").pop();
         const fileName = `${Math.random()}.${fileExt}`;
         const filePath = `articles/${fileName}`;
 
-        const { error: uploadError } = await supabase.storage
-            .from('news-images')
-            .upload(filePath, file);
+        const { error: uploadError } = await supabase.storage.from("news-images").upload(filePath, file);
 
         if (uploadError) {
-            alert("Upload failed: " + uploadError.message);
+            alert(`Upload failed: ${uploadError.message}`);
             return "";
         }
 
-        const { data } = supabase.storage
-            .from('news-images')
-            .getPublicUrl(filePath);
+        const { data } = supabase.storage.from("news-images").getPublicUrl(filePath);
 
-        // Record to media table
-        const { data: { user } } = await supabase.auth.getUser();
-        await supabase.from('media').insert({
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
+        await supabase.from("media").insert({
             filename: file.name,
             url: data.publicUrl,
-            type: file.type.startsWith('image/') ? 'image' : 'video',
+            type: file.type.startsWith("image/") ? "image" : "video",
             file_size: file.size,
-            uploaded_by: user?.id
+            uploaded_by: user?.id,
         });
 
         return data.publicUrl;
     };
 
-    const handleThumbnailUpload = async (file: File) => {
-        setThumbnailUploading(true);
-        const fileExt = file.name.split(".").pop();
-        const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
-        const filePath = `thumbnails/${fileName}`;
+    const saveStateLabel = loading
+        ? "저장 중..."
+        : dirty
+            ? "저장되지 않은 변경사항 있음"
+            : "변경사항 저장됨";
 
-        const { error: uploadError } = await supabase.storage
-            .from("news-images")
-            .upload(filePath, file);
-
-        if (uploadError) {
-            alert("썸네일 업로드 실패: " + uploadError.message);
-            setThumbnailUploading(false);
-            return;
-        }
-
-        const { data } = supabase.storage
-            .from("news-images")
-            .getPublicUrl(filePath);
-
-        setThumbnailUrl(data.publicUrl);
-
-        const { data: { user } } = await supabase.auth.getUser();
-        await supabase.from("media").insert({
-            filename: file.name,
-            url: data.publicUrl,
-            type: file.type.startsWith("image/") ? "image" : "file",
-            file_size: file.size,
-            uploaded_by: user?.id,
-        });
-
-        setThumbnailUploading(false);
-    };
+    const sharePreviewUrl = slug
+        ? typeof window !== "undefined"
+            ? `${window.location.origin}/share/${slug}`
+            : `/share/${slug}`
+        : "공유 링크는 저장 후 확정됩니다.";
 
     return (
         <Stack gap="lg" maw={1600} mx="auto">
-            <LoadingOverlay visible={loading || loadingArticle || thumbnailUploading} />
+            <LoadingOverlay visible={loading || loadingArticle} />
 
-            {/* Header Action Bar */}
-            <Paper p="md" radius="md" withBorder style={{ position: 'sticky', top: 120, zIndex: 10, backgroundColor: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(10px)' }}>
+            <Modal opened={previewOpened} onClose={closePreview} size="xl" title="기사 미리보기" centered>
+                <Stack gap="md">
+                    <Badge variant="light">{selectedCategoryLabel}</Badge>
+                    <Title order={2} size="h3">
+                        {title || "기사 제목"}
+                    </Title>
+                    {subTitle && (
+                        <Text c="dimmed">{subTitle}</Text>
+                    )}
+                    <Text size="sm" c="dimmed">
+                        읽기 {estimatedReadMinutes}분 · {sharePreviewUrl}
+                    </Text>
+                    <Box
+                        style={{ lineHeight: 1.7 }}
+                        dangerouslySetInnerHTML={{
+                            __html: content || "<p style='color:#6b7280'>미리보기할 본문이 없습니다.</p>",
+                        }}
+                    />
+                </Stack>
+            </Modal>
+
+            <Paper
+                p="md"
+                radius="md"
+                withBorder
+                style={{ position: "sticky", top: 120, zIndex: 10, backgroundColor: "rgba(255,255,255,0.95)", backdropFilter: "blur(10px)" }}
+            >
                 <Group justify="space-between">
                     <Group>
                         <ActionIcon component={Link} href="/admin/articles" variant="subtle" color="gray" size="lg">
                             <IconArrowLeft size={22} />
                         </ActionIcon>
                         <div>
-                            <Text size="xs" c="dimmed" fw={700} tt="uppercase">Editor</Text>
+                            <Text size="xs" c="dimmed" fw={700} tt="uppercase">
+                                Editor
+                            </Text>
                             <Title order={3}>{isEditing ? "기사 수정" : "기사 작성"}</Title>
+                            <Text size="xs" c={dirty ? "orange.7" : "dimmed"} mt={2}>
+                                {saveStateLabel}
+                            </Text>
                         </div>
                     </Group>
                     <Group>
                         <Button
                             variant="default"
+                            leftSection={<IconEye size={18} />}
+                            disabled={loading || loadingArticle}
+                            onClick={openPreview}
+                        >
+                            미리보기
+                        </Button>
+                        <Button
+                            variant="default"
                             leftSection={<IconDeviceFloppy size={18} />}
-                            onClick={() => handleSubmit('draft')}
+                            disabled={loading || loadingArticle}
+                            onClick={() => handleSubmit("draft")}
                         >
                             임시저장
                         </Button>
                         <Button
                             variant="light"
                             color="orange"
-                            onClick={() => handleSubmit('pending_review')}
+                            disabled={isSpecialIssueCategory || loading || loadingArticle}
+                            onClick={() => handleSubmit("pending_review")}
                         >
                             승인 요청
                         </Button>
                         <Button
                             variant="light"
                             color="dark"
-                            onClick={() => handleSubmit('shared')}
+                            disabled={loading || loadingArticle}
+                            onClick={() => handleSubmit("shared")}
                         >
-                            공유 링크 발행
+                            {isSpecialIssueCategory ? "창간특별호 발행" : "공유 발행"}
                         </Button>
-                        <Button
-                            color="blue"
-                            leftSection={<IconSend size={18} />}
-                            onClick={() => handleSubmit('published')}
-                        >
-                            발행하기
-                        </Button>
+                        {!isSpecialIssueCategory && (
+                            <Button
+                                color="blue"
+                                leftSection={<IconSend size={18} />}
+                                disabled={loading || loadingArticle}
+                                onClick={() => handleSubmit("published")}
+                            >
+                                발행
+                            </Button>
+                        )}
                     </Group>
                 </Group>
             </Paper>
 
-            <Grid gutter={30}>
-                {/* Main Editor Area */}
-                <Grid.Col span={{ base: 12, lg: 9 }}>
-                    <Paper p={30} radius="md" withBorder shadow="sm" style={{ minHeight: '80vh' }}>
-                        <Stack gap="xl">
-                            <Stack gap="xs">
-                                <TextInput
-                                    placeholder="기사 제목을 입력하세요"
-                                    size="xl"
-                                    variant="unstyled"
-                                    styles={{ input: { fontSize: '2.5rem', fontWeight: 800, height: 'auto', lineHeight: 1.2 } }}
-                                    value={title}
-                                    onChange={(e) => handleTitleChange(e.currentTarget.value)}
-                                    required
-                                />
-                                <TextInput
-                                    placeholder="부제 (선택사항)"
-                                    size="lg"
-                                    variant="unstyled"
-                                    c="dimmed"
-                                    styles={{ input: { fontSize: '1.5rem', fontWeight: 500 } }}
-                                    value={subTitle}
-                                    onChange={(e) => setSubTitle(e.currentTarget.value)}
-                                />
-                            </Stack>
+            {formError && (
+                <Alert color="red" icon={<IconAlertCircle size={16} />} title="저장 오류" withCloseButton onClose={() => setFormError(null)}>
+                    {formError}
+                </Alert>
+            )}
 
-                            <Divider />
+            {formNotice && (
+                <Alert color="green" icon={<IconCheck size={16} />} title="완료" withCloseButton onClose={() => setFormNotice(null)}>
+                    {formNotice}
+                </Alert>
+            )}
 
-                            <Box style={{ minHeight: '500px' }}>
-                                <RichTextEditor
-                                    content={content}
-                                    onChange={(value) => {
-                                        setContent(value);
-                                        contentRef.current = value;
-                                    }}
-                                    onImageUpload={handleImageUpload}
-                                />
-                            </Box>
+            <Grid gutter={24}>
+                <Grid.Col span={{ base: 12, lg: 8 }}>
+                    <Paper p={{ base: "lg", md: 30 }} radius="md" withBorder shadow="sm" style={{ minHeight: "80vh" }}>
+                        <Stack gap="lg">
+                            <TextInput
+                                placeholder="기사 제목을 입력하세요"
+                                size="xl"
+                                variant="unstyled"
+                                styles={{ input: { fontSize: "2.1rem", fontWeight: 800, height: "auto", lineHeight: 1.2 } }}
+                                value={title}
+                                onChange={(e) => {
+                                    setTitle(e.currentTarget.value);
+                                    markDirty();
+                                }}
+                                required
+                            />
+                            <TextInput
+                                placeholder="부제 (선택)"
+                                size="lg"
+                                variant="unstyled"
+                                c="dimmed"
+                                styles={{ input: { fontSize: "1.25rem", fontWeight: 500 } }}
+                                value={subTitle}
+                                onChange={(e) => {
+                                    setSubTitle(e.currentTarget.value);
+                                    markDirty();
+                                }}
+                            />
+
+                            <RichTextEditor
+                                content={content}
+                                onChange={(value) => {
+                                    setContent(value);
+                                    contentRef.current = value;
+                                    markDirty();
+                                }}
+                                onImageUpload={handleImageUpload}
+                            />
                         </Stack>
                     </Paper>
                 </Grid.Col>
 
-                {/* Sidebar Tools */}
-                <Grid.Col span={{ base: 12, lg: 3 }}>
-                    <Stack gap="md" style={{ position: 'sticky', top: 140 }}>
+                <Grid.Col span={{ base: 12, lg: 4 }}>
+                    <Stack gap="md" style={{ position: "sticky", top: 140 }}>
                         <Paper withBorder radius="md">
-                            <Box bg="gray.1" p="sm" style={{ borderBottom: '1px solid var(--mantine-color-gray-3)' }}>
+                            <Box bg="gray.1" p="sm" style={{ borderBottom: "1px solid var(--mantine-color-gray-3)" }}>
                                 <Group gap="xs">
                                     <IconSettings size={16} />
-                                    <Text size="sm" fw={600}>발행 설정</Text>
+                                    <Text size="sm" fw={600}>
+                                        발행 설정
+                                    </Text>
                                 </Group>
                             </Box>
                             <Stack p="md" gap="md">
@@ -466,66 +841,56 @@ export default function AdminWrite() {
                                     placeholder="카테고리 선택"
                                     data={categories}
                                     value={category}
-                                    onChange={setCategory}
+                                    onChange={handleCategoryChange}
                                     searchable
                                     required
                                     checkIconPosition="right"
                                 />
-                                <TextInput
-                                    label="URL 슬러그"
-                                    description="고유한 URL 주소입니다."
-                                    value={slug}
-                                    onChange={(e) => setSlug(e.currentTarget.value)}
-                                    rightSection={<IconTags size={14} color="gray" />}
-                                    required
-                                />
-                                <TextInput
-                                    label="공유 링크"
-                                    description="지인 공유용 임시 링크입니다."
-                                    value={slug ? `/share/${slug}` : ""}
-                                    placeholder="/share/기사-슬러그"
-                                    readOnly
-                                />
-                                <FileInput
-                                    label="썸네일 이미지 업로드"
-                                    placeholder="이미지 파일 선택"
-                                    accept="image/*"
-                                    leftSection={<IconPhoto size={14} />}
-                                    disabled={thumbnailUploading}
-                                    onChange={(file) => {
-                                        if (file) {
-                                            handleThumbnailUpload(file);
-                                        }
-                                    }}
-                                />
-                                <TextInput
-                                    label="썸네일 이미지 URL"
-                                    description="외부 이미지 URL도 입력할 수 있습니다."
-                                    value={thumbnailUrl}
-                                    onChange={(e) => setThumbnailUrl(e.currentTarget.value)}
-                                    placeholder="https://..."
-                                />
-                                {thumbnailUrl && (
-                                    <Image
-                                        src={thumbnailUrl}
-                                        alt="썸네일 미리보기"
-                                        radius="md"
-                                    />
+
+                                {isSpecialIssueCategory && (
+                                    <>
+                                        <Button
+                                            variant="light"
+                                            color="blue"
+                                            onClick={() => void handleCopySpecialIssueLink()}
+                                            disabled={!canCopySpecialIssueLink || loading || loadingArticle}
+                                        >
+                                            공유 링크 복사
+                                        </Button>
+                                        <Text size="xs" c="dimmed">
+                                            {canCopySpecialIssueLink ? "공유 링크 사용 가능" : "저장 후 복사 가능"}
+                                        </Text>
+                                    </>
                                 )}
-                                <Textarea
-                                    label="요약 (Excerpt)"
-                                    description="기사 목록에 표시될 내용입니다."
-                                    minRows={3}
-                                    value={excerpt}
-                                    onChange={(e) => setExcerpt(e.currentTarget.value)}
-                                    autosize
-                                />
+
+                                <Box>
+                                    <Text size="xs" c="dimmed" mb={4}>
+                                        슬러그
+                                    </Text>
+                                    <Text size="sm" fw={700} style={{ wordBreak: "break-all" }}>
+                                        {slug || "카테고리 선택 후 자동 생성"}
+                                    </Text>
+                                </Box>
+                                <Button
+                                    variant="light"
+                                    color="gray"
+                                    onClick={handleRegenerateSlug}
+                                    disabled={!category || slugAutoLoading || loading}
+                                >
+                                    {slugAutoLoading ? "생성 중..." : "슬러그 재생성"}
+                                </Button>
+                                <Text size="xs" c="dimmed">
+                                    순번 {slugSequence ? slugSequence.toLocaleString() : "-"}
+                                </Text>
+
                                 <TagsInput
                                     label="태그"
-                                    description="검색 및 큐레이션에 사용됩니다."
                                     data={tagOptions}
                                     value={tags}
-                                    onChange={setTags}
+                                    onChange={(value) => {
+                                        setTags(value);
+                                        markDirty();
+                                    }}
                                     clearable
                                 />
                             </Stack>
@@ -535,13 +900,15 @@ export default function AdminWrite() {
                             <Box
                                 bg="gray.1"
                                 p="sm"
-                                style={{ borderBottom: '1px solid var(--mantine-color-gray-3)', cursor: 'pointer' }}
+                                style={{ borderBottom: "1px solid var(--mantine-color-gray-3)", cursor: "pointer" }}
                                 onClick={toggleSeo}
                             >
                                 <Group justify="space-between">
                                     <Group gap="xs">
                                         <IconSeo size={16} />
-                                        <Text size="sm" fw={600}>SEO 최적화</Text>
+                                        <Text size="sm" fw={600}>
+                                            SEO
+                                        </Text>
                                     </Group>
                                     {seoOpened ? <IconChevronUp size={14} /> : <IconChevronDown size={14} />}
                                 </Group>
@@ -550,24 +917,33 @@ export default function AdminWrite() {
                                 <Stack p="md" gap="md">
                                     <TextInput
                                         label="SEO 제목"
-                                        placeholder="브라우저 타이틀 바"
                                         value={seoTitle}
-                                        onChange={(e) => setSeoTitle(e.currentTarget.value)}
+                                        onChange={(e) => {
+                                            setSeoTitle(e.currentTarget.value);
+                                            markDirty();
+                                        }}
                                     />
                                     <Textarea
                                         label="메타 설명"
-                                        placeholder="검색 결과 설명문"
                                         minRows={3}
                                         value={seoDescription}
-                                        onChange={(e) => setSeoDescription(e.currentTarget.value)}
+                                        onChange={(e) => {
+                                            setSeoDescription(e.currentTarget.value);
+                                            markDirty();
+                                        }}
                                         autosize
                                     />
                                     <TextInput
                                         label="키워드"
-                                        placeholder="뉴스, 정치, 경제..."
                                         value={keywords}
-                                        onChange={(e) => setKeywords(e.currentTarget.value)}
+                                        onChange={(e) => {
+                                            setKeywords(e.currentTarget.value);
+                                            markDirty();
+                                        }}
                                     />
+                                    <Button variant="light" color="gray" onClick={fillSeoFromContent}>
+                                        자동 채우기
+                                    </Button>
                                 </Stack>
                             </Collapse>
                         </Paper>

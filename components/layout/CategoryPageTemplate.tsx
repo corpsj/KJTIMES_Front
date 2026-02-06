@@ -1,3 +1,5 @@
+"use client";
+
 import { Container, Title, Text, Stack, Group, Image, Divider, Box } from "@mantine/core";
 import Link from "next/link";
 import { Article } from "@/types";

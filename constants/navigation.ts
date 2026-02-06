@@ -2,6 +2,7 @@ import { NavigationLink } from "@/types";
 
 export const LINKS: NavigationLink[] = [
     { label: "홈", href: "/" },
+    { label: "창간특별호", href: "/special-edition" },
     { label: "정치", href: "/politics" },
     { label: "경제", href: "/economy" },
     { label: "사회", href: "/society" },

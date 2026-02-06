@@ -6,12 +6,12 @@
 
 .admin2-auth-grid {
   width: 100%;
-  max-width: 1320px;
+  max-width: 520px;
   margin: 0 auto;
   padding: 40px 28px;
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-  gap: 40px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
   align-items: center;
 }
 
@@ -221,14 +221,6 @@
   .admin2-auth-grid {
     grid-template-columns: minmax(0, 1fr);
     gap: 24px;
-  }
-
-  .admin2-auth-intro {
-    order: 2;
-  }
-
-  .admin2-auth-panel {
-    order: 1;
   }
 }
 

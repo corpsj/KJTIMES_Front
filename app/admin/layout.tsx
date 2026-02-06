@@ -70,6 +70,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const userName = user.user_metadata?.full_name || "Administrator";
   const userInitial = userName?.[0]?.toUpperCase() || "A";
+  const currentNavLabel = navItems.find((item) => pathname === item.href)?.label || "데스크";
 
   return (
     <div className={`admin2 admin2-shell ${displayFont.variable}`}>
@@ -82,10 +83,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <div className="admin2-brand-sub">Editorial Command Center</div>
             </div>
           </div>
-          <div className="admin2-live">
-            <span className="admin2-live-dot" />
-            실시간 모니터링 중
-          </div>
+          <div className="admin2-badge">{currentNavLabel}</div>
           <div className="admin2-user">
             <div className="admin2-avatar">{userInitial}</div>
             <div className="admin2-user-meta">
@@ -110,12 +108,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             ))}
           </nav>
           <div className="admin2-actions">
-            <label className="admin2-search">
-              <span>⌕</span>
-              <input placeholder="기사·기자·태그 검색" />
-            </label>
             <Link className="admin2-btn admin2-btn-ghost" href="/" target="_blank">
               사이트 보기
+            </Link>
+            <Link className="admin2-btn admin2-btn-ghost" href="/admin/articles">
+              기사 관리
             </Link>
             <Link className="admin2-btn admin2-btn-accent" href="/admin/write">
               속보 작성

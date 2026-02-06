@@ -109,3 +109,59 @@ begin
     on articles for select
     using ( status in ('published', 'shared') and published_at <= now() );
 end $$;
+
+-- 8. Ensure special issue category exists
+insert into categories (name, slug, description)
+values ('창간특별호', 'special-edition', '창간특별호 임시 공유 기사 전용')
+on conflict (slug) do nothing;
+
+-- 9. Profiles permissions + role backfill for test environment
+-- Ensure all signups receive full CMS access during testing.
+alter table profiles alter column role set default 'admin';
+
+do $$
+begin
+  if not exists (select from pg_policies where tablename = 'profiles' and policyname = 'Users can view own profile') then
+    create policy "Users can view own profile"
+      on profiles for select
+      using (id = auth.uid());
+  end if;
+
+  if not exists (select from pg_policies where tablename = 'profiles' and policyname = 'Users can update own profile') then
+    create policy "Users can update own profile"
+      on profiles for update
+      using (id = auth.uid());
+  end if;
+end $$;
+
+create or replace function public.handle_new_user()
+returns trigger as $$
+begin
+  insert into public.profiles (id, email, full_name, role)
+  values (
+    new.id,
+    new.email,
+    coalesce(new.raw_user_meta_data->>'full_name', new.raw_user_meta_data->>'name'),
+    'admin'
+  )
+  on conflict (id) do update
+  set email = excluded.email,
+      full_name = coalesce(excluded.full_name, public.profiles.full_name),
+      role = 'admin';
+  return new;
+end;
+$$ language plpgsql security definer;
+
+insert into public.profiles (id, email, full_name, role)
+select
+  au.id,
+  au.email,
+  coalesce(au.raw_user_meta_data->>'full_name', au.raw_user_meta_data->>'name'),
+  'admin'
+from auth.users au
+left join public.profiles p on p.id = au.id
+where p.id is null;
+
+update public.profiles
+set role = 'admin'
+where role is distinct from 'admin';

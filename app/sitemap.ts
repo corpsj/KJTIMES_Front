@@ -5,6 +5,7 @@ import { getSiteUrl } from "@/utils/site";
 export const dynamic = "force-dynamic";
 
 const CATEGORY_PATHS = [
+    "/special-edition",
     "/politics",
     "/economy",
     "/society",
@@ -41,10 +42,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         ...INFO_PATHS.map((path) => ({ url: `${siteUrl}${path}`, lastModified: now })),
     ];
 
-    const articleUrls: MetadataRoute.Sitemap = (articles || []).map((article) => ({
-        url: `${siteUrl}/article/${article.id}`,
-        lastModified: new Date(article.updated_at || article.published_at || article.created_at),
-    }));
+    const articleUrls: MetadataRoute.Sitemap = (articles || [])
+        .map((article) => ({
+            url: `${siteUrl}/article/${article.id}`,
+            lastModified: new Date(article.updated_at || article.published_at || article.created_at),
+        }));
 
     return [...staticUrls, ...articleUrls];
 }

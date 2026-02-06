@@ -63,7 +63,7 @@ export function Header() {
                     <Group justify="center">
                         <Link href="/" style={{ textDecoration: 'none', color: 'inherit' }}>
                             <Image
-                                src="/brand/KJ_Logo.png"
+                                src="/brand/KJ_sloganLogo.png"
                                 style={{ height: '85px', width: 'auto', display: 'block' }}
                                 alt="광전타임즈 로고"
                             />
@@ -100,7 +100,7 @@ export function Header() {
                         <Burger opened={opened} onClick={toggle} size="sm" />
                         <Link href="/" style={{ textDecoration: 'none', color: 'inherit' }}>
                             <Image
-                                src="/brand/KJ_Logo.png"
+                                src="/brand/KJ_sloganLogo.png"
                                 style={{ height: '40px', width: 'auto', display: 'block' }}
                                 alt="광전타임즈 로고"
                             />

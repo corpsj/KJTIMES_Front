@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { TextInput, PasswordInput, Button, Paper, Title, Container, Stack, Alert, Anchor, Text, Image } from "@mantine/core";
+import { TextInput, PasswordInput, Button, Paper, Container, Stack, Alert, Text, Image } from "@mantine/core";
 import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
 
@@ -72,7 +72,7 @@ export default function SignupPage() {
         <Container size={420} my={60}>
             <Stack align="center" mb={30}>
                 <Image
-                    src="/brand/KJ_Logo.png"
+                    src="/brand/KJ_sloganLogo.png"
                     alt="Kwangjeon Times Logo"
                     w={280}
                     fit="contain"

@@ -59,62 +59,11 @@ export default function AdminLogin() {
   return (
     <div className={`admin2 admin2-shell admin2-auth ${displayFont.variable}`}>
       <div className="admin2-auth-grid">
-        <section className="admin2-auth-intro">
-          <div className="admin2-auth-brand">
-            <div className="admin2-brand-mark" />
-            <div>
-              <div className="admin2-auth-title admin2-display">KJ TIMES CMS</div>
-              <div className="admin2-auth-subtitle">Editorial Command Center</div>
-            </div>
-          </div>
-          <p className="admin2-auth-lead">
-            편집국의 모든 흐름을 통합 관리하는 엔터프라이즈 CMS.
-            데스크 승인, 속보 발행, 디지털 확산까지 한 번에 제어합니다.
-          </p>
-          <div className="admin2-auth-metrics">
-            <div className="admin2-auth-metric">
-              <span className="admin2-auth-metric-label">연속 가동</span>
-              <span className="admin2-auth-metric-value">99.99%</span>
-            </div>
-            <div className="admin2-auth-metric">
-              <span className="admin2-auth-metric-label">실시간 발행</span>
-              <span className="admin2-auth-metric-value">초당 48건</span>
-            </div>
-            <div className="admin2-auth-metric">
-              <span className="admin2-auth-metric-label">보안 등급</span>
-              <span className="admin2-auth-metric-value">Tier 1</span>
-            </div>
-          </div>
-          <div className="admin2-auth-list">
-            <div className="admin2-auth-list-item">
-              <span className="admin2-tag admin2-tag--published">운영</span>
-              <div>
-                <div className="admin2-auth-list-title">승인 워크플로우</div>
-                <div className="admin2-auth-list-meta">데스크 → 팀장 → 발행</div>
-              </div>
-            </div>
-            <div className="admin2-auth-list-item">
-              <span className="admin2-tag admin2-tag--scheduled">자동화</span>
-              <div>
-                <div className="admin2-auth-list-title">예약 발행 & 소셜 연동</div>
-                <div className="admin2-auth-list-meta">채널별 포맷 자동 변환</div>
-              </div>
-            </div>
-            <div className="admin2-auth-list-item">
-              <span className="admin2-tag admin2-tag--alert">보안</span>
-              <div>
-                <div className="admin2-auth-list-title">보안 감사 로그</div>
-                <div className="admin2-auth-list-meta">접속/수정 기록 24개월 보관</div>
-              </div>
-            </div>
-          </div>
-        </section>
-
         <section className="admin2-auth-panel">
           <div className="admin2-panel admin2-auth-card">
             <div className="admin2-auth-header">
               <Image
-                src="/brand/KJ_Logo.png"
+                src="/brand/KJ_sloganLogo.png"
                 alt="Kwangjeon Times Logo"
                 className="admin2-auth-logo"
                 width={180}

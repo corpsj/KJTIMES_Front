@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import Placeholder from '@tiptap/extension-placeholder';
-import { Button, Group, ActionIcon, Paper } from '@mantine/core';
+import { Group, ActionIcon, Paper } from '@mantine/core';
 import { IconBold, IconItalic, IconStrikethrough, IconH1, IconH2, IconList, IconListNumbers, IconPhoto } from '@tabler/icons-react';
 
 interface RichTextEditorProps {

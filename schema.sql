@@ -6,7 +6,7 @@ create table profiles (
   id uuid references auth.users(id) on delete cascade not null primary key,
   email text,
   full_name text,
-  role text check (role in ('admin', 'editor')) default 'editor',
+  role text check (role in ('admin', 'editor')) default 'admin',
   created_at timestamptz default now()
 );
 
@@ -100,6 +100,17 @@ alter table articles enable row level security;
 alter table article_tags enable row level security;
 alter table article_revisions enable row level security;
 
+-- Policies for Profiles
+-- Allow authenticated users to read their own profile so role-based checks work.
+create policy "Users can view own profile"
+  on profiles for select
+  using ( id = auth.uid() );
+
+-- Allow users to update only their own profile fields.
+create policy "Users can update own profile"
+  on profiles for update
+  using ( id = auth.uid() );
+
 -- Policies for Articles
 -- Everyone can view published articles
 create policy "Public articles are viewable by everyone"
@@ -158,7 +169,16 @@ create or replace function public.handle_new_user()
 returns trigger as $$
 begin
   insert into public.profiles (id, email, full_name, role)
-  values (new.id, new.email, new.raw_user_meta_data->>'full_name', 'editor'); -- Defaulting to editor
+  values (
+    new.id,
+    new.email,
+    coalesce(new.raw_user_meta_data->>'full_name', new.raw_user_meta_data->>'name'),
+    'admin'
+  )
+  on conflict (id) do update
+  set email = excluded.email,
+      full_name = coalesce(excluded.full_name, public.profiles.full_name),
+      role = 'admin';
   return new;
 end;
 $$ language plpgsql security definer;
@@ -171,6 +191,7 @@ create trigger on_auth_user_created
 
 -- Seed Data (Initial Categories)
 insert into categories (name, slug) values
+('창간특별호', 'special-edition'),
 ('정치', 'politics'),
 ('경제', 'economy'),
 ('사회', 'society'),
