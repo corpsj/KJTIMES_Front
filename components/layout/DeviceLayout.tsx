@@ -6,7 +6,8 @@ import { MobileFooter } from "@/components/mobile/MobileFooter";
 import { PreviewHeader } from "./PreviewHeader";
 
 // 🔧 프리뷰 모드: 네비게이션 숨김
-const PREVIEW_MODE = process.env.PREVIEW_MODE === "true";
+// TODO: 홈페이지 완성 후 false로 변경
+const PREVIEW_MODE = true;
 
 export async function DeviceLayout({ children }: { children: React.ReactNode }) {
     const deviceType = await getDeviceType();

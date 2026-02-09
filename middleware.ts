@@ -9,8 +9,8 @@ const SHARE_PATH_REGEX = /^\/share\/([^/]+)$/;
 // PREVIEW_MODE=true 이면:
 // - 메인 페이지 접속 시 /special-edition으로 리다이렉트
 // - 창간특별호 외 다른 페이지 접근 차단
-// 해제하려면 환경변수를 삭제하거나 false로 설정
-const PREVIEW_MODE = process.env.PREVIEW_MODE === "true";
+// 해제하려면 아래 값을 false로 변경
+const PREVIEW_MODE = true; // TODO: 홈페이지 완성 후 false로 변경
 const ALLOWED_PATHS_IN_PREVIEW = [
     "/special-edition",
     "/share",
