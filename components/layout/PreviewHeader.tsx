@@ -5,7 +5,7 @@ import Link from "next/link";
  * 🔧 프리뷰 모드 전용 헤더
  * - 네비게이션 메뉴 없음
  * - 로고만 표시 (창간특별호로 이동)
- * - 나중에 PREVIEW_MODE 환경변수를 삭제하면 일반 헤더로 복원됨
+ * - 나중에 PREVIEW_MODE를 false로 변경하면 일반 헤더로 복원됨
  */
 export function PreviewHeader() {
     return (
@@ -15,7 +15,13 @@ export function PreviewHeader() {
                     <Link href="/special-edition" style={{ textDecoration: 'none', color: 'inherit' }}>
                         <Image
                             src="/brand/KJ_sloganLogo.png"
-                            style={{ height: '85px', width: 'auto', display: 'block' }}
+                            style={{ 
+                                height: 'auto',
+                                maxHeight: '60px',
+                                width: 'auto',
+                                maxWidth: '80%',
+                                display: 'block'
+                            }}
                             alt="광전타임즈 로고"
                         />
                     </Link>
