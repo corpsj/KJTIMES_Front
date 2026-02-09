@@ -66,7 +66,7 @@ export async function fetchInbox(
         flags: true,
         bodyStructure: true,
       })) {
-        const envelope = msg.envelope;
+        const envelope: any = msg.envelope || {};
         messages.push({
           id: msg.uid.toString(),
           uid: msg.uid,
@@ -76,13 +76,13 @@ export async function fetchInbox(
             address: envelope.from?.[0]?.address,
           },
           to:
-            envelope.to?.map((t) => ({
+            envelope.to?.map((t: any) => ({
               name: t.name,
               address: t.address,
             })) || [],
           date: envelope.date || new Date(),
           preview: "",
-          seen: msg.flags.has("\\Seen"),
+          seen: msg.flags?.has("\\Seen") || false,
           hasAttachments: hasAttachments(msg.bodyStructure),
         });
       }
@@ -118,7 +118,7 @@ export async function fetchMessage(uid: number): Promise<MailDetail | null> {
 
       if (!msg) return null;
 
-      const envelope = msg.envelope;
+      const envelope: any = msg.envelope || {};
 
       // 본문 파싱 (간단한 버전)
       let html = "";
@@ -162,7 +162,7 @@ export async function fetchMessage(uid: number): Promise<MailDetail | null> {
           address: envelope.from?.[0]?.address,
         },
         to:
-          envelope.to?.map((t) => ({
+          envelope.to?.map((t: any) => ({
             name: t.name,
             address: t.address,
           })) || [],

@@ -1,0 +1,1 @@
+// Dummy index to satisfy module resolution for TypeScript
