@@ -1,4 +1,4 @@
-import { Container, Group, Image, Box, Divider } from "@mantine/core";
+import { Container, Group, Image, Box, Divider, Center } from "@mantine/core";
 import Link from "next/link";
 
 /**
@@ -11,7 +11,7 @@ export function PreviewHeader() {
     return (
         <Box component="header" mb="xl">
             <Container size="xl" py="md">
-                <Group justify="center">
+                <Center>
                     <Link href="/special-edition" style={{ textDecoration: 'none', color: 'inherit' }}>
                         <Image
                             src="/brand/KJ_sloganLogo.png"
@@ -19,13 +19,14 @@ export function PreviewHeader() {
                                 height: 'auto',
                                 maxHeight: '60px',
                                 width: 'auto',
-                                maxWidth: '80%',
-                                display: 'block'
+                                maxWidth: '80vw',
+                                display: 'block',
+                                margin: '0 auto'
                             }}
                             alt="광전타임즈 로고"
                         />
                     </Link>
-                </Group>
+                </Center>
             </Container>
             <Divider color="gray.3" />
         </Box>
