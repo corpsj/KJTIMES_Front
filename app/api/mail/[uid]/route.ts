@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchMessage } from "@/utils/mail";
+import { requireAuth } from "@/utils/supabase/auth-check";
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ uid: string }> }
 ) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const { uid } = await params;
     const uidNum = parseInt(uid);

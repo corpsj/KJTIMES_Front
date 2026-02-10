@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sendMail } from "@/utils/mail";
+import { requireAuth } from "@/utils/supabase/auth-check";
 
 export async function POST(request: NextRequest) {
+  const auth = await requireAuth();
+  if (!auth.authenticated) return auth.response;
+
   try {
     const { to, subject, text, html, replyTo } = await request.json();
     if (!to || !subject) {
