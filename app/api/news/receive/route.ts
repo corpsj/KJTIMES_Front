@@ -1,11 +1,6 @@
-import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
-
-// KJTIMES Supabase Client (Service Role Key — RLS 우회)
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co",
-  process.env.SUPABASE_SERVICE_ROLE_KEY || "placeholder-key"
-);
+import { createServiceClient } from "@/utils/supabase/server";
+import { sanitizeHtmlServer } from "@/utils/sanitize";
 
 const API_SECRET = process.env.NEWS_RECEIVE_SECRET;
 
@@ -26,8 +21,11 @@ const CATEGORY_MAP: Record<string, string> = {
 export async function POST(request: Request) {
   // 1. 인증 확인
   if (!API_SECRET) {
-    console.error("NEWS_RECEIVE_SECRET is not configured");
-    return NextResponse.json({ error: "Server misconfigured" }, { status: 500 });
+    console.error("NEWS_RECEIVE_SECRET is not configured. Set this environment variable to enable the news receive endpoint.");
+    return NextResponse.json(
+      { error: "뉴스 수신 엔드포인트가 현재 비활성화되어 있습니다. NEWS_RECEIVE_SECRET 환경 변수를 설정해 주세요." },
+      { status: 503 }
+    );
   }
 
   const authHeader = request.headers.get("authorization");
@@ -37,17 +35,21 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const { title, content, summary, category, source, source_url } = body;
+    const { title, content: rawContent, summary, category, source, source_url } = body;
 
     // 2. 유효성 검사
-    if (!title || !content) {
+    if (!title || !rawContent) {
       return NextResponse.json(
         { error: "Missing required fields: title, content" },
         { status: 400 }
       );
     }
 
+    // Sanitize incoming content
+    const content = sanitizeHtmlServer(rawContent);
+
     // 3. 카테고리 슬러그 → category_id 조회
+    const supabase = createServiceClient();
     const categorySlug = CATEGORY_MAP[category] || "society";
     const { data: categoryRow } = await supabase
       .from("categories")

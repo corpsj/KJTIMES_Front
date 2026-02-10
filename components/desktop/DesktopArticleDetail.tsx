@@ -7,6 +7,7 @@ import { Article } from "@/types";
 import { formatKoreanDate } from "@/utils/date";
 import { LINKS } from "@/constants/navigation";
 import { normalizeArticleHtml } from "@/utils/articleHtml";
+import { sanitizeHtml } from "@/utils/sanitize";
 import { ShareActions } from "@/components/shared/ShareActions";
 import styles from "@/components/shared/ArticleDetail.module.css";
 
@@ -65,7 +66,7 @@ export function DesktopArticleDetail({
     const renderedTags = articleTags.slice(0, 6);
     const views = article.views || 0;
     const authorInitial = (authorName || "편집국").trim().charAt(0);
-    const normalizedContent = normalizeArticleHtml(article.content);
+    const normalizedContent = sanitizeHtml(normalizeArticleHtml(article.content));
     const categoryLinks = LINKS.filter((link) => link.href !== "/");
 
     return (

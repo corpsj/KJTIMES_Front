@@ -45,6 +45,8 @@ import {
     IconUpload,
 } from "@tabler/icons-react";
 import Link from "next/link";
+import { notifications } from "@mantine/notifications";
+import { sanitizeHtml } from "@/utils/sanitize";
 
 const SPECIAL_ISSUE_CATEGORY_NAME = "창간특별호";
 const SPECIAL_ISSUE_CATEGORY_SLUG = "special-edition";
@@ -771,7 +773,7 @@ export default function AdminWrite() {
         const { error: uploadError } = await supabase.storage.from("news-images").upload(filePath, file);
 
         if (uploadError) {
-            alert(`Upload failed: ${uploadError.message}`);
+            notifications.show({ title: "업로드 실패", message: uploadError.message, color: "red" });
             return "";
         }
 
@@ -864,7 +866,7 @@ export default function AdminWrite() {
                     <Box
                         style={{ lineHeight: 1.7 }}
                         dangerouslySetInnerHTML={{
-                            __html: content || "<p style='color:#6b7280'>미리보기할 본문이 없습니다.</p>",
+                            __html: sanitizeHtml(content || "<p style='color:#6b7280'>미리보기할 본문이 없습니다.</p>"),
                         }}
                     />
                 </Stack>
