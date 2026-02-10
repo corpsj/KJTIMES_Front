@@ -688,7 +688,7 @@ export default function AdminWrite() {
                         {title || "기사 제목"}
                     </Title>
                     {subTitle && (
-                        <Text c="dimmed">{subTitle}</Text>
+                        <Text c="dimmed" style={{ whiteSpace: "pre-line" }}>{subTitle}</Text>
                     )}
                     <Text size="sm" c="dimmed">
                         읽기 {estimatedReadMinutes}분 · {sharePreviewUrl}
@@ -798,12 +798,15 @@ export default function AdminWrite() {
                                 }}
                                 required
                             />
-                            <TextInput
-                                placeholder="부제 (선택)"
+                            <Textarea
+                                placeholder="부제 (선택, 줄바꿈 가능)"
                                 size="lg"
                                 variant="unstyled"
                                 c="dimmed"
-                                styles={{ input: { fontSize: "1.25rem", fontWeight: 500 } }}
+                                autosize
+                                minRows={1}
+                                maxRows={5}
+                                styles={{ input: { fontSize: "1.25rem", fontWeight: 500, lineHeight: 1.5 } }}
                                 value={subTitle}
                                 onChange={(e) => {
                                     setSubTitle(e.currentTarget.value);

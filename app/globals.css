@@ -17,3 +17,26 @@ body {
   color: var(--foreground);
   font-family: var(--font-noto-sans-kr), "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
 }
+
+/* ─── Article body: figure + figcaption styling ─── */
+.tiptap-content figure[data-figure-image],
+.tiptap-content figure {
+  margin: 1.5rem 0;
+  text-align: center;
+}
+
+.tiptap-content figure img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+  border-radius: 4px;
+}
+
+.tiptap-content figure figcaption {
+  margin-top: 8px;
+  font-size: 0.85rem;
+  color: #6b7280;
+  line-height: 1.5;
+  text-align: center;
+}

@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import Placeholder from '@tiptap/extension-placeholder';
+import { FigureImage } from './FigureImage';
 import { Group, ActionIcon, Paper } from '@mantine/core';
 import { IconBold, IconItalic, IconStrikethrough, IconH1, IconH2, IconList, IconListNumbers, IconPhoto } from '@tabler/icons-react';
 
@@ -18,6 +19,7 @@ export function RichTextEditor({ content, onChange, onImageUpload }: RichTextEdi
         extensions: [
             StarterKit,
             Image,
+            FigureImage,
             Placeholder.configure({
                 placeholder: '내용을 입력하세요...',
             }),
@@ -49,12 +51,22 @@ export function RichTextEditor({ content, onChange, onImageUpload }: RichTextEdi
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = 'image/*';
+        input.multiple = true;
         input.onchange = async () => {
             if (input.files?.length && onImageUpload) {
-                const file = input.files[0];
-                const url = await onImageUpload(file);
-                if (url) {
-                    editor.chain().focus().setImage({ src: url }).run();
+                for (let i = 0; i < input.files.length; i++) {
+                    const file = input.files[i];
+                    const url = await onImageUpload(file);
+                    if (url) {
+                        editor
+                            .chain()
+                            .focus()
+                            .insertContent({
+                                type: 'figureImage',
+                                attrs: { src: url, alt: file.name, caption: null },
+                            })
+                            .run();
+                    }
                 }
             }
         };
