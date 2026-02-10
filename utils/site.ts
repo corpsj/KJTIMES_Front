@@ -1,5 +1,7 @@
 import { headers } from "next/headers";
 
+const FALLBACK_SITE_URL = "https://kjtimes.co.kr";
+
 export async function getSiteUrl() {
     const envUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_VERCEL_URL;
     if (envUrl) {
@@ -17,5 +19,5 @@ export async function getSiteUrl() {
         return `${proto}://${host}`;
     }
 
-    return "http://localhost:3000";
+    return FALLBACK_SITE_URL;
 }

@@ -5,12 +5,11 @@ import { UAParser } from "ua-parser-js";
 const SPECIAL_ISSUE_LOCK_COOKIE = "kj_special_issue_lock";
 const SHARE_PATH_REGEX = /^\/share\/([^/]+)$/;
 
-// 🔧 프리뷰 모드 설정
-// PREVIEW_MODE=true 이면:
+// 🔧 프리뷰 모드: 환경변수 사용 (단일 소스)
+// NEXT_PUBLIC_PREVIEW_MODE=true 이면:
 // - 메인 페이지 접속 시 /special-edition으로 리다이렉트
 // - 창간특별호 외 다른 페이지 접근 차단
-// 해제하려면 아래 값을 false로 변경
-const PREVIEW_MODE = false;
+const PREVIEW_MODE = process.env.NEXT_PUBLIC_PREVIEW_MODE === "true";
 const ALLOWED_PATHS_IN_PREVIEW = [
     "/special-edition",
     "/article",

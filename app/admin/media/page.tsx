@@ -10,7 +10,6 @@ import {
   Image,
   Loader,
   Modal,
-  Overlay,
   Paper,
   Progress,
   SimpleGrid,
@@ -18,6 +17,7 @@ import {
   Text,
   TextInput,
 } from "@mantine/core";
+import { notifications } from "@mantine/notifications";
 import { Dropzone, IMAGE_MIME_TYPE } from "@mantine/dropzone";
 import { useDisclosure } from "@mantine/hooks";
 import { createClient } from "@/utils/supabase/client";
@@ -169,9 +169,9 @@ export default function AdminMedia() {
   const copyUrl = async (url: string) => {
     try {
       await navigator.clipboard.writeText(url);
-      alert("URL이 복사되었습니다.");
+      notifications.show({ title: "성공", message: "URL이 복사되었습니다.", color: "green" });
     } catch {
-      alert("URL 복사에 실패했습니다.");
+      notifications.show({ title: "오류", message: "URL 복사에 실패했습니다.", color: "red" });
     }
   };
 
@@ -193,7 +193,7 @@ export default function AdminMedia() {
     }
     const { error } = await supabase.from("media").delete().eq("id", item.id);
     if (error) {
-      alert("삭제 실패: " + error.message);
+      notifications.show({ title: "오류", message: "삭제 실패: " + error.message, color: "red" });
     } else {
       if (lightboxItem?.id === item.id) {
         closeLightbox();

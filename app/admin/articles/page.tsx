@@ -28,15 +28,14 @@ import {
   IconCopy,
   IconDots,
   IconEdit,
-  IconEye,
   IconFileText,
   IconLink,
   IconPlus,
   IconSearch,
   IconSend,
   IconTrash,
-  IconX,
 } from "@tabler/icons-react";
+import { notifications } from "@mantine/notifications";
 import { createClient } from "@/utils/supabase/client";
 import AdminHeader from "@/components/admin/AdminHeader";
 import StatCard from "@/components/admin/StatCard";
@@ -253,20 +252,20 @@ export default function AdminArticles() {
 
   const copySpecialIssueShareLink = async (article: ArticleRow) => {
     if (!article.slug) {
-      alert("공유 링크를 생성할 수 없습니다.");
+      notifications.show({ title: "오류", message: "공유 링크를 생성할 수 없습니다.", color: "red" });
       return;
     }
     const isShareVisible = article.status === "shared" || article.status === "published";
     if (!isShareVisible) {
-      alert("공유/게시 상태에서만 링크를 복사할 수 있습니다.");
+      notifications.show({ title: "안내", message: "공유/게시 상태에서만 링크를 복사할 수 있습니다.", color: "yellow" });
       return;
     }
     const shareUrl = `${window.location.origin}/share/${article.slug}`;
     try {
       await copyToClipboard(shareUrl);
-      alert("공유 링크를 복사했습니다.");
+      notifications.show({ title: "성공", message: "공유 링크를 복사했습니다.", color: "green" });
     } catch {
-      alert("링크 복사에 실패했습니다.");
+      notifications.show({ title: "오류", message: "링크 복사에 실패했습니다.", color: "red" });
     }
   };
 
@@ -294,7 +293,7 @@ export default function AdminArticles() {
     setActionLoadingId(article.id);
     const payload = resolveStatusPayload(article, status);
     const { error } = await supabase.from("articles").update(payload).eq("id", article.id);
-    if (error) alert(`상태 변경 실패: ${error.message}`);
+    if (error) notifications.show({ title: "오류", message: `상태 변경 실패: ${error.message}`, color: "red" });
     else triggerRefresh();
     setActionLoadingId(null);
   };
@@ -319,7 +318,7 @@ export default function AdminArticles() {
         .single();
 
       if (fetchError || !fullArticle) {
-        alert("기사 데이터를 불러올 수 없습니다.");
+        notifications.show({ title: "오류", message: "기사 데이터를 불러올 수 없습니다.", color: "red" });
         setActionLoadingId(null);
         return;
       }
@@ -352,7 +351,7 @@ export default function AdminArticles() {
         .single();
 
       if (insertError || !newArticle) {
-        alert(`복제 실패: ${insertError?.message || "알 수 없는 오류"}`);
+        notifications.show({ title: "오류", message: `복제 실패: ${insertError?.message || "알 수 없는 오류"}`, color: "red" });
         setActionLoadingId(null);
         return;
       }
@@ -370,7 +369,7 @@ export default function AdminArticles() {
 
       router.push(`/admin/write?id=${newArticle.id}`);
     } catch {
-      alert("복제 중 오류가 발생했습니다.");
+      notifications.show({ title: "오류", message: "복제 중 오류가 발생했습니다.", color: "red" });
     } finally {
       setActionLoadingId(null);
     }
@@ -378,7 +377,7 @@ export default function AdminArticles() {
 
   const applyBulkStatus = async () => {
     if (selectedArticleIds.length === 0) {
-      alert("먼저 기사 항목을 선택해주세요.");
+      notifications.show({ title: "안내", message: "먼저 기사 항목을 선택해주세요.", color: "yellow" });
       return;
     }
     setBulkLoading(true);
@@ -392,7 +391,7 @@ export default function AdminArticles() {
       );
       const failed = results.find((r) => r.error);
       if (failed?.error) {
-        alert(`일괄 상태 변경 실패: ${failed.error.message}`);
+        notifications.show({ title: "오류", message: `일괄 상태 변경 실패: ${failed.error.message}`, color: "red" });
         return;
       }
       setSelectedArticleIds([]);
@@ -406,15 +405,15 @@ export default function AdminArticles() {
     setDeleteModalArticle(null);
     setActionLoadingId(article.id);
     const { count, error } = await supabase.from("articles").delete({ count: "exact" }).eq("id", article.id);
-    if (error) alert(`삭제 실패: ${error.message}`);
-    else if (!count) alert("삭제된 기사가 없습니다.");
+    if (error) notifications.show({ title: "오류", message: `삭제 실패: ${error.message}`, color: "red" });
+    else if (!count) notifications.show({ title: "안내", message: "삭제된 기사가 없습니다.", color: "yellow" });
     else triggerRefresh();
     setActionLoadingId(null);
   };
 
   const deleteSelectedArticles = async () => {
     if (selectedArticleIds.length === 0) {
-      alert("삭제할 기사 항목을 선택해주세요.");
+      notifications.show({ title: "안내", message: "삭제할 기사 항목을 선택해주세요.", color: "yellow" });
       return;
     }
     const confirmed = window.confirm(`선택한 ${selectedArticleIds.length}건을 삭제할까요?`);
@@ -426,11 +425,11 @@ export default function AdminArticles() {
         .delete({ count: "exact" })
         .in("id", selectedArticleIds);
       if (error) {
-        alert(`일괄 삭제 실패: ${error.message}`);
+        notifications.show({ title: "오류", message: `일괄 삭제 실패: ${error.message}`, color: "red" });
         return;
       }
       if (!count) {
-        alert("삭제된 기사가 없습니다.");
+        notifications.show({ title: "안내", message: "삭제된 기사가 없습니다.", color: "yellow" });
         return;
       }
       setSelectedArticleIds([]);
