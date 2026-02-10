@@ -2,7 +2,30 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import {
+  Button,
+  Group,
+  Loader,
+  Paper,
+  SimpleGrid,
+  Stack,
+  Text,
+} from "@mantine/core";
+import {
+  IconArticle,
+  IconCheck,
+  IconClock,
+  IconEdit,
+  IconNews,
+  IconPhoto,
+  IconPlus,
+  IconRss,
+} from "@tabler/icons-react";
 import { createClient } from "@/utils/supabase/client";
+import AdminHeader from "@/components/admin/AdminHeader";
+import StatCard from "@/components/admin/StatCard";
+import StatusBadge from "@/components/admin/StatusBadge";
+import EmptyState from "@/components/admin/EmptyState";
 
 type RecentArticle = {
   id: string;
@@ -10,26 +33,6 @@ type RecentArticle = {
   status: string;
   created_at: string;
   updated_at?: string | null;
-};
-
-const statusTone: Record<string, string> = {
-  published: "published",
-  shared: "shared",
-  pending_review: "pending",
-  draft: "draft",
-  scheduled: "scheduled",
-  rejected: "alert",
-  archived: "draft",
-};
-
-const statusLabels: Record<string, string> = {
-  published: "게시",
-  shared: "공유",
-  pending_review: "승인 대기",
-  draft: "작성",
-  scheduled: "예약",
-  rejected: "반려",
-  archived: "보관",
 };
 
 export default function AdminDashboard() {
@@ -43,14 +46,11 @@ export default function AdminDashboard() {
   const [statsPending, setStatsPending] = useState(0);
 
   const [recentArticles, setRecentArticles] = useState<RecentArticle[]>([]);
-  const [todayCount, setTodayCount] = useState(0);
-  const [yesterdayCount, setYesterdayCount] = useState(0);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       setLoading(true);
 
-      // Fetch user
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -58,44 +58,32 @@ export default function AdminDashboard() {
         setUserName(user.user_metadata.full_name);
       }
 
-      // Fetch stats
       const [totalRes, publishedRes, draftRes, pendingRes] = await Promise.all([
         supabase.from("articles").select("id", { count: "exact", head: true }),
-        supabase.from("articles").select("id", { count: "exact", head: true }).eq("status", "published"),
-        supabase.from("articles").select("id", { count: "exact", head: true }).eq("status", "draft"),
-        supabase.from("articles").select("id", { count: "exact", head: true }).eq("status", "pending_review"),
+        supabase
+          .from("articles")
+          .select("id", { count: "exact", head: true })
+          .eq("status", "published"),
+        supabase
+          .from("articles")
+          .select("id", { count: "exact", head: true })
+          .eq("status", "draft"),
+        supabase
+          .from("articles")
+          .select("id", { count: "exact", head: true })
+          .eq("status", "pending_review"),
       ]);
       setStatsTotal(totalRes.count ?? 0);
       setStatsPublished(publishedRes.count ?? 0);
       setStatsDraft(draftRes.count ?? 0);
       setStatsPending(pendingRes.count ?? 0);
 
-      // Fetch recent articles
       const { data: recent } = await supabase
         .from("articles")
         .select("id, title, status, created_at, updated_at")
         .order("updated_at", { ascending: false })
         .limit(5);
       setRecentArticles((recent as RecentArticle[]) || []);
-
-      // Today's count vs yesterday
-      const now = new Date();
-      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
-      const yesterdayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1).toISOString();
-
-      const [todayRes, yesterdayRes] = await Promise.all([
-        supabase
-          .from("articles")
-          .select("id", { count: "exact", head: true })
-          .gte("created_at", todayStart),
-        supabase
-          .from("articles")
-          .select("id", { count: "exact", head: true })
-          .gte("created_at", yesterdayStart)
-          .lt("created_at", todayStart),
-      ]);
-      setTodayCount(todayRes.count ?? 0);
-      setYesterdayCount(yesterdayRes.count ?? 0);
 
       setLoading(false);
     };
@@ -110,141 +98,182 @@ export default function AdminDashboard() {
     weekday: "long",
   });
 
-  const todayDiff = todayCount - yesterdayCount;
-  const diffText =
-    todayDiff > 0
-      ? `어제보다 ${todayDiff}건 증가 ↑`
-      : todayDiff < 0
-        ? `어제보다 ${Math.abs(todayDiff)}건 감소 ↓`
-        : "어제와 동일";
-
   return (
-    <div className="admin2-grid admin2-grid--single">
-      <div className="admin2-dashboard">
-        {/* Welcome Header */}
-        <div className="admin2-panel">
-          <div className="admin2-dashboard-hero">
-            <div className="admin2-dashboard-hero-top">
-              <div>
-                <div className="admin2-panel-title">대시보드</div>
-                <div className="admin2-hero-title admin2-display">
-                  환영합니다, {userName}님
+    <div>
+      <AdminHeader
+        title="대시보드"
+        actions={
+          <Button
+            component={Link}
+            href="/admin/write"
+            leftSection={<IconPlus size={16} />}
+          >
+            새 기사 작성
+          </Button>
+        }
+      />
+
+      {/* Welcome */}
+      <Paper p="lg" mb="lg" shadow="0 1px 3px rgba(0,0,0,0.08)">
+        <Text fz={20} fw={600}>
+          안녕하세요, {userName}님
+        </Text>
+        <Text size="sm" c="dimmed" mt={4}>
+          {todayFormatted}
+        </Text>
+      </Paper>
+
+      {/* Stats */}
+      {loading ? (
+        <Group justify="center" py="xl">
+          <Loader size="sm" />
+        </Group>
+      ) : (
+        <SimpleGrid cols={{ base: 2, sm: 4 }} mb="lg">
+          <StatCard
+            label="전체 기사"
+            value={statsTotal}
+            icon={<IconNews size={22} />}
+            color="gray"
+          />
+          <StatCard
+            label="게시"
+            value={statsPublished}
+            icon={<IconCheck size={22} />}
+            color="green"
+          />
+          <StatCard
+            label="작성"
+            value={statsDraft}
+            icon={<IconEdit size={22} />}
+            color="blue"
+          />
+          <StatCard
+            label="승인 대기"
+            value={statsPending}
+            icon={<IconClock size={22} />}
+            color="yellow"
+          />
+        </SimpleGrid>
+      )}
+
+      {/* Recent articles */}
+      <Paper p="lg" mb="lg" shadow="0 1px 3px rgba(0,0,0,0.08)">
+        <Group justify="space-between" mb="md">
+          <Text fw={600} fz="lg">
+            최근 기사
+          </Text>
+          <Text
+            component={Link}
+            href="/admin/articles"
+            size="sm"
+            c="blue"
+            style={{ textDecoration: "none" }}
+          >
+            전체 보기 →
+          </Text>
+        </Group>
+
+        {loading ? (
+          <Group justify="center" py="lg">
+            <Loader size="sm" />
+          </Group>
+        ) : recentArticles.length === 0 ? (
+          <EmptyState
+            icon={<IconArticle size={48} />}
+            title="기사가 없습니다"
+            description="새 기사를 작성하여 시작하세요."
+            action={
+              <Button component={Link} href="/admin/write" size="sm">
+                기사 작성
+              </Button>
+            }
+          />
+        ) : (
+          <Stack gap={0}>
+            {recentArticles.map((article) => (
+              <Group
+                key={article.id}
+                justify="space-between"
+                py="sm"
+                style={{ borderBottom: "1px solid #f1f3f5" }}
+              >
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <Text
+                    component={Link}
+                    href={`/admin/write?id=${article.id}`}
+                    fw={500}
+                    size="sm"
+                    style={{
+                      textDecoration: "none",
+                      color: "inherit",
+                      display: "block",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {article.title}
+                  </Text>
+                  <Text size="xs" c="dimmed" mt={2}>
+                    {new Date(
+                      article.updated_at || article.created_at
+                    ).toLocaleString("ko-KR")}
+                  </Text>
                 </div>
-                <div className="admin2-hero-sub">{todayFormatted}</div>
-              </div>
-              <div className="admin2-dashboard-actions">
-                <Link className="admin2-btn admin2-btn-accent" href="/admin/write">
-                  새 기사 작성
-                </Link>
-                <Link className="admin2-btn admin2-btn-ghost" href="/admin/articles">
-                  기사 관리
-                </Link>
-                <Link className="admin2-btn admin2-btn-ghost" href="/admin/media">
-                  미디어
-                </Link>
-                <Link className="admin2-btn admin2-btn-ghost" href="/admin/news-feed">
-                  뉴스 피드
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
+                <StatusBadge status={article.status} />
+              </Group>
+            ))}
+          </Stack>
+        )}
+      </Paper>
 
-        {/* Stats Row */}
-        <div className="admin2-desk-stats">
-          <div className="admin2-desk-stat admin2-desk-stat--ink">
-            <div className="admin2-desk-stat-label">전체 기사</div>
-            <div className="admin2-desk-stat-value">{loading ? "—" : statsTotal.toLocaleString()}</div>
-          </div>
-          <div className="admin2-desk-stat admin2-desk-stat--green">
-            <div className="admin2-desk-stat-label">게시</div>
-            <div className="admin2-desk-stat-value">{loading ? "—" : statsPublished.toLocaleString()}</div>
-          </div>
-          <div className="admin2-desk-stat admin2-desk-stat--blue">
-            <div className="admin2-desk-stat-label">작성</div>
-            <div className="admin2-desk-stat-value">{loading ? "—" : statsDraft.toLocaleString()}</div>
-          </div>
-          <div className="admin2-desk-stat admin2-desk-stat--warning">
-            <div className="admin2-desk-stat-label">승인 대기</div>
-            <div className="admin2-desk-stat-value">{loading ? "—" : statsPending.toLocaleString()}</div>
-          </div>
-        </div>
-
-        {/* Today's count comparison */}
-        <div className="admin2-panel">
-          <div className="admin2-panel-title">오늘의 기사</div>
-          <div style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
-            <span style={{ fontSize: 28, fontWeight: 700 }}>
-              {loading ? "—" : `${todayCount}건`}
-            </span>
-            <span style={{ fontSize: 13, color: "var(--admin2-muted)" }}>
-              {loading ? "" : diffText}
-            </span>
-          </div>
-        </div>
-
-        {/* Recent Articles */}
-        <div className="admin2-panel">
-          <div className="admin2-desk-list-head">
-            <div className="admin2-panel-title">최근 기사</div>
-            <Link className="admin2-link" href="/admin/articles">
-              전체 보기 →
-            </Link>
-          </div>
-          {loading ? (
-            <div className="admin2-placeholder">불러오는 중...</div>
-          ) : recentArticles.length === 0 ? (
-            <div className="admin2-placeholder">기사가 없습니다.</div>
-          ) : (
-            <div className="admin2-queue">
-              {recentArticles.map((article) => (
-                <div key={article.id} className="admin2-queue-item">
-                  <div>
-                    <div className="admin2-queue-title">
-                      <Link
-                        href={`/admin/write?id=${article.id}`}
-                        style={{ color: "inherit", textDecoration: "none" }}
-                      >
-                        {article.title}
-                      </Link>
-                    </div>
-                    <div className="admin2-queue-meta">
-                      {new Date(article.updated_at || article.created_at).toLocaleString("ko-KR")}
-                    </div>
-                  </div>
-                  <div>
-                    <span
-                      className={`admin2-tag admin2-tag--${statusTone[article.status] || "draft"}`}
-                    >
-                      {statusLabels[article.status] || article.status}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Quick Links */}
-        <div className="admin2-dashboard-links">
-          <Link href="/admin/write" className="admin2-dashboard-link">
-            <span className="admin2-dashboard-link-title">✍️ 새 기사 작성</span>
-            <span className="admin2-dashboard-link-meta">작성 스튜디오로 이동</span>
-          </Link>
-          <Link href="/admin/articles" className="admin2-dashboard-link">
-            <span className="admin2-dashboard-link-title">📋 기사 관리</span>
-            <span className="admin2-dashboard-link-meta">기사 데스크로 이동</span>
-          </Link>
-          <Link href="/admin/media" className="admin2-dashboard-link">
-            <span className="admin2-dashboard-link-title">🖼️ 미디어</span>
-            <span className="admin2-dashboard-link-meta">미디어 라이브러리로 이동</span>
-          </Link>
-          <Link href="/admin/news-feed" className="admin2-dashboard-link">
-            <span className="admin2-dashboard-link-title">📡 뉴스 피드</span>
-            <span className="admin2-dashboard-link-meta">뉴스 팩토리 피드 관리</span>
-          </Link>
-        </div>
-      </div>
+      {/* Quick actions */}
+      <SimpleGrid cols={{ base: 2, sm: 4 }}>
+        <Button
+          component={Link}
+          href="/admin/write"
+          variant="light"
+          leftSection={<IconEdit size={18} />}
+          fullWidth
+          size="md"
+        >
+          새 기사 작성
+        </Button>
+        <Button
+          component={Link}
+          href="/admin/articles"
+          variant="light"
+          color="gray"
+          leftSection={<IconArticle size={18} />}
+          fullWidth
+          size="md"
+        >
+          기사 관리
+        </Button>
+        <Button
+          component={Link}
+          href="/admin/media"
+          variant="light"
+          color="teal"
+          leftSection={<IconPhoto size={18} />}
+          fullWidth
+          size="md"
+        >
+          미디어
+        </Button>
+        <Button
+          component={Link}
+          href="/admin/news-feed"
+          variant="light"
+          color="orange"
+          leftSection={<IconRss size={18} />}
+          fullWidth
+          size="md"
+        >
+          뉴스 피드
+        </Button>
+      </SimpleGrid>
     </div>
   );
 }

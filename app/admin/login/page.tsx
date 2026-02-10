@@ -2,18 +2,19 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/utils/supabase/client";
-import Link from "next/link";
-import { Noto_Serif_KR } from "next/font/google";
 import Image from "next/image";
-import "../admin2.css";
-import "./login.css";
-
-const displayFont = Noto_Serif_KR({
-  subsets: ["latin"],
-  weight: ["400", "600", "700"],
-  variable: "--admin2-display",
-});
+import {
+  Alert,
+  Button,
+  Card,
+  PasswordInput,
+  Stack,
+  Text,
+  TextInput,
+  Title,
+} from "@mantine/core";
+import { IconAlertCircle } from "@tabler/icons-react";
+import { createClient } from "@/utils/supabase/client";
 
 export default function AdminLogin() {
   const [id, setId] = useState("");
@@ -57,76 +58,97 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className={`admin2 admin2-shell admin2-auth ${displayFont.variable}`}>
-      <div className="admin2-auth-grid">
-        <section className="admin2-auth-panel">
-          <div className="admin2-panel admin2-auth-card">
-            <div className="admin2-auth-header">
-              <Image
-                src="/brand/KJ_sloganLogo.png"
-                alt="Kwangjeon Times Logo"
-                className="admin2-auth-logo"
-                width={180}
-                height={60}
-                priority
-              />
-              <div className="admin2-auth-heading">편집국 로그인</div>
-              <p className="admin2-hero-sub">
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)",
+        padding: 20,
+      }}
+    >
+      <Card
+        shadow="xl"
+        padding="xl"
+        radius="lg"
+        style={{
+          width: "100%",
+          maxWidth: 420,
+        }}
+      >
+        <Stack gap="lg">
+          {/* Logo & Header */}
+          <Stack gap="xs" align="flex-start">
+            <Image
+              src="/brand/KJ_sloganLogo.png"
+              alt="광전타임즈"
+              width={160}
+              height={32}
+              style={{ height: "auto" }}
+              priority
+            />
+            <div>
+              <Title order={3} fw={700} mt="xs">
+                편집국 로그인
+              </Title>
+              <Text size="sm" c="dimmed" mt={4}>
                 인증된 편집 권한으로만 접근할 수 있습니다.
-              </p>
+              </Text>
             </div>
+          </Stack>
 
-            {error && (
-              <div className="admin2-auth-alert" role="alert">
-                {error}
-              </div>
-            )}
+          {/* Error */}
+          {error && (
+            <Alert
+              icon={<IconAlertCircle size={16} />}
+              color="red"
+              variant="light"
+              radius="md"
+            >
+              {error}
+            </Alert>
+          )}
 
-            <form className="admin2-auth-form" onSubmit={handleSubmit}>
-              <label className="admin2-field">
-                <span className="admin2-label">아이디</span>
-                <input
-                  className="admin2-input"
-                  placeholder="admin"
-                  value={id}
-                  onChange={(event) => setId(event.currentTarget.value)}
-                  autoComplete="username"
-                  required
-                />
-              </label>
-              <label className="admin2-field">
-                <span className="admin2-label">비밀번호</span>
-                <input
-                  className="admin2-input"
-                  placeholder="********"
-                  type="password"
-                  value={password}
-                  onChange={(event) => setPassword(event.currentTarget.value)}
-                  autoComplete="current-password"
-                  required
-                />
-              </label>
-              <button
-                className="admin2-btn admin2-btn-ink admin2-auth-submit"
+          {/* Form */}
+          <form onSubmit={handleSubmit}>
+            <Stack gap="md">
+              <TextInput
+                label="아이디"
+                placeholder="admin"
+                value={id}
+                onChange={(event) => setId(event.currentTarget.value)}
+                autoComplete="username"
+                required
+                size="md"
+              />
+              <PasswordInput
+                label="비밀번호"
+                placeholder="********"
+                value={password}
+                onChange={(event) => setPassword(event.currentTarget.value)}
+                autoComplete="current-password"
+                required
+                size="md"
+              />
+              <Button
                 type="submit"
-                disabled={loading}
+                fullWidth
+                size="md"
+                loading={loading}
+                mt="xs"
               >
                 {loading ? "인증 중..." : "로그인"}
-              </button>
-            </form>
+              </Button>
+            </Stack>
+          </form>
 
-            <div className="admin2-auth-footer">
-              <span>계정이 없으신가요?</span>
-              <Link className="admin2-btn admin2-btn-ghost" href="/signup">
-                회원가입
-              </Link>
-            </div>
-            <div className="admin2-auth-secure">
-              보안 접속: 모든 세션은 암호화되어 기록됩니다.
-            </div>
-          </div>
-        </section>
-      </div>
+          {/* Footer */}
+          <Text size="xs" c="dimmed" ta="center">
+            보안 접속: 모든 세션은 암호화되어 기록됩니다.
+          </Text>
+        </Stack>
+      </Card>
     </div>
   );
 }
