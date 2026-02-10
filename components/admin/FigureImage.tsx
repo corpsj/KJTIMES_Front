@@ -3,7 +3,13 @@ import { ReactNodeViewRenderer, NodeViewWrapper } from "@tiptap/react";
 import { useState, useCallback } from "react";
 
 /* ─── React NodeView ─── */
-function FigureImageView({ node, updateAttributes, selected }: any) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function FigureImageView(props: any) {
+    const { node, updateAttributes, selected } = props as {
+        node: { attrs: { src: string | null; alt: string | null; caption: string | null } };
+        updateAttributes: (attrs: Partial<{ src: string | null; alt: string | null; caption: string | null }>) => void;
+        selected: boolean;
+    };
     const { src, alt, caption } = node.attrs;
     const [isEditingCaption, setIsEditingCaption] = useState(false);
 
@@ -39,17 +45,35 @@ function FigureImageView({ node, updateAttributes, selected }: any) {
                     transition: "border-color 0.15s",
                 }}
             >
-                <img
-                    src={src}
-                    alt={alt || ""}
-                    style={{
-                        display: "block",
-                        width: "100%",
-                        height: "auto",
-                        borderRadius: 4,
-                    }}
-                    draggable={false}
-                />
+                {src ? (
+                    <img
+                        src={src}
+                        alt={alt || ""}
+                        style={{
+                            display: "block",
+                            width: "100%",
+                            height: "auto",
+                            borderRadius: 4,
+                        }}
+                        draggable={false}
+                    />
+                ) : (
+                    <div
+                        style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            width: "100%",
+                            height: 200,
+                            background: "#f3f4f6",
+                            borderRadius: 4,
+                            color: "#9ca3af",
+                            fontSize: "0.9rem",
+                        }}
+                    >
+                        이미지를 불러올 수 없습니다
+                    </div>
+                )}
             </div>
             {isEditingCaption ? (
                 <input

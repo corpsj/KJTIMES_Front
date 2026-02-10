@@ -814,6 +814,15 @@ function SubscriptionModal({
   const [webhookUrl, setWebhookUrl] = useState(editing?.webhook_url || "");
   const [saving, setSaving] = useState(false);
 
+  // Handle Escape key to close modal
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
   const schedule = cronPreset || cronCustom;
 
   const toggleInList = (list: string[], val: string) =>
@@ -861,7 +870,7 @@ function SubscriptionModal({
   };
 
   return (
-    <div className="nf-modal-overlay" onClick={onClose}>
+    <div className="nf-modal-overlay" onClick={onClose} role="dialog" aria-modal="true" aria-label={editing ? "구독 수정" : "구독 추가"}>
       <div
         className="admin2-panel nf-modal"
         onClick={(e) => e.stopPropagation()}

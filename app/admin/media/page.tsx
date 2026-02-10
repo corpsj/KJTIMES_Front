@@ -52,7 +52,7 @@ export default function AdminMedia() {
   const [searchTerm, setSearchTerm] = useState("");
   const [refreshToken, setRefreshToken] = useState(0);
   const searchTermRef = useRef("");
-  const supabase = createClient();
+  const [supabase] = useState(() => createClient());
 
   // Lightbox state
   const [lightboxItem, setLightboxItem] = useState<MediaItem | null>(null);
@@ -342,6 +342,7 @@ export default function AdminMedia() {
       <Paper p="md" radius="md" withBorder mb="lg">
         <TextInput
           placeholder="파일명 검색..."
+          aria-label="미디어 파일 검색"
           leftSection={<IconSearch size="1rem" />}
           value={searchTerm}
           onChange={(e) => handleSearchChange(e.currentTarget.value)}
@@ -384,7 +385,8 @@ export default function AdminMedia() {
                     size="xs"
                     variant="light"
                     leftSection={<IconCopy size={12} />}
-                    onClick={() => copyUrl(item.url)}
+                    onClick={() => void copyUrl(item.url)}
+                    aria-label={`${item.filename} URL 복사`}
                   >
                     URL 복사
                   </Button>
@@ -393,8 +395,9 @@ export default function AdminMedia() {
                     variant="subtle"
                     color="red"
                     leftSection={<IconTrash size={12} />}
-                    onClick={() => deleteMedia(item)}
+                    onClick={() => void deleteMedia(item)}
                     disabled={actionId === item.id}
+                    aria-label={`${item.filename} 삭제`}
                   >
                     삭제
                   </Button>

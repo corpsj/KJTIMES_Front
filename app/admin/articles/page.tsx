@@ -91,6 +91,9 @@ export default function AdminArticles() {
   const [refreshToken, setRefreshToken] = useState(0);
   const searchTermRef = useRef("");
 
+  // Delete confirmation modal state
+  const [deleteModalArticle, setDeleteModalArticle] = useState<ArticleRow | null>(null);
+
   // Pagination state
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
@@ -427,10 +430,8 @@ export default function AdminArticles() {
     }
   };
 
-  const deleteArticle = async (article: ArticleRow) => {
-    const confirmed = window.confirm(`"${article.title}" 기사를 삭제할까요?`);
-    if (!confirmed) return;
-
+  const confirmDeleteArticle = async (article: ArticleRow) => {
+    setDeleteModalArticle(null);
     setActionLoadingId(article.id);
     const { count, error } = await supabase.from("articles").delete({ count: "exact" }).eq("id", article.id);
 
@@ -551,6 +552,7 @@ export default function AdminArticles() {
               <span>⌕</span>
               <input
                 placeholder="제목 또는 슬러그 검색"
+                aria-label="기사 검색"
                 value={searchTerm}
                 onChange={(event) => {
                   setSearchTerm(event.target.value);
@@ -686,6 +688,7 @@ export default function AdminArticles() {
                               type="checkbox"
                               checked={isSelected}
                               onChange={(event) => toggleArticleSelection(article.id, event.target.checked)}
+                              aria-label={`${article.title} 선택`}
                             />
                           </label>
                         </td>
@@ -742,8 +745,9 @@ export default function AdminArticles() {
                             <button
                               type="button"
                               className="admin2-row-action--danger"
-                              onClick={() => deleteArticle(article)}
+                              onClick={() => setDeleteModalArticle(article)}
                               disabled={actionLoadingId === article.id || bulkLoading}
+                              aria-label={`${article.title} 삭제`}
                             >
                               삭제
                             </button>
@@ -765,10 +769,11 @@ export default function AdminArticles() {
                 type="button"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page <= 1 || loading}
+                aria-label="이전 페이지"
               >
                 ← 이전
               </button>
-              <span className="admin2-desk-pagination-info">
+              <span className="admin2-desk-pagination-info" aria-live="polite">
                 페이지 {page} / {totalPages}
               </span>
               <button
@@ -776,6 +781,7 @@ export default function AdminArticles() {
                 type="button"
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page >= totalPages || loading}
+                aria-label="다음 페이지"
               >
                 다음 →
               </button>
@@ -783,6 +789,48 @@ export default function AdminArticles() {
           )}
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteModalArticle && (
+        <div
+          className="nf-modal-overlay"
+          onClick={() => setDeleteModalArticle(null)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="기사 삭제 확인"
+        >
+          <div
+            className="admin2-panel nf-modal"
+            style={{ maxWidth: 420, textAlign: "center" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ fontSize: 40, marginBottom: 12 }}>🗑️</div>
+            <div className="admin2-panel-title" style={{ marginBottom: 8 }}>기사 삭제</div>
+            <p style={{ fontSize: 14, color: "var(--admin2-ink)", marginBottom: 6 }}>
+              &ldquo;{deleteModalArticle.title}&rdquo;
+            </p>
+            <p style={{ fontSize: 13, color: "var(--admin2-muted)", marginBottom: 20 }}>
+              이 기사를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
+            </p>
+            <div className="nf-modal-actions" style={{ justifyContent: "center" }}>
+              <button
+                className="admin2-btn admin2-btn-ghost"
+                type="button"
+                onClick={() => setDeleteModalArticle(null)}
+              >
+                취소
+              </button>
+              <button
+                className="admin2-btn admin2-row-action--danger"
+                type="button"
+                onClick={() => void confirmDeleteArticle(deleteModalArticle)}
+              >
+                삭제
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

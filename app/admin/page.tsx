@@ -113,9 +113,9 @@ export default function AdminDashboard() {
   const todayDiff = todayCount - yesterdayCount;
   const diffText =
     todayDiff > 0
-      ? `어제보다 ${todayDiff}건 증가`
+      ? `어제보다 ${todayDiff}건 증가 ↑`
       : todayDiff < 0
-        ? `어제보다 ${Math.abs(todayDiff)}건 감소`
+        ? `어제보다 ${Math.abs(todayDiff)}건 감소 ↓`
         : "어제와 동일";
 
   return (
@@ -141,6 +141,9 @@ export default function AdminDashboard() {
                 </Link>
                 <Link className="admin2-btn admin2-btn-ghost" href="/admin/media">
                   미디어
+                </Link>
+                <Link className="admin2-btn admin2-btn-ghost" href="/admin/news-feed">
+                  뉴스 피드
                 </Link>
               </div>
             </div>
@@ -235,6 +238,10 @@ export default function AdminDashboard() {
           <Link href="/admin/media" className="admin2-dashboard-link">
             <span className="admin2-dashboard-link-title">🖼️ 미디어</span>
             <span className="admin2-dashboard-link-meta">미디어 라이브러리로 이동</span>
+          </Link>
+          <Link href="/admin/news-feed" className="admin2-dashboard-link">
+            <span className="admin2-dashboard-link-title">📡 뉴스 피드</span>
+            <span className="admin2-dashboard-link-meta">뉴스 팩토리 피드 관리</span>
           </Link>
         </div>
       </div>

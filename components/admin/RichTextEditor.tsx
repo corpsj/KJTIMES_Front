@@ -13,6 +13,7 @@ import {
     IconStrikethrough,
     IconH1,
     IconH2,
+    IconH3,
     IconList,
     IconListNumbers,
     IconPhoto,
@@ -25,6 +26,7 @@ import {
     IconAlignLeft,
     IconAlignCenter,
     IconAlignRight,
+    IconClearFormatting,
 } from '@tabler/icons-react';
 
 interface RichTextEditorProps {
@@ -244,14 +246,16 @@ export function RichTextEditor({ content, onChange, onImageUpload }: RichTextEdi
                 <ActionIcon
                     variant={editor.isActive('bold') ? 'filled' : 'subtle'}
                     onClick={() => editor.chain().focus().toggleBold().run()}
-                    title="굵게"
+                    title="굵게 (Ctrl+B)"
+                    aria-label="굵게"
                 >
                     <IconBold size={16} />
                 </ActionIcon>
                 <ActionIcon
                     variant={editor.isActive('italic') ? 'filled' : 'subtle'}
                     onClick={() => editor.chain().focus().toggleItalic().run()}
-                    title="기울임"
+                    title="기울임 (Ctrl+I)"
+                    aria-label="기울임"
                 >
                     <IconItalic size={16} />
                 </ActionIcon>
@@ -259,6 +263,7 @@ export function RichTextEditor({ content, onChange, onImageUpload }: RichTextEdi
                     variant={editor.isActive('strike') ? 'filled' : 'subtle'}
                     onClick={() => editor.chain().focus().toggleStrike().run()}
                     title="취소선"
+                    aria-label="취소선"
                 >
                     <IconStrikethrough size={16} />
                 </ActionIcon>
@@ -270,16 +275,26 @@ export function RichTextEditor({ content, onChange, onImageUpload }: RichTextEdi
                 <ActionIcon
                     variant={editor.isActive('heading', { level: 2 }) ? 'filled' : 'subtle'}
                     onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-                    title="제목 2"
+                    title="제목 2 (H2)"
+                    aria-label="제목 2"
                 >
                     <IconH1 size={16} />
                 </ActionIcon>
                 <ActionIcon
                     variant={editor.isActive('heading', { level: 3 }) ? 'filled' : 'subtle'}
                     onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-                    title="제목 3"
+                    title="제목 3 (H3)"
+                    aria-label="제목 3"
                 >
                     <IconH2 size={16} />
+                </ActionIcon>
+                <ActionIcon
+                    variant={editor.isActive('heading', { level: 4 }) ? 'filled' : 'subtle'}
+                    onClick={() => editor.chain().focus().toggleHeading({ level: 4 }).run()}
+                    title="제목 4 (H4)"
+                    aria-label="제목 4"
+                >
+                    <IconH3 size={16} />
                 </ActionIcon>
 
                 {/* Separator */}
@@ -417,6 +432,7 @@ export function RichTextEditor({ content, onChange, onImageUpload }: RichTextEdi
                     onClick={() => editor.chain().focus().undo().run()}
                     disabled={!editor.can().undo()}
                     title="실행 취소"
+                    aria-label="실행 취소"
                 >
                     <IconArrowBackUp size={16} />
                 </ActionIcon>
@@ -425,8 +441,22 @@ export function RichTextEditor({ content, onChange, onImageUpload }: RichTextEdi
                     onClick={() => editor.chain().focus().redo().run()}
                     disabled={!editor.can().redo()}
                     title="다시 실행"
+                    aria-label="다시 실행"
                 >
                     <IconArrowForwardUp size={16} />
+                </ActionIcon>
+
+                {/* Separator */}
+                <Box style={separatorStyle} />
+
+                {/* Clear formatting */}
+                <ActionIcon
+                    variant="subtle"
+                    onClick={() => editor.chain().focus().clearNodes().unsetAllMarks().run()}
+                    title="서식 지우기"
+                    aria-label="서식 지우기"
+                >
+                    <IconClearFormatting size={16} />
                 </ActionIcon>
             </Group>
 
