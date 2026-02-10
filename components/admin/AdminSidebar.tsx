@@ -9,6 +9,7 @@ import {
   IconEdit,
   IconPhoto,
   IconRss,
+  IconMail,
   IconExternalLink,
   IconLogout,
 } from "@tabler/icons-react";
@@ -26,6 +27,7 @@ const navItems: NavItem[] = [
   { href: "/admin/write", label: "기사 작성", icon: <IconEdit size={20} /> },
   { href: "/admin/media", label: "미디어", icon: <IconPhoto size={20} /> },
   { href: "/admin/news-feed", label: "뉴스 피드", icon: <IconRss size={20} /> },
+  { href: "/admin/mail", label: "제보함", icon: <IconMail size={20} /> },
 ];
 
 interface AdminSidebarProps {
