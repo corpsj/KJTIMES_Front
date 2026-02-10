@@ -20,6 +20,7 @@ import {
   IconPhoto,
   IconPlus,
   IconRss,
+  IconShare,
 } from "@tabler/icons-react";
 import { createClient } from "@/utils/supabase/client";
 import AdminHeader from "@/components/admin/AdminHeader";
@@ -44,6 +45,7 @@ export default function AdminDashboard() {
   const [statsPublished, setStatsPublished] = useState(0);
   const [statsDraft, setStatsDraft] = useState(0);
   const [statsPending, setStatsPending] = useState(0);
+  const [statsShared, setStatsShared] = useState(0);
 
   const [recentArticles, setRecentArticles] = useState<RecentArticle[]>([]);
 
@@ -58,7 +60,7 @@ export default function AdminDashboard() {
         setUserName(user.user_metadata.full_name);
       }
 
-      const [totalRes, publishedRes, draftRes, pendingRes] = await Promise.all([
+      const [totalRes, publishedRes, draftRes, pendingRes, sharedRes] = await Promise.all([
         supabase.from("articles").select("id", { count: "exact", head: true }),
         supabase
           .from("articles")
@@ -72,11 +74,16 @@ export default function AdminDashboard() {
           .from("articles")
           .select("id", { count: "exact", head: true })
           .eq("status", "pending_review"),
+        supabase
+          .from("articles")
+          .select("id", { count: "exact", head: true })
+          .eq("status", "shared"),
       ]);
       setStatsTotal(totalRes.count ?? 0);
       setStatsPublished(publishedRes.count ?? 0);
       setStatsDraft(draftRes.count ?? 0);
       setStatsPending(pendingRes.count ?? 0);
+      setStatsShared(sharedRes.count ?? 0);
 
       const { data: recent } = await supabase
         .from("articles")
@@ -96,6 +103,7 @@ export default function AdminDashboard() {
     month: "long",
     day: "numeric",
     weekday: "long",
+    timeZone: "Asia/Seoul",
   });
 
   return (
@@ -129,7 +137,7 @@ export default function AdminDashboard() {
           <Loader size="sm" />
         </Group>
       ) : (
-        <SimpleGrid cols={{ base: 2, sm: 4 }} mb="lg">
+        <SimpleGrid cols={{ base: 2, sm: 5 }} mb="lg">
           <StatCard
             label="전체 기사"
             value={statsTotal}
@@ -141,6 +149,12 @@ export default function AdminDashboard() {
             value={statsPublished}
             icon={<IconCheck size={22} />}
             color="green"
+          />
+          <StatCard
+            label="공유"
+            value={statsShared}
+            icon={<IconShare size={22} />}
+            color="violet"
           />
           <StatCard
             label="작성"
