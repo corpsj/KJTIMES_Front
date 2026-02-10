@@ -1,12 +1,17 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 
+/**
+ * Creates a Supabase client using the ANON key (respects RLS).
+ * Use this for all public-facing pages and standard server components.
+ */
 export async function createClient() {
   const cookieStore = await cookies();
 
   return createServerClient(
-    process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co",
-    process.env.SUPABASE_SERVICE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder-key",
+    process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co",
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder-key",
     {
       cookies: {
         get(name: string) {
@@ -29,4 +34,19 @@ export async function createClient() {
       },
     }
   );
+}
+
+/**
+ * Creates a Supabase client using the SERVICE ROLE key (bypasses RLS).
+ * Use ONLY in API routes that require elevated access (e.g., /api/news/receive).
+ */
+export function createServiceClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co";
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!serviceKey) {
+    throw new Error("SUPABASE_SERVICE_ROLE_KEY is not configured");
+  }
+
+  return createSupabaseClient(url, serviceKey);
 }
