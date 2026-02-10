@@ -61,10 +61,15 @@ export function ShareActions({
         window.open(fbUrl, "_blank", "noopener,noreferrer,width=550,height=420");
     };
 
-    const shareToKakao = () => {
-        // Use Kakao Talk URL scheme (works without SDK)
-        const kakaoUrl = `https://story.kakao.com/share?url=${encodeURIComponent(url)}`;
-        window.open(kakaoUrl, "_blank", "noopener,noreferrer,width=550,height=420");
+    const shareToKakao = async () => {
+        // KakaoStory was shut down. Use clipboard fallback with toast.
+        try {
+            await navigator.clipboard.writeText(url);
+            setStatus("링크가 복사되었습니다. 카카오톡에 붙여넣기 해주세요.");
+        } catch {
+            setStatus("복사에 실패했습니다.");
+        }
+        setTimeout(() => setStatus(""), 3000);
     };
 
     if (compact) {
