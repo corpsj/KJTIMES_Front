@@ -227,8 +227,8 @@ export default async function ArticlePage({ params }: { params: ArticlePageParam
     const categorySlug = extractCategorySlug(article);
     const includeShared = article.status === "shared" || categorySlug === SPECIAL_ISSUE_CATEGORY_SLUG;
 
-    // Increment views (Server-side side effect)
-    await supabase.from("articles").update({ views: (article.views || 0) + 1 }).eq("id", id);
+    // Increment views atomically (Server-side side effect)
+    await supabase.rpc("increment_article_views", { article_id: id });
 
     const [rawRelatedArticles, articleTags, rawAuthorArticles] = await Promise.all([
         fetchRelatedArticles(categorySlug, id, supabase, includeShared),
