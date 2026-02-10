@@ -20,6 +20,7 @@ const navItems = [
   { href: "/admin/articles", label: "기사 데스크" },
   { href: "/admin/write", label: "작성 스튜디오" },
   { href: "/admin/media", label: "미디어" },
+  { href: "/admin/news-feed", label: "뉴스 피드" },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
