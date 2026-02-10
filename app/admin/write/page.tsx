@@ -882,13 +882,15 @@ export default function AdminWrite() {
                             <IconArrowLeft size={22} />
                         </ActionIcon>
                         <div>
-                            <Text size="xs" c="dimmed" fw={700} tt="uppercase">
-                                Editor
-                            </Text>
                             <Title order={3}>{isEditing ? "기사 수정" : "기사 작성"}</Title>
-                            <Text size="xs" c={saveStateLabelColor} mt={2}>
+                            <Badge
+                                variant="light"
+                                color={loading ? "blue" : autoSaveStatus === "saving" ? "blue" : autoSaveStatus === "saved" ? "green" : dirty ? "orange" : "gray"}
+                                size="sm"
+                                mt={6}
+                            >
                                 {saveStateLabel}
-                            </Text>
+                            </Badge>
                         </div>
                     </Group>
                     <Group>

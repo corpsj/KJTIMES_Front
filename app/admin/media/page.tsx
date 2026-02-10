@@ -2,25 +2,35 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  Title,
-  SimpleGrid,
-  Paper,
-  Image,
-  Text,
-  Group,
-  LoadingOverlay,
-  TextInput,
-  Card,
+  ActionIcon,
   AspectRatio,
-  FileInput,
   Button,
+  Card,
+  Group,
+  Image,
+  Loader,
   Modal,
-  Stack,
+  Overlay,
+  Paper,
   Progress,
+  SimpleGrid,
+  Stack,
+  Text,
+  TextInput,
 } from "@mantine/core";
+import { Dropzone, IMAGE_MIME_TYPE } from "@mantine/dropzone";
 import { useDisclosure } from "@mantine/hooks";
 import { createClient } from "@/utils/supabase/client";
-import { IconSearch, IconPhoto, IconCopy, IconTrash, IconUpload } from "@tabler/icons-react";
+import {
+  IconCopy,
+  IconPhoto,
+  IconSearch,
+  IconTrash,
+  IconUpload,
+  IconX,
+} from "@tabler/icons-react";
+import AdminHeader from "@/components/admin/AdminHeader";
+import EmptyState from "@/components/admin/EmptyState";
 
 type MediaItem = {
   id: string;
@@ -54,47 +64,29 @@ export default function AdminMedia() {
   const searchTermRef = useRef("");
   const [supabase] = useState(() => createClient());
 
-  // Lightbox state
   const [lightboxItem, setLightboxItem] = useState<MediaItem | null>(null);
   const [lightboxOpened, { open: openLightbox, close: closeLightbox }] = useDisclosure(false);
 
-  // Drag & drop state
-  const [isDragging, setIsDragging] = useState(false);
   const [uploadingFiles, setUploadingFiles] = useState<UploadingFile[]>([]);
-  const dropZoneRef = useRef<HTMLDivElement>(null);
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchMedia = async () => {
       setLoading(true);
-      let query = supabase
-        .from("media")
-        .select("*")
-        .order("created_at", { ascending: false });
-
+      let query = supabase.from("media").select("*").order("created_at", { ascending: false });
       const term = searchTermRef.current.trim();
-      if (term) {
-        query = query.ilike("filename", `%${term}%`);
-      }
-
+      if (term) query = query.ilike("filename", `%${term}%`);
       const { data } = await query;
-
-      if (data) {
-        setMediaItems(data as MediaItem[]);
-      }
+      if (data) setMediaItems(data as MediaItem[]);
       setLoading(false);
     };
-
     fetchMedia();
   }, [refreshToken, supabase]);
 
-  const triggerRefresh = () => {
-    setRefreshToken((prev) => prev + 1);
-  };
+  const triggerRefresh = () => setRefreshToken((p) => p + 1);
 
   const handleSearchKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      triggerRefresh();
-    }
+    if (e.key === "Enter") triggerRefresh();
   };
 
   const handleSearchChange = (value: string) => {
@@ -113,9 +105,7 @@ export default function AdminMedia() {
       return updated;
     });
 
-    const { error: uploadError } = await supabase.storage
-      .from("news-images")
-      .upload(filePath, file);
+    const { error: uploadError } = await supabase.storage.from("news-images").upload(filePath, file);
 
     if (uploadError) {
       setUploadingFiles((prev) => {
@@ -167,7 +157,6 @@ export default function AdminMedia() {
       await Promise.all(files.map((file, index) => uploadSingleFile(file, index)));
 
       triggerRefresh();
-      // Clear progress after a short delay
       setTimeout(() => {
         setUploadingFiles([]);
         setUploading(false);
@@ -177,47 +166,11 @@ export default function AdminMedia() {
     [supabase]
   );
 
-  const handleUpload = async (file: File | null) => {
-    if (!file) return;
-    await uploadMultipleFiles([file]);
-  };
-
-  // Drag & Drop handlers
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(true);
-  }, []);
-
-  const handleDragLeave = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
-  }, []);
-
-  const handleDrop = useCallback(
-    (e: React.DragEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setIsDragging(false);
-
-      const droppedFiles = Array.from(e.dataTransfer.files).filter((f) =>
-        f.type.startsWith("image/")
-      );
-
-      if (droppedFiles.length > 0) {
-        void uploadMultipleFiles(droppedFiles);
-      }
-    },
-    [uploadMultipleFiles]
-  );
-
   const copyUrl = async (url: string) => {
     try {
       await navigator.clipboard.writeText(url);
       alert("URL이 복사되었습니다.");
-    } catch (error) {
-      console.error("Failed to copy URL", error);
+    } catch {
       alert("URL 복사에 실패했습니다.");
     }
   };
@@ -242,7 +195,6 @@ export default function AdminMedia() {
     if (error) {
       alert("삭제 실패: " + error.message);
     } else {
-      // Close lightbox if the deleted item was being previewed
       if (lightboxItem?.id === item.id) {
         closeLightbox();
         setLightboxItem(null);
@@ -258,62 +210,45 @@ export default function AdminMedia() {
   };
 
   return (
-    <>
-      <Group justify="space-between" mb="lg">
-        <Title order={2}>미디어 라이브러리</Title>
-        <FileInput
-          placeholder="이미지 업로드"
-          accept="image/*"
-          leftSection={<IconPhoto size="1rem" />}
-          onChange={handleUpload}
-          disabled={uploading}
-        />
-      </Group>
+    <Stack gap="lg">
+      <AdminHeader title="미디어 라이브러리" subtitle={`총 ${mediaItems.length}개의 파일`} />
 
-      {/* Drag & Drop Zone */}
-      <Paper
-        ref={dropZoneRef}
+      {/* Upload Dropzone */}
+      <Dropzone
+        onDrop={(files) => void uploadMultipleFiles(files)}
+        accept={IMAGE_MIME_TYPE}
+        loading={uploading}
+        multiple
         p="xl"
         radius="md"
-        mb="lg"
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
         style={{
-          border: isDragging ? "2px dashed #0f4c81" : "2px dashed #d1d5db",
-          background: isDragging ? "rgba(15, 76, 129, 0.04)" : "rgba(248, 250, 252, 0.8)",
-          textAlign: "center",
+          border: "2px dashed #d1d5db",
+          backgroundColor: "rgba(248, 250, 252, 0.8)",
           cursor: "pointer",
-          transition: "all 0.2s ease",
-        }}
-        onClick={() => {
-          const input = document.createElement("input");
-          input.type = "file";
-          input.accept = "image/*";
-          input.multiple = true;
-          input.onchange = () => {
-            if (input.files) {
-              const files = Array.from(input.files);
-              void uploadMultipleFiles(files);
-            }
-          };
-          input.click();
         }}
       >
-        <Stack align="center" gap="xs">
-          <IconUpload size={40} color={isDragging ? "#0f4c81" : "#9ca3af"} />
-          <Text size="md" fw={600} c={isDragging ? "blue" : "dimmed"}>
-            이미지를 드래그하여 업로드
+        <Stack align="center" gap="xs" py="md">
+          <Dropzone.Accept>
+            <IconUpload size={40} color="#228be6" />
+          </Dropzone.Accept>
+          <Dropzone.Reject>
+            <IconX size={40} color="#fa5252" />
+          </Dropzone.Reject>
+          <Dropzone.Idle>
+            <IconUpload size={40} color="#9ca3af" />
+          </Dropzone.Idle>
+          <Text size="md" fw={600} c="dimmed">
+            이미지를 끌어다 놓거나 클릭하여 업로드
           </Text>
           <Text size="xs" c="dimmed">
-            또는 클릭하여 파일 선택 (여러 파일 가능)
+            여러 파일 동시 업로드 가능
           </Text>
         </Stack>
-      </Paper>
+      </Dropzone>
 
       {/* Upload Progress */}
       {uploadingFiles.length > 0 && (
-        <Paper p="md" radius="md" withBorder mb="lg">
+        <Paper p="md" radius="md" withBorder>
           <Text size="sm" fw={600} mb="xs">
             업로드 진행 중...
           </Text>
@@ -339,74 +274,104 @@ export default function AdminMedia() {
         </Paper>
       )}
 
-      <Paper p="md" radius="md" withBorder mb="lg">
-        <TextInput
-          placeholder="파일명 검색..."
-          aria-label="미디어 파일 검색"
-          leftSection={<IconSearch size="1rem" />}
-          value={searchTerm}
-          onChange={(e) => handleSearchChange(e.currentTarget.value)}
-          onKeyDown={handleSearchKeyDown}
-        />
-      </Paper>
+      {/* Search */}
+      <TextInput
+        placeholder="파일명 검색..."
+        leftSection={<IconSearch size={16} />}
+        value={searchTerm}
+        onChange={(e) => handleSearchChange(e.currentTarget.value)}
+        onKeyDown={handleSearchKeyDown}
+      />
 
-      <div style={{ position: "relative", minHeight: 200 }}>
-        <LoadingOverlay visible={loading} />
-
-        {mediaItems.length === 0 && !loading ? (
-          <Text ta="center" c="dimmed" py="xl">
-            등록된 미디어가 없습니다.
+      {/* Media Grid */}
+      {loading ? (
+        <Stack align="center" py={60}>
+          <Loader size="md" />
+          <Text size="sm" c="dimmed">
+            불러오는 중...
           </Text>
-        ) : (
-          <SimpleGrid cols={{ base: 2, xs: 3, md: 4, lg: 5 }} spacing="md">
-            {mediaItems.map((item) => (
-              <Card key={item.id} p="xs" radius="md" withBorder>
-                <Card.Section
-                  style={{ cursor: "pointer" }}
-                  onClick={() => openPreview(item)}
-                >
-                  <AspectRatio ratio={16 / 9}>
-                    <Image
-                      src={item.url}
-                      alt={item.alt_text || item.filename}
-                      fallbackSrc="https://placehold.co/600x400?text=No+Image"
-                    />
-                  </AspectRatio>
-                </Card.Section>
-
-                <Text size="xs" mt="xs" fw={500} truncate>
+        </Stack>
+      ) : mediaItems.length === 0 ? (
+        <EmptyState
+          icon={<IconPhoto size={48} />}
+          title="등록된 미디어가 없습니다"
+          description="이미지를 업로드하여 미디어 라이브러리를 시작하세요."
+        />
+      ) : (
+        <SimpleGrid cols={{ base: 2, xs: 3, md: 4, lg: 5 }} spacing="md">
+          {mediaItems.map((item) => (
+            <Card
+              key={item.id}
+              p={0}
+              radius="md"
+              withBorder
+              style={{ overflow: "hidden", cursor: "pointer" }}
+              onMouseEnter={() => setHoveredId(item.id)}
+              onMouseLeave={() => setHoveredId(null)}
+              onClick={() => openPreview(item)}
+            >
+              <div style={{ position: "relative" }}>
+                <AspectRatio ratio={4 / 3}>
+                  <Image
+                    src={item.url}
+                    alt={item.alt_text || item.filename}
+                    fallbackSrc="https://placehold.co/600x400?text=No+Image"
+                  />
+                </AspectRatio>
+                {hoveredId === item.id && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      backgroundColor: "rgba(0,0,0,0.5)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 8,
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <ActionIcon
+                      variant="white"
+                      size="lg"
+                      radius="xl"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        void copyUrl(item.url);
+                      }}
+                      title="URL 복사"
+                    >
+                      <IconCopy size={18} />
+                    </ActionIcon>
+                    <ActionIcon
+                      variant="white"
+                      color="red"
+                      size="lg"
+                      radius="xl"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        void deleteMedia(item);
+                      }}
+                      disabled={actionId === item.id}
+                      title="삭제"
+                    >
+                      <IconTrash size={18} />
+                    </ActionIcon>
+                  </div>
+                )}
+              </div>
+              <Stack gap={2} p="xs">
+                <Text size="xs" fw={500} truncate>
                   {item.filename}
                 </Text>
                 <Text size="xs" c="dimmed">
-                  {new Date(item.created_at).toLocaleDateString()}
+                  {new Date(item.created_at).toLocaleDateString("ko-KR")}
                 </Text>
-                <Group gap="xs" mt="xs">
-                  <Button
-                    size="xs"
-                    variant="light"
-                    leftSection={<IconCopy size={12} />}
-                    onClick={() => void copyUrl(item.url)}
-                    aria-label={`${item.filename} URL 복사`}
-                  >
-                    URL 복사
-                  </Button>
-                  <Button
-                    size="xs"
-                    variant="subtle"
-                    color="red"
-                    leftSection={<IconTrash size={12} />}
-                    onClick={() => void deleteMedia(item)}
-                    disabled={actionId === item.id}
-                    aria-label={`${item.filename} 삭제`}
-                  >
-                    삭제
-                  </Button>
-                </Group>
-              </Card>
-            ))}
-          </SimpleGrid>
-        )}
-      </div>
+              </Stack>
+            </Card>
+          ))}
+        </SimpleGrid>
+      )}
 
       {/* Lightbox Modal */}
       <Modal
@@ -426,43 +391,49 @@ export default function AdminMedia() {
               fit="contain"
               mah={500}
             />
-            <Stack gap="xs">
-              <Group gap="lg">
-                <div>
-                  <Text size="xs" c="dimmed">파일명</Text>
-                  <Text size="sm" fw={500}>{lightboxItem.filename}</Text>
-                </div>
-                <div>
-                  <Text size="xs" c="dimmed">업로드 날짜</Text>
-                  <Text size="sm" fw={500}>{new Date(lightboxItem.created_at).toLocaleDateString("ko-KR")}</Text>
-                </div>
-                <div>
-                  <Text size="xs" c="dimmed">파일 크기</Text>
-                  <Text size="sm" fw={500}>{formatFileSize(lightboxItem.file_size)}</Text>
-                </div>
-              </Group>
-              <Group gap="xs" mt="sm">
-                <Button
-                  variant="light"
-                  leftSection={<IconCopy size={14} />}
-                  onClick={() => copyUrl(lightboxItem.url)}
-                >
-                  URL 복사
-                </Button>
-                <Button
-                  variant="subtle"
-                  color="red"
-                  leftSection={<IconTrash size={14} />}
-                  onClick={() => deleteMedia(lightboxItem)}
-                  disabled={actionId === lightboxItem.id}
-                >
-                  삭제
-                </Button>
-              </Group>
-            </Stack>
+            <Group gap="lg">
+              <div>
+                <Text size="xs" c="dimmed">
+                  파일명
+                </Text>
+                <Text size="sm" fw={500}>
+                  {lightboxItem.filename}
+                </Text>
+              </div>
+              <div>
+                <Text size="xs" c="dimmed">
+                  업로드 날짜
+                </Text>
+                <Text size="sm" fw={500}>
+                  {new Date(lightboxItem.created_at).toLocaleDateString("ko-KR")}
+                </Text>
+              </div>
+              <div>
+                <Text size="xs" c="dimmed">
+                  파일 크기
+                </Text>
+                <Text size="sm" fw={500}>
+                  {formatFileSize(lightboxItem.file_size)}
+                </Text>
+              </div>
+            </Group>
+            <Group gap="xs">
+              <Button variant="light" leftSection={<IconCopy size={14} />} onClick={() => void copyUrl(lightboxItem.url)}>
+                URL 복사
+              </Button>
+              <Button
+                variant="subtle"
+                color="red"
+                leftSection={<IconTrash size={14} />}
+                onClick={() => void deleteMedia(lightboxItem)}
+                disabled={actionId === lightboxItem.id}
+              >
+                삭제
+              </Button>
+            </Group>
           </Stack>
         )}
       </Modal>
-    </>
+    </Stack>
   );
 }

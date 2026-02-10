@@ -3,7 +3,45 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
+import {
+  ActionIcon,
+  Badge,
+  Button,
+  Checkbox,
+  Group,
+  Loader,
+  Menu,
+  Modal,
+  Pagination,
+  Paper,
+  Select,
+  SimpleGrid,
+  Stack,
+  Table,
+  Text,
+  TextInput,
+  Tooltip,
+} from "@mantine/core";
+import {
+  IconArticle,
+  IconCheck,
+  IconCopy,
+  IconDots,
+  IconEdit,
+  IconEye,
+  IconFileText,
+  IconLink,
+  IconPlus,
+  IconSearch,
+  IconSend,
+  IconTrash,
+  IconX,
+} from "@tabler/icons-react";
 import { createClient } from "@/utils/supabase/client";
+import AdminHeader from "@/components/admin/AdminHeader";
+import StatCard from "@/components/admin/StatCard";
+import StatusBadge from "@/components/admin/StatusBadge";
+import EmptyState from "@/components/admin/EmptyState";
 
 const SPECIAL_ISSUE_CATEGORY_SLUG = "special-edition";
 const PAGE_SIZE = 20;
@@ -17,7 +55,10 @@ type ArticleRow = {
   updated_at?: string | null;
   published_at?: string | null;
   views?: number | null;
-  categories?: { name?: string | null; slug?: string | null }[] | { name?: string | null; slug?: string | null } | null;
+  categories?:
+    | { name?: string | null; slug?: string | null }[]
+    | { name?: string | null; slug?: string | null }
+    | null;
 };
 
 type StatusUpdatePayload = {
@@ -50,28 +91,10 @@ const bulkStatusOptions = [
   { value: "archived", label: "보관" },
 ] as const;
 
-const statusTone: Record<string, string> = {
-  published: "published",
-  shared: "shared",
-  pending_review: "pending",
-  draft: "draft",
-  scheduled: "scheduled",
-  rejected: "alert",
-  archived: "draft",
-};
+const inlineStatusOptions = statusOptions.filter((o) => o.value !== "all");
 
-const statusLabels: Record<string, string> = {
-  published: "게시",
-  shared: "공유",
-  pending_review: "승인 대기",
-  draft: "작성",
-  scheduled: "예약",
-  rejected: "반려",
-  archived: "보관",
-};
-
-const validStatusValues = new Set(statusOptions.map((option) => option.value));
-const validSortValues = new Set(sortOptions.map((option) => option.value));
+const validStatusValues = new Set(statusOptions.map((o) => o.value));
+const validSortValues = new Set(sortOptions.map((o) => o.value));
 
 export default function AdminArticles() {
   const [supabase] = useState(() => createClient());
@@ -91,14 +114,11 @@ export default function AdminArticles() {
   const [refreshToken, setRefreshToken] = useState(0);
   const searchTermRef = useRef("");
 
-  // Delete confirmation modal state
   const [deleteModalArticle, setDeleteModalArticle] = useState<ArticleRow | null>(null);
 
-  // Pagination state
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
 
-  // Stats state
   const [statsTotal, setStatsTotal] = useState(0);
   const [statsPublished, setStatsPublished] = useState(0);
   const [statsDraft, setStatsDraft] = useState(0);
@@ -108,17 +128,13 @@ export default function AdminArticles() {
 
   const getCategoryName = (categories: ArticleRow["categories"]) => {
     if (!categories) return "미분류";
-    if (Array.isArray(categories)) {
-      return categories[0]?.name || "미분류";
-    }
+    if (Array.isArray(categories)) return categories[0]?.name || "미분류";
     return categories.name || "미분류";
   };
 
   const getCategorySlug = (categories: ArticleRow["categories"]) => {
     if (!categories) return null;
-    if (Array.isArray(categories)) {
-      return categories[0]?.slug || null;
-    }
+    if (Array.isArray(categories)) return categories[0]?.slug || null;
     return categories.slug || null;
   };
 
@@ -170,85 +186,59 @@ export default function AdminArticles() {
     const fetchArticles = async () => {
       setLoading(true);
 
-      // Build base query for count
-      let countQuery = supabase
-        .from("articles")
-        .select("id", { count: "exact", head: true });
-
-      if (statusFilter !== "all") {
-        countQuery = countQuery.eq("status", statusFilter);
-      }
-
+      let countQuery = supabase.from("articles").select("id", { count: "exact", head: true });
+      if (statusFilter !== "all") countQuery = countQuery.eq("status", statusFilter);
       const term = searchTermRef.current.trim().replace(/[%]/g, "");
-      if (term) {
-        countQuery = countQuery.or(`title.ilike.%${term}%,slug.ilike.%${term}%`);
-      }
+      if (term) countQuery = countQuery.or(`title.ilike.%${term}%,slug.ilike.%${term}%`);
 
       const { count } = await countQuery;
       const total = count ?? 0;
       setTotalCount(total);
 
-      // Clamp page
       const maxPage = Math.max(1, Math.ceil(total / PAGE_SIZE));
       const safePage = Math.min(page, maxPage);
-      if (safePage !== page) {
-        setPage(safePage);
-      }
+      if (safePage !== page) setPage(safePage);
 
       const from = (safePage - 1) * PAGE_SIZE;
       const to = from + PAGE_SIZE - 1;
 
-      // Build data query
       let query = supabase
         .from("articles")
         .select("id, title, slug, status, created_at, updated_at, published_at, views, categories(name, slug)");
 
-      if (statusFilter !== "all") {
-        query = query.eq("status", statusFilter);
-      }
-
-      if (term) {
-        query = query.or(`title.ilike.%${term}%,slug.ilike.%${term}%`);
-      }
+      if (statusFilter !== "all") query = query.eq("status", statusFilter);
+      if (term) query = query.or(`title.ilike.%${term}%,slug.ilike.%${term}%`);
 
       switch (sortFilter) {
         case "oldest":
           query = query.order("updated_at", { ascending: true });
           break;
-        case "latest":
         default:
           query = query.order("updated_at", { ascending: false });
           break;
       }
 
       query = query.range(from, to);
-
       const { data } = await query;
       const fetched = data || [];
-      const visibleIdSet = new Set(fetched.map((article) => article.id));
+      const visibleIdSet = new Set(fetched.map((a) => a.id));
 
       setArticles(fetched);
-      setSelectedArticleIds((current) => current.filter((id) => visibleIdSet.has(id)));
+      setSelectedArticleIds((cur) => cur.filter((id) => visibleIdSet.has(id)));
       setLoading(false);
     };
 
     fetchArticles();
   }, [statusFilter, sortFilter, supabase, refreshToken, page]);
 
-  const triggerRefresh = () => {
-    setRefreshToken((prev) => prev + 1);
-  };
+  const triggerRefresh = () => setRefreshToken((p) => p + 1);
 
   const copyToClipboard = async (value: string) => {
     if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
       await navigator.clipboard.writeText(value);
       return;
     }
-
-    if (typeof document === "undefined") {
-      throw new Error("Clipboard unavailable");
-    }
-
+    if (typeof document === "undefined") throw new Error("Clipboard unavailable");
     const textarea = document.createElement("textarea");
     textarea.value = value;
     textarea.setAttribute("readonly", "");
@@ -258,10 +248,7 @@ export default function AdminArticles() {
     textarea.select();
     const copied = document.execCommand("copy");
     document.body.removeChild(textarea);
-
-    if (!copied) {
-      throw new Error("Copy command failed");
-    }
+    if (!copied) throw new Error("Copy command failed");
   };
 
   const copySpecialIssueShareLink = async (article: ArticleRow) => {
@@ -269,15 +256,12 @@ export default function AdminArticles() {
       alert("공유 링크를 생성할 수 없습니다.");
       return;
     }
-
     const isShareVisible = article.status === "shared" || article.status === "published";
     if (!isShareVisible) {
       alert("공유/게시 상태에서만 링크를 복사할 수 있습니다.");
       return;
     }
-
     const shareUrl = `${window.location.origin}/share/${article.slug}`;
-
     try {
       await copyToClipboard(shareUrl);
       alert("공유 링크를 복사했습니다.");
@@ -309,34 +293,25 @@ export default function AdminArticles() {
   const updateStatus = async (article: ArticleRow, status: string) => {
     setActionLoadingId(article.id);
     const payload = resolveStatusPayload(article, status);
-
     const { error } = await supabase.from("articles").update(payload).eq("id", article.id);
-
-    if (error) {
-      alert(`상태 변경 실패: ${error.message}`);
-    } else {
-      triggerRefresh();
-    }
-
+    if (error) alert(`상태 변경 실패: ${error.message}`);
+    else triggerRefresh();
     setActionLoadingId(null);
   };
 
   const handleShareAction = async (article: ArticleRow) => {
-    const canOpenShareLink = Boolean(article.slug && (article.status === "shared" || article.status === "published"));
-    if (!canOpenShareLink || !article.slug) return;
-
+    const canOpen = Boolean(article.slug && (article.status === "shared" || article.status === "published"));
+    if (!canOpen || !article.slug) return;
     if (isSpecialIssueArticle(article)) {
       await copySpecialIssueShareLink(article);
       return;
     }
-
     window.open(`/share/${article.slug}`, "_blank", "noopener,noreferrer");
   };
 
   const cloneArticle = async (article: ArticleRow) => {
     setActionLoadingId(article.id);
     try {
-      // Fetch full article data
       const { data: fullArticle, error: fetchError } = await supabase
         .from("articles")
         .select("*")
@@ -349,9 +324,10 @@ export default function AdminArticles() {
         return;
       }
 
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
-      // Generate a new slug
       const newSlug = `copy-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
 
       const { data: newArticle, error: insertError } = await supabase
@@ -381,16 +357,15 @@ export default function AdminArticles() {
         return;
       }
 
-      // Clone article tags
       const { data: tagRows } = await supabase
         .from("article_tags")
         .select("tag_id")
         .eq("article_id", article.id);
 
       if (tagRows && tagRows.length > 0) {
-        await supabase.from("article_tags").insert(
-          tagRows.map((row) => ({ article_id: newArticle.id, tag_id: row.tag_id }))
-        );
+        await supabase
+          .from("article_tags")
+          .insert(tagRows.map((row) => ({ article_id: newArticle.id, tag_id: row.tag_id })));
       }
 
       router.push(`/admin/write?id=${newArticle.id}`);
@@ -406,23 +381,20 @@ export default function AdminArticles() {
       alert("먼저 기사 항목을 선택해주세요.");
       return;
     }
-
     setBulkLoading(true);
     try {
-      const selectedArticles = articles.filter((article) => selectedArticleIds.includes(article.id));
+      const selectedArticles = articles.filter((a) => selectedArticleIds.includes(a.id));
       const results = await Promise.all(
         selectedArticles.map((article) => {
           const payload = resolveStatusPayload(article, bulkStatusTarget);
           return supabase.from("articles").update(payload).eq("id", article.id);
         })
       );
-
-      const failed = results.find((result) => result.error);
+      const failed = results.find((r) => r.error);
       if (failed?.error) {
         alert(`일괄 상태 변경 실패: ${failed.error.message}`);
         return;
       }
-
       setSelectedArticleIds([]);
       triggerRefresh();
     } finally {
@@ -434,15 +406,9 @@ export default function AdminArticles() {
     setDeleteModalArticle(null);
     setActionLoadingId(article.id);
     const { count, error } = await supabase.from("articles").delete({ count: "exact" }).eq("id", article.id);
-
-    if (error) {
-      alert(`삭제 실패: ${error.message}`);
-    } else if (!count) {
-      alert("삭제된 기사가 없습니다.");
-    } else {
-      triggerRefresh();
-    }
-
+    if (error) alert(`삭제 실패: ${error.message}`);
+    else if (!count) alert("삭제된 기사가 없습니다.");
+    else triggerRefresh();
     setActionLoadingId(null);
   };
 
@@ -451,27 +417,22 @@ export default function AdminArticles() {
       alert("삭제할 기사 항목을 선택해주세요.");
       return;
     }
-
     const confirmed = window.confirm(`선택한 ${selectedArticleIds.length}건을 삭제할까요?`);
     if (!confirmed) return;
-
     setBulkLoading(true);
     try {
       const { count, error } = await supabase
         .from("articles")
         .delete({ count: "exact" })
         .in("id", selectedArticleIds);
-
       if (error) {
         alert(`일괄 삭제 실패: ${error.message}`);
         return;
       }
-
       if (!count) {
         alert("삭제된 기사가 없습니다.");
         return;
       }
-
       setSelectedArticleIds([]);
       triggerRefresh();
     } finally {
@@ -480,17 +441,15 @@ export default function AdminArticles() {
   };
 
   const toggleArticleSelection = (articleId: string, checked: boolean) => {
-    setSelectedArticleIds((current) => {
-      if (checked) {
-        return current.includes(articleId) ? current : [...current, articleId];
-      }
-      return current.filter((id) => id !== articleId);
+    setSelectedArticleIds((cur) => {
+      if (checked) return cur.includes(articleId) ? cur : [...cur, articleId];
+      return cur.filter((id) => id !== articleId);
     });
   };
 
   const toggleSelectAllVisible = (checked: boolean) => {
     if (checked) {
-      setSelectedArticleIds(articles.map((article) => article.id));
+      setSelectedArticleIds(articles.map((a) => a.id));
       return;
     }
     setSelectedArticleIds([]);
@@ -512,325 +471,367 @@ export default function AdminArticles() {
     statusFilter !== "all" || sortFilter !== "latest" || searchTerm.trim().length > 0;
 
   return (
-    <div className="admin2-grid admin2-grid--single">
-      <div>
-        <div className="admin2-panel admin2-desk-board">
-          <div className="admin2-desk-head">
-            <div>
-              <div className="admin2-panel-title">기사 데스크</div>
-              <div className="admin2-hero-title admin2-display">기사 관리</div>
-            </div>
-            <div className="admin2-desk-head-actions">
-              <Link className="admin2-btn admin2-btn-accent" href="/admin/write">
-                새 기사 작성
-              </Link>
-            </div>
-          </div>
+    <Stack gap="lg">
+      {/* Header */}
+      <AdminHeader
+        title="기사 관리"
+        subtitle={`총 ${totalCount.toLocaleString()}건의 기사`}
+        actions={
+          <Button
+            component={Link}
+            href="/admin/write"
+            leftSection={<IconPlus size={18} />}
+          >
+            새 기사 작성
+          </Button>
+        }
+      />
 
-          {/* Statistics Summary */}
-          <div className="admin2-desk-stats">
-            <div className="admin2-desk-stat admin2-desk-stat--ink">
-              <div className="admin2-desk-stat-label">전체 기사</div>
-              <div className="admin2-desk-stat-value">{statsTotal.toLocaleString()}</div>
-            </div>
-            <div className="admin2-desk-stat admin2-desk-stat--green">
-              <div className="admin2-desk-stat-label">게시</div>
-              <div className="admin2-desk-stat-value">{statsPublished.toLocaleString()}</div>
-            </div>
-            <div className="admin2-desk-stat admin2-desk-stat--blue">
-              <div className="admin2-desk-stat-label">작성</div>
-              <div className="admin2-desk-stat-value">{statsDraft.toLocaleString()}</div>
-            </div>
-            <div className="admin2-desk-stat admin2-desk-stat--warning">
-              <div className="admin2-desk-stat-label">승인 대기</div>
-              <div className="admin2-desk-stat-value">{statsPending.toLocaleString()}</div>
-            </div>
-          </div>
+      {/* Stats Row */}
+      <SimpleGrid cols={{ base: 2, md: 4 }} spacing="md">
+        <StatCard
+          label="전체 기사"
+          value={statsTotal}
+          icon={<IconArticle size={22} />}
+          color="blue"
+        />
+        <StatCard
+          label="게시"
+          value={statsPublished}
+          icon={<IconCheck size={22} />}
+          color="green"
+        />
+        <StatCard
+          label="작성"
+          value={statsDraft}
+          icon={<IconFileText size={22} />}
+          color="gray"
+        />
+        <StatCard
+          label="승인 대기"
+          value={statsPending}
+          icon={<IconSend size={22} />}
+          color="yellow"
+        />
+      </SimpleGrid>
 
-          <div className="admin2-desk-controls">
-            <label className="admin2-search admin2-desk-search">
-              <span>⌕</span>
-              <input
-                placeholder="제목 또는 슬러그 검색"
-                aria-label="기사 검색"
-                value={searchTerm}
-                onChange={(event) => {
-                  setSearchTerm(event.target.value);
-                  searchTermRef.current = event.target.value;
-                }}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter") {
-                    setPage(1);
-                    triggerRefresh();
-                  }
-                }}
-              />
-            </label>
+      {/* Filter Bar */}
+      <Paper p="md" shadow="0 1px 3px rgba(0,0,0,0.08)" style={{ border: "1px solid #f1f3f5" }}>
+        <Group gap="sm" wrap="wrap">
+          <TextInput
+            placeholder="제목 또는 슬러그 검색"
+            leftSection={<IconSearch size={16} />}
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.currentTarget.value);
+              searchTermRef.current = e.currentTarget.value;
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                setPage(1);
+                triggerRefresh();
+              }
+            }}
+            style={{ flex: 1, minWidth: 200 }}
+          />
+          <Select
+            placeholder="상태"
+            data={statusOptions.map((o) => ({ value: o.value, label: o.label }))}
+            value={statusFilter}
+            onChange={(val) => {
+              setStatusFilter(val || "all");
+              setPage(1);
+            }}
+            w={140}
+            clearable={false}
+          />
+          <Select
+            placeholder="정렬"
+            data={sortOptions.map((o) => ({ value: o.value, label: o.label }))}
+            value={sortFilter}
+            onChange={(val) => {
+              setSortFilter(val || "latest");
+              setPage(1);
+            }}
+            w={130}
+            clearable={false}
+          />
+          {hasActiveFilters && (
+            <Button variant="subtle" color="gray" onClick={resetFilters} disabled={bulkLoading}>
+              초기화
+            </Button>
+          )}
+        </Group>
+      </Paper>
 
-            <label className="admin2-desk-select">
-              <span>상태</span>
-              <select value={statusFilter} onChange={(event) => { setStatusFilter(event.target.value); setPage(1); }} aria-label="상태 필터">
-                {statusOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className="admin2-desk-select">
-              <span>정렬</span>
-              <select value={sortFilter} onChange={(event) => { setSortFilter(event.target.value); setPage(1); }} aria-label="정렬">
-                {sortOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            {hasActiveFilters && (
-              <button className="admin2-btn admin2-btn-ghost" type="button" onClick={resetFilters} disabled={bulkLoading}>
-                초기화
-              </button>
-            )}
-          </div>
-        </div>
-
-        <div className="admin2-panel admin2-desk-list-panel">
-          <div className="admin2-desk-list-head">
-            <div className="admin2-panel-title">목록</div>
-            <div className="admin2-desk-list-tools">
-              <label className="admin2-row-check admin2-row-check--master">
-                <input
-                  type="checkbox"
-                  checked={allVisibleSelected}
-                  onChange={(event) => toggleSelectAllVisible(event.target.checked)}
-                  disabled={loading || articles.length === 0}
-                />
-                전체 선택
-              </label>
-              <div className="admin2-badge">총 {totalCount.toLocaleString()}건</div>
-            </div>
-          </div>
-
-          <div className="admin2-desk-bulk">
-            <div className="admin2-row-meta">선택 {selectedCount.toLocaleString()}건</div>
-            <label className="admin2-desk-select admin2-desk-select--inline">
-              <span>상태 변경</span>
-              <select
+      {/* Batch Operations Bar */}
+      {selectedCount > 0 && (
+        <Paper
+          p="sm"
+          style={{
+            border: "1px solid #228be6",
+            backgroundColor: "rgba(34, 139, 230, 0.04)",
+          }}
+        >
+          <Group justify="space-between" wrap="wrap">
+            <Group gap="sm">
+              <Badge variant="light" size="lg">
+                {selectedCount}건 선택
+              </Badge>
+              <Select
+                size="xs"
+                data={bulkStatusOptions.map((o) => ({ value: o.value, label: o.label }))}
                 value={bulkStatusTarget}
-                onChange={(event) => setBulkStatusTarget(event.target.value)}
-                disabled={selectedCount === 0 || bulkLoading}
+                onChange={(val) => setBulkStatusTarget(val || "pending_review")}
+                w={140}
+                clearable={false}
+              />
+              <Button
+                size="xs"
+                variant="light"
+                onClick={applyBulkStatus}
+                disabled={bulkLoading}
               >
-                {bulkStatusOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <button
-              className="admin2-btn admin2-btn-ghost"
-              type="button"
-              onClick={applyBulkStatus}
-              disabled={selectedCount === 0 || bulkLoading}
+                상태 변경
+              </Button>
+              <Button
+                size="xs"
+                variant="light"
+                color="red"
+                onClick={deleteSelectedArticles}
+                disabled={bulkLoading}
+              >
+                삭제
+              </Button>
+            </Group>
+            <Button
+              size="xs"
+              variant="subtle"
+              color="gray"
+              onClick={() => setSelectedArticleIds([])}
             >
-              적용
-            </button>
-            <button
-              className="admin2-btn admin2-row-action--danger"
-              type="button"
-              onClick={deleteSelectedArticles}
-              disabled={selectedCount === 0 || bulkLoading}
-            >
-              삭제
-            </button>
-          </div>
+              선택 해제
+            </Button>
+          </Group>
+        </Paper>
+      )}
 
-          <div className="admin2-desk-table-wrap">
-            <table className="admin2-desk-table">
-              <thead>
-                <tr>
-                  <th>선택</th>
-                  <th>제목</th>
-                  <th>상태</th>
-                  <th>카테고리</th>
-                  <th>수정일</th>
-                  <th>조회수</th>
-                  <th>작업</th>
-                </tr>
-              </thead>
-              <tbody>
-                {loading ? (
-                  <tr>
-                    <td colSpan={7}>
-                      <div className="admin2-placeholder">불러오는 중...</div>
-                    </td>
-                  </tr>
-                ) : articles.length === 0 ? (
-                  <tr>
-                    <td colSpan={7}>
-                      <div className="admin2-placeholder">기사가 없습니다.</div>
-                    </td>
-                  </tr>
-                ) : (
-                  articles.map((article) => {
-                    const isSelected = selectedArticleIds.includes(article.id);
-                    const isSpecialIssue = isSpecialIssueArticle(article);
-                    const canOpenShareLink = Boolean(article.slug && (article.status === "shared" || article.status === "published"));
+      {/* Article Table */}
+      <Paper shadow="0 1px 3px rgba(0,0,0,0.08)" style={{ border: "1px solid #f1f3f5", overflow: "hidden" }}>
+        {loading ? (
+          <Stack align="center" py={60}>
+            <Loader size="md" />
+            <Text size="sm" c="dimmed">
+              불러오는 중...
+            </Text>
+          </Stack>
+        ) : articles.length === 0 ? (
+          <EmptyState
+            icon={<IconArticle size={48} />}
+            title="기사가 없습니다"
+            description={hasActiveFilters ? "필터 조건에 맞는 기사가 없습니다." : "새 기사를 작성해 보세요."}
+            action={
+              hasActiveFilters ? (
+                <Button variant="light" onClick={resetFilters}>
+                  필터 초기화
+                </Button>
+              ) : (
+                <Button component={Link} href="/admin/write" leftSection={<IconPlus size={16} />}>
+                  새 기사 작성
+                </Button>
+              )
+            }
+          />
+        ) : (
+          <Table.ScrollContainer minWidth={800}>
+            <Table verticalSpacing="sm" horizontalSpacing="md" striped highlightOnHover>
+              <Table.Thead>
+                <Table.Tr>
+                  <Table.Th w={40}>
+                    <Checkbox
+                      checked={allVisibleSelected}
+                      onChange={(e) => toggleSelectAllVisible(e.currentTarget.checked)}
+                      aria-label="전체 선택"
+                    />
+                  </Table.Th>
+                  <Table.Th>제목</Table.Th>
+                  <Table.Th w={100}>상태</Table.Th>
+                  <Table.Th w={140}>수정일</Table.Th>
+                  <Table.Th w={80} ta="right">
+                    조회수
+                  </Table.Th>
+                  <Table.Th w={60} ta="center">
+                    작업
+                  </Table.Th>
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>
+                {articles.map((article) => {
+                  const isSelected = selectedArticleIds.includes(article.id);
+                  const isSpecialIssue = isSpecialIssueArticle(article);
+                  const canShare = Boolean(
+                    article.slug && (article.status === "shared" || article.status === "published")
+                  );
 
-                    return (
-                      <tr key={article.id} className={actionLoadingId === article.id ? "is-loading" : undefined}>
-                        <td>
-                          <label className="admin2-row-check">
-                            <input
-                              type="checkbox"
-                              checked={isSelected}
-                              onChange={(event) => toggleArticleSelection(article.id, event.target.checked)}
-                              aria-label={`${article.title} 선택`}
-                            />
-                          </label>
-                        </td>
-                        <td>
-                          <div className="admin2-table-title-wrap">
-                            <div className="admin2-table-title-line">
-                              <Link href={`/admin/write?id=${article.id}`}>{article.title}</Link>
-                            </div>
-                            {isSpecialIssue && <div className="admin2-row-meta admin2-row-meta--special">창간특별호</div>}
-                          </div>
-                        </td>
-                        <td>
-                          <span className={`admin2-tag admin2-tag--${isSpecialIssue && article.status === "shared" ? "special" : statusTone[article.status] || "draft"}`}>
-                            {statusLabels[article.status] || article.status}
-                          </span>
-                        </td>
-                        <td>{getCategoryName(article.categories)}</td>
-                        <td>{new Date(article.updated_at || article.created_at).toLocaleString("ko-KR")}</td>
-                        <td>{article.views?.toLocaleString() || 0}</td>
-                        <td>
-                          <div className="admin2-table-actions">
-                            <Link href={`/admin/write?id=${article.id}`}>편집</Link>
-                            {canOpenShareLink && article.slug ? (
-                              <button
-                                type="button"
+                  return (
+                    <Table.Tr
+                      key={article.id}
+                      style={{
+                        opacity: actionLoadingId === article.id ? 0.5 : 1,
+                        transition: "opacity 0.15s",
+                      }}
+                    >
+                      <Table.Td>
+                        <Checkbox
+                          checked={isSelected}
+                          onChange={(e) => toggleArticleSelection(article.id, e.currentTarget.checked)}
+                          aria-label={`${article.title} 선택`}
+                        />
+                      </Table.Td>
+                      <Table.Td>
+                        <Stack gap={2}>
+                          <Group gap="xs" wrap="nowrap">
+                            <Text
+                              component={Link}
+                              href={`/admin/write?id=${article.id}`}
+                              size="sm"
+                              fw={500}
+                              lineClamp={1}
+                              style={{ textDecoration: "none", color: "inherit" }}
+                            >
+                              {article.title}
+                            </Text>
+                          </Group>
+                          <Group gap={6}>
+                            <Badge variant="outline" size="xs" color="gray">
+                              {getCategoryName(article.categories)}
+                            </Badge>
+                            {isSpecialIssue && (
+                              <Badge variant="light" size="xs" color="violet">
+                                창간특별호
+                              </Badge>
+                            )}
+                          </Group>
+                        </Stack>
+                      </Table.Td>
+                      <Table.Td>
+                        <StatusBadge status={article.status} />
+                      </Table.Td>
+                      <Table.Td>
+                        <Text size="xs" c="dimmed">
+                          {new Date(article.updated_at || article.created_at).toLocaleDateString("ko-KR")}
+                        </Text>
+                      </Table.Td>
+                      <Table.Td ta="right">
+                        <Text size="xs" c="dimmed">
+                          {article.views?.toLocaleString() || 0}
+                        </Text>
+                      </Table.Td>
+                      <Table.Td>
+                        <Menu shadow="md" width={160} position="bottom-end">
+                          <Menu.Target>
+                            <ActionIcon variant="subtle" color="gray" size="sm">
+                              <IconDots size={16} />
+                            </ActionIcon>
+                          </Menu.Target>
+                          <Menu.Dropdown>
+                            <Menu.Item
+                              leftSection={<IconEdit size={14} />}
+                              component={Link}
+                              href={`/admin/write?id=${article.id}`}
+                            >
+                              편집
+                            </Menu.Item>
+                            {canShare && (
+                              <Menu.Item
+                                leftSection={<IconLink size={14} />}
                                 onClick={() => void handleShareAction(article)}
-                                disabled={actionLoadingId === article.id || bulkLoading}
                               >
                                 공유
-                              </button>
-                            ) : null}
-                            <button
-                              type="button"
+                              </Menu.Item>
+                            )}
+                            <Menu.Item
+                              leftSection={<IconCopy size={14} />}
                               onClick={() => void cloneArticle(article)}
                               disabled={actionLoadingId === article.id || bulkLoading}
                             >
                               복제
-                            </button>
-                            <div className="admin2-inline-status">
-                              <select
-                                value={article.status}
-                                onChange={(event) => void updateStatus(article, event.target.value)}
-                                disabled={actionLoadingId === article.id || bulkLoading}
+                            </Menu.Item>
+                            <Menu.Divider />
+                            <Menu.Label>상태 변경</Menu.Label>
+                            {inlineStatusOptions.map((opt) => (
+                              <Menu.Item
+                                key={opt.value}
+                                disabled={article.status === opt.value || actionLoadingId === article.id}
+                                onClick={() => void updateStatus(article, opt.value)}
+                                fz="xs"
                               >
-                                {statusOptions
-                                  .filter((option) => option.value !== "all")
-                                  .map((option) => (
-                                    <option key={option.value} value={option.value}>
-                                      {option.label}
-                                    </option>
-                                  ))}
-                              </select>
-                            </div>
-                            <button
-                              type="button"
-                              className="admin2-row-action--danger"
+                                {opt.label}
+                              </Menu.Item>
+                            ))}
+                            <Menu.Divider />
+                            <Menu.Item
+                              leftSection={<IconTrash size={14} />}
+                              color="red"
                               onClick={() => setDeleteModalArticle(article)}
                               disabled={actionLoadingId === article.id || bulkLoading}
-                              aria-label={`${article.title} 삭제`}
                             >
                               삭제
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
+                            </Menu.Item>
+                          </Menu.Dropdown>
+                        </Menu>
+                      </Table.Td>
+                    </Table.Tr>
+                  );
+                })}
+              </Table.Tbody>
+            </Table>
+          </Table.ScrollContainer>
+        )}
 
-          {/* Pagination */}
-          {totalCount > PAGE_SIZE && (
-            <div className="admin2-desk-pagination">
-              <button
-                className="admin2-btn admin2-btn-ghost"
-                type="button"
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page <= 1 || loading}
-                aria-label="이전 페이지"
-              >
-                ← 이전
-              </button>
-              <span className="admin2-desk-pagination-info" aria-live="polite">
-                페이지 {page} / {totalPages}
-              </span>
-              <button
-                className="admin2-btn admin2-btn-ghost"
-                type="button"
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page >= totalPages || loading}
-                aria-label="다음 페이지"
-              >
-                다음 →
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
+        {/* Pagination */}
+        {totalCount > PAGE_SIZE && (
+          <Group justify="center" py="md" style={{ borderTop: "1px solid #f1f3f5" }}>
+            <Pagination
+              total={totalPages}
+              value={page}
+              onChange={setPage}
+              size="sm"
+            />
+          </Group>
+        )}
+      </Paper>
 
       {/* Delete Confirmation Modal */}
-      {deleteModalArticle && (
-        <div
-          className="nf-modal-overlay"
-          onClick={() => setDeleteModalArticle(null)}
-          role="dialog"
-          aria-modal="true"
-          aria-label="기사 삭제 확인"
-        >
-          <div
-            className="admin2-panel nf-modal"
-            style={{ maxWidth: 420, textAlign: "center" }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div style={{ fontSize: 40, marginBottom: 12 }}>🗑️</div>
-            <div className="admin2-panel-title" style={{ marginBottom: 8 }}>기사 삭제</div>
-            <p style={{ fontSize: 14, color: "var(--admin2-ink)", marginBottom: 6 }}>
+      <Modal
+        opened={!!deleteModalArticle}
+        onClose={() => setDeleteModalArticle(null)}
+        title="기사 삭제"
+        centered
+        size="sm"
+      >
+        {deleteModalArticle && (
+          <Stack gap="md">
+            <Text size="sm">
               &ldquo;{deleteModalArticle.title}&rdquo;
-            </p>
-            <p style={{ fontSize: 13, color: "var(--admin2-muted)", marginBottom: 20 }}>
+            </Text>
+            <Text size="sm" c="dimmed">
               이 기사를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
-            </p>
-            <div className="nf-modal-actions" style={{ justifyContent: "center" }}>
-              <button
-                className="admin2-btn admin2-btn-ghost"
-                type="button"
-                onClick={() => setDeleteModalArticle(null)}
-              >
+            </Text>
+            <Group justify="flex-end" gap="sm">
+              <Button variant="default" onClick={() => setDeleteModalArticle(null)}>
                 취소
-              </button>
-              <button
-                className="admin2-btn admin2-row-action--danger"
-                type="button"
+              </Button>
+              <Button
+                color="red"
                 onClick={() => void confirmDeleteArticle(deleteModalArticle)}
               >
                 삭제
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+              </Button>
+            </Group>
+          </Stack>
+        )}
+      </Modal>
+    </Stack>
   );
 }

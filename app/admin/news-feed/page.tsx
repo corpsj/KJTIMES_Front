@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
+import { Stack } from "@mantine/core";
 import { createClient } from "@/utils/supabase/client";
 import { nfFetch, isNewsFactoryConfigured } from "@/lib/news-factory";
+import AdminHeader from "@/components/admin/AdminHeader";
 
 /* ──────────────────────────── Types ──────────────────────────── */
 
@@ -375,9 +377,9 @@ export default function NewsFeedPage() {
 
   if (!configured) {
     return (
-      <div className="admin2-grid admin2-grid--single">
+      <Stack gap="lg">
+        <AdminHeader title="뉴스 피드" subtitle="뉴스 팩토리 피드 관리" />
         <div className="admin2-panel">
-          <div className="admin2-panel-title">뉴스 피드</div>
           <div className="admin2-placeholder">
             뉴스 팩토리 연결 설정이 필요합니다.
             <br />
@@ -387,7 +389,7 @@ export default function NewsFeedPage() {
             &nbsp;환경변수를 설정해 주세요.
           </div>
         </div>
-      </div>
+      </Stack>
     );
   }
 
@@ -400,18 +402,9 @@ export default function NewsFeedPage() {
   const totalPages = Math.max(1, Math.ceil(totalArticles / LIMIT));
 
   return (
-    <div className="admin2-grid admin2-grid--single">
+    <Stack gap="lg">
+      <AdminHeader title="뉴스 피드" subtitle="AI 생성 기사를 탐색하고, 구독을 관리합니다." />
       <div className="admin2-dashboard">
-        {/* Header */}
-        <div className="admin2-panel">
-          <div className="admin2-panel-title">뉴스 피드</div>
-          <div className="admin2-hero-title admin2-display" style={{ fontSize: 24 }}>
-            뉴스 팩토리 피드
-          </div>
-          <div className="admin2-hero-sub">
-            AI 생성 기사를 탐색하고, 구독을 관리합니다.
-          </div>
-        </div>
 
         {/* Tab nav */}
         <div className="admin2-nav nf-tabs">
@@ -777,7 +770,7 @@ export default function NewsFeedPage() {
           </>
         )}
       </div>
-    </div>
+    </Stack>
   );
 }
 
