@@ -173,14 +173,39 @@ export async function generateMetadata({ params }: { params: ArticlePageParams }
     const article = await fetchArticle(id);
     if (!article) return {};
 
+    const siteUrl = await getSiteUrl();
+    const title = article.seo_title || article.title;
+    const description = article.seo_description || article.excerpt || article.summary || "";
+    const publishedDate = article.published_at || article.created_at;
+    const authorName = article.author?.full_name || "편집국";
+    const keywords = article.keywords
+        ? article.keywords.split(",").map((k: string) => k.trim())
+        : undefined;
+
     return {
-        title: article.seo_title || article.title,
-        description: article.seo_description || article.excerpt || article.summary || "",
+        title,
+        description,
+        keywords,
+        authors: [{ name: authorName }],
         openGraph: {
-            title: article.seo_title || article.title,
-            description: article.seo_description || article.excerpt || article.summary || "",
-            images: article.thumbnail_url ? [{ url: article.thumbnail_url }] : undefined,
+            title,
+            description,
+            images: article.thumbnail_url ? [{ url: article.thumbnail_url, width: 1200, height: 630 }] : undefined,
             type: "article",
+            siteName: PUBLISHER_NAME,
+            url: `${siteUrl}/article/${id}`,
+            publishedTime: publishedDate ? new Date(publishedDate).toISOString() : undefined,
+            modifiedTime: article.updated_at ? new Date(article.updated_at).toISOString() : undefined,
+            authors: [authorName],
+        },
+        twitter: {
+            card: "summary_large_image",
+            title,
+            description,
+            images: article.thumbnail_url ? [article.thumbnail_url] : undefined,
+        },
+        alternates: {
+            canonical: `${siteUrl}/article/${id}`,
         },
     };
 }

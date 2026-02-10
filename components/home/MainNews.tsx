@@ -5,13 +5,14 @@ import Link from "next/link";
 import { Article } from "@/types";
 
 export function MainNews({ articles }: { articles: Article[] }) {
-    if (!articles || articles.length === 0) return null;
-
     return (
         <Stack gap="lg">
             <Title order={4} style={{ borderBottom: "2px solid #000", paddingBottom: "8px" }}>
                 주요뉴스
             </Title>
+            {(!articles || articles.length === 0) && (
+                <Text c="dimmed" size="sm">주요 뉴스가 없습니다.</Text>
+            )}
             {articles.map((article) => (
                 <Group key={article.id} align="flex-start" wrap="nowrap">
                     <Stack gap={4} style={{ flex: 1 }}>

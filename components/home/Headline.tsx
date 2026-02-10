@@ -8,7 +8,13 @@ export function Headline({ articles }: { articles: Article[] }) {
     const mainArticle = articles[0];
     const subArticles = articles.slice(1, 3);
 
-    if (!mainArticle) return null;
+    if (!mainArticle) {
+        return (
+            <Stack gap="md" align="center" py="xl">
+                <Text c="dimmed">헤드라인 기사가 없습니다.</Text>
+            </Stack>
+        );
+    }
 
     return (
         <Stack gap="xl">
