@@ -1,7 +1,7 @@
 "use client";
 
 import "./admin2.css";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { MantineProvider } from "@mantine/core";
 import { createClient } from "@/utils/supabase/client";
@@ -15,34 +15,55 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [supabase] = useState(() => createClient());
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [initialCheckDone, setInitialCheckDone] = useState(false);
 
   const isLoginPage = pathname === "/admin/login";
 
-  useEffect(() => {
+  const checkUser = useCallback(async () => {
     if (isLoginPage) {
       setLoading(false);
+      setInitialCheckDone(true);
       return;
     }
 
-    const checkUser = async () => {
-      try {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-        if (!user) {
-          router.push("/admin/login");
-        } else {
-          setUser(user);
-        }
-      } catch (error) {
-        console.error("Auth check failed", error);
-        router.push("/admin/login");
-      } finally {
+    try {
+      // Try getSession first (faster, from local storage)
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        setUser(session.user);
         setLoading(false);
+        setInitialCheckDone(true);
+        // Verify in background
+        supabase.auth.getUser().then(({ data: { user: verifiedUser } }) => {
+          if (!verifiedUser) {
+            setUser(null);
+            router.push("/admin/login");
+          } else {
+            setUser(verifiedUser);
+          }
+        });
+        return;
       }
-    };
+
+      // Fallback to full verification
+      const { data: { user: verifiedUser } } = await supabase.auth.getUser();
+      if (!verifiedUser) {
+        router.push("/admin/login");
+      } else {
+        setUser(verifiedUser);
+      }
+    } catch (error) {
+      console.error("Auth check failed", error);
+      router.push("/admin/login");
+    } finally {
+      setLoading(false);
+      setInitialCheckDone(true);
+    }
+  }, [supabase, isLoginPage, router]);
+
+  useEffect(() => {
     checkUser();
-  }, [router, supabase, isLoginPage]);
+  }, [checkUser]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -58,8 +79,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     );
   }
 
-  // Loading state
-  if (loading) {
+  // Loading state — show a minimal spinner
+  if (loading || !initialCheckDone) {
     return (
       <MantineProvider theme={adminTheme} defaultColorScheme="light">
         <div
@@ -71,9 +92,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             background: "#f8f9fa",
             color: "#868e96",
             fontSize: 14,
+            gap: 8,
           }}
         >
-          CMS 로딩 중...
+          <div
+            style={{
+              width: 20,
+              height: 20,
+              border: "2px solid #dee2e6",
+              borderTopColor: "#228be6",
+              borderRadius: "50%",
+              animation: "spin 0.6s linear infinite",
+            }}
+          />
+          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
         </div>
       </MantineProvider>
     );
