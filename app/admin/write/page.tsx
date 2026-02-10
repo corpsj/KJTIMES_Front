@@ -327,6 +327,8 @@ export default function AdminWrite() {
 
     const extractPlainText = (html: string) => {
         return html
+            .replace(/<figure[^>]*>[\s\S]*?<\/figure>/gi, " ")
+            .replace(/<figcaption[^>]*>[\s\S]*?<\/figcaption>/gi, " ")
             .replace(/<[^>]+>/g, " ")
             .replace(/\s+/g, " ")
             .trim();

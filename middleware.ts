@@ -13,6 +13,7 @@ const SHARE_PATH_REGEX = /^\/share\/([^/]+)$/;
 const PREVIEW_MODE = true; // TODO: 홈페이지 완성 후 false로 변경
 const ALLOWED_PATHS_IN_PREVIEW = [
     "/special-edition",
+    "/article",
     "/share",
     "/admin",
     "/login",
@@ -20,6 +21,7 @@ const ALLOWED_PATHS_IN_PREVIEW = [
     "/api",
     "/_next",
     "/favicon.ico",
+    "/brand",
 ];
 
 export function middleware(request: NextRequest) {
