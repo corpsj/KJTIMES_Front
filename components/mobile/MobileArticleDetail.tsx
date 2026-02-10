@@ -1,6 +1,7 @@
 "use client";
 
-import { Badge, Box, Container, Divider, Group, Image, Stack, Text, Title } from "@mantine/core";
+import { Badge, Box, Container, Divider, Group, Image, Stack, Text, Title, UnstyledButton } from "@mantine/core";
+import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import Link from "next/link";
 import { Article } from "@/types";
 import { formatKoreanDate } from "@/utils/date";
@@ -17,6 +18,8 @@ export function MobileArticleDetail({
     articleTags = [],
     seriesLabel = null,
     shareUrl = "",
+    prevArticle = null,
+    nextArticle = null,
 }: {
     article: Article & { content: string };
     relatedArticles?: Article[];
@@ -25,6 +28,8 @@ export function MobileArticleDetail({
     articleTags?: string[];
     seriesLabel?: string | null;
     shareUrl?: string;
+    prevArticle?: Article | null;
+    nextArticle?: Article | null;
 }) {
     if (!article) return <div>Article not found</div>;
     const publishedDate = article.published_at || article.created_at;
@@ -49,10 +54,12 @@ export function MobileArticleDetail({
         <Box component="section" className={styles.mobileBackdrop}>
             <Container size="md" px={0}>
                 <article className={styles.mobileArticleCard}>
+                    {/* Breadcrumb */}
                     <Text size="xs" className={styles.mobileBreadcrumb}>
                         홈 {primaryCategory ? `> ${primaryCategory.name}` : "> 기사"}
                     </Text>
 
+                    {/* Category + Date */}
                     <Group justify="space-between" align="flex-start" className={styles.mobileMetaTop} wrap="nowrap">
                         <Group gap={6} wrap="wrap">
                             {categories.map((category) => (
@@ -72,6 +79,8 @@ export function MobileArticleDetail({
                             {formatKoreanDate(publishedDate)}
                         </Text>
                     </Group>
+
+                    {/* Tags */}
                     {articleTags.length > 0 && (
                         <Group gap={6} className={styles.tagRow}>
                             {articleTags.map((tag) => (
@@ -82,16 +91,19 @@ export function MobileArticleDetail({
                         </Group>
                     )}
 
+                    {/* Title */}
                     <Title order={1} className={styles.mobileTitle}>
                         {article.title}
                     </Title>
 
+                    {/* Subtitle */}
                     {article.sub_title && (
                         <Text size="md" className={styles.subtitle} mt="sm">
                             {article.sub_title}
                         </Text>
                     )}
 
+                    {/* Author row */}
                     <Group gap="xs" className={styles.mobileAuthorRow} wrap="nowrap">
                         <Box className={styles.authorMark}>{authorInitial}</Box>
                         <Text size="xs" className={styles.metaText}>
@@ -100,12 +112,13 @@ export function MobileArticleDetail({
                         </Text>
                     </Group>
 
+                    {/* Hero image - full width on mobile */}
                     {article.thumbnail_url && (
-                        <Box component="figure" className={styles.heroFigure}>
+                        <Box component="figure" className={styles.mobileHeroFigure}>
                             <Image
                                 src={article.thumbnail_url}
                                 alt={`${article.title} 대표 이미지`}
-                                className={styles.heroImage}
+                                className={styles.mobileHeroImage}
                             />
                             <Text component="figcaption" size="xs" className={styles.heroCaption}>
                                 {article.excerpt || article.summary || `${article.title} 관련 이미지`}
@@ -113,12 +126,14 @@ export function MobileArticleDetail({
                         </Box>
                     )}
 
+                    {/* Summary lead */}
                     {article.summary && (
                         <Text size="sm" className={styles.summaryLead} mt="sm">
                             {article.summary}
                         </Text>
                     )}
 
+                    {/* Share actions - mobile optimized */}
                     {shareUrl && (
                         <Box className={styles.shareWrap}>
                             <ShareActions title={article.title} url={shareUrl} tone="light" compact />
@@ -127,11 +142,65 @@ export function MobileArticleDetail({
 
                     <Divider className={styles.separator} my="sm" />
 
+                    {/* Article body */}
                     <div
                         className={`${styles.articleBody} ${styles.mobileBody} tiptap-content`}
                         dangerouslySetInnerHTML={{ __html: normalizedContent }}
                     />
 
+                    {/* Bottom share bar */}
+                    {shareUrl && (
+                        <Box className={styles.mobileBottomShareBar}>
+                            <Text size="xs" fw={600} mb={6} className={styles.metaText}>공유하기</Text>
+                            <ShareActions title={article.title} url={shareUrl} tone="light" />
+                        </Box>
+                    )}
+
+                    {/* Prev/Next navigation */}
+                    {(prevArticle || nextArticle) && (
+                        <Box className={styles.mobilePrevNext}>
+                            {prevArticle ? (
+                                <UnstyledButton
+                                    component={Link}
+                                    href={`/article/${prevArticle.id}`}
+                                    className={styles.mobilePrevNextItem}
+                                >
+                                    <Group gap={6} wrap="nowrap" align="flex-start">
+                                        <IconChevronLeft size={16} style={{ color: "#64748b", flexShrink: 0, marginTop: 2 }} />
+                                        <Stack gap={1}>
+                                            <Text size="xs" className={styles.metaText}>이전 기사</Text>
+                                            <Text size="sm" fw={600} lineClamp={1} style={{ color: "#1f2937" }}>
+                                                {prevArticle.title}
+                                            </Text>
+                                        </Stack>
+                                    </Group>
+                                </UnstyledButton>
+                            ) : (
+                                <Box />
+                            )}
+                            {nextArticle ? (
+                                <UnstyledButton
+                                    component={Link}
+                                    href={`/article/${nextArticle.id}`}
+                                    className={`${styles.mobilePrevNextItem} ${styles.mobilePrevNextItemRight}`}
+                                >
+                                    <Group gap={6} wrap="nowrap" align="flex-start" justify="flex-end">
+                                        <Stack gap={1} style={{ textAlign: "right" }}>
+                                            <Text size="xs" className={styles.metaText}>다음 기사</Text>
+                                            <Text size="sm" fw={600} lineClamp={1} style={{ color: "#1f2937" }}>
+                                                {nextArticle.title}
+                                            </Text>
+                                        </Stack>
+                                        <IconChevronRight size={16} style={{ color: "#64748b", flexShrink: 0, marginTop: 2 }} />
+                                    </Group>
+                                </UnstyledButton>
+                            ) : (
+                                <Box />
+                            )}
+                        </Box>
+                    )}
+
+                    {/* Reporter card */}
                     <Box className={styles.mobileReporterCard}>
                         <Box className={styles.mobileReporterCardAvatar}>{authorInitial}</Box>
                         <Stack gap={2} style={{ flex: 1 }}>
@@ -141,11 +210,13 @@ export function MobileArticleDetail({
                         <button type="button" className={styles.mobileFollowButton}>기자 구독</button>
                     </Box>
 
+                    {/* Ad */}
                     <Box className={styles.mobileAdStrip}>
                         <Text size="xs" className={styles.mobileAdLabel}>ADVERTISEMENT</Text>
                         <Box className={styles.mobileAdInner}>광고 영역</Box>
                     </Box>
 
+                    {/* Related articles */}
                     {featuredRelated.length > 0 && (
                         <Box className={styles.mobileRelatedSection}>
                             <Divider className={styles.separator} my="md" />
@@ -176,6 +247,7 @@ export function MobileArticleDetail({
                         </Box>
                     )}
 
+                    {/* Popular articles */}
                     <Box className={styles.mobileInfoPanel}>
                         <Title order={5} className={styles.blockSubHeading}>이 시각 많이 본 기사</Title>
                         {rankedRelated.length > 0 ? (
@@ -229,6 +301,7 @@ export function MobileArticleDetail({
                         )}
                     </Box>
 
+                    {/* Series */}
                     {featuredSeries.length > 0 && (
                         <Box className={styles.mobileInfoPanel}>
                             <Title order={5} className={styles.blockSubHeading}>
@@ -249,6 +322,7 @@ export function MobileArticleDetail({
                         </Box>
                     )}
 
+                    {/* Author articles */}
                     {featuredAuthor.length > 0 && (
                         <Box className={styles.mobileInfoPanel}>
                             <Title order={5} className={styles.blockSubHeading}>{authorName} 기자의 다른 기사</Title>

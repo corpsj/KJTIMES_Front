@@ -1,6 +1,7 @@
 "use client";
 
-import { Badge, Box, Container, Divider, Grid, GridCol, Group, Image, Stack, Text, Title } from "@mantine/core";
+import { Badge, Box, Container, Divider, Grid, GridCol, Group, Image, Stack, Text, Title, UnstyledButton } from "@mantine/core";
+import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import Link from "next/link";
 import { Article } from "@/types";
 import { formatKoreanDate } from "@/utils/date";
@@ -26,6 +27,8 @@ export function DesktopArticleDetail({
     articleTags = [],
     seriesLabel = null,
     shareUrl = "",
+    prevArticle = null,
+    nextArticle = null,
 }: {
     article: Article & { content: string };
     relatedArticles?: Article[];
@@ -34,6 +37,8 @@ export function DesktopArticleDetail({
     articleTags?: string[];
     seriesLabel?: string | null;
     shareUrl?: string;
+    prevArticle?: Article | null;
+    nextArticle?: Article | null;
 }) {
     if (!article) return <div>Article not found</div>;
     const publishedDate = article.published_at || article.created_at;
@@ -69,6 +74,7 @@ export function DesktopArticleDetail({
                 <Grid gutter={22} align="flex-start">
                     <GridCol span={{ base: 12, md: 8 }}>
                         <article className={styles.chosunArticlePane}>
+                            {/* Top meta line */}
                             <Group gap="xs" wrap="wrap" className={styles.chosunTopLine}>
                                 {primaryCategory && (
                                     <Badge
@@ -92,16 +98,19 @@ export function DesktopArticleDetail({
                                 <Text size="xs" className={styles.chosunMetaMuted}>조회 {views.toLocaleString()}</Text>
                             </Group>
 
+                            {/* Title */}
                             <Title order={1} className={styles.chosunTitle}>
                                 {article.title}
                             </Title>
 
+                            {/* Subtitle */}
                             {article.sub_title && (
                                 <Text size="lg" className={styles.chosunSubtitle}>
                                     {article.sub_title}
                                 </Text>
                             )}
 
+                            {/* Tags */}
                             {renderedTags.length > 0 && (
                                 <Group gap={6} className={styles.chosunTagRow}>
                                     {renderedTags.map((tag) => (
@@ -112,6 +121,7 @@ export function DesktopArticleDetail({
                                 </Group>
                             )}
 
+                            {/* Reporter + Share */}
                             <Group className={styles.chosunReporterRow} justify="space-between" wrap="nowrap" align="flex-start">
                                 <Group gap="sm" wrap="nowrap">
                                     <Box className={styles.chosunReporterInitial}>{authorInitial}</Box>
@@ -123,6 +133,7 @@ export function DesktopArticleDetail({
                                 {shareUrl && <ShareActions title={article.title} url={shareUrl} tone="light" compact />}
                             </Group>
 
+                            {/* Hero image */}
                             {article.thumbnail_url && (
                                 <Box component="figure" className={styles.chosunHeroFigure}>
                                     <Image
@@ -136,6 +147,7 @@ export function DesktopArticleDetail({
                                 </Box>
                             )}
 
+                            {/* Summary lead */}
                             {article.summary && (
                                 <Text size="md" className={styles.chosunSummaryLead}>
                                     {article.summary}
@@ -144,11 +156,64 @@ export function DesktopArticleDetail({
 
                             <Divider className={styles.chosunDivider} my="md" />
 
+                            {/* Article body */}
                             <div
                                 className={`${styles.chosunBody} tiptap-content`}
                                 dangerouslySetInnerHTML={{ __html: normalizedContent }}
                             />
 
+                            {/* Bottom share bar */}
+                            {shareUrl && (
+                                <Box className={styles.chosunBottomShareBar}>
+                                    <ShareActions title={article.title} url={shareUrl} tone="light" />
+                                </Box>
+                            )}
+
+                            {/* Prev / Next navigation */}
+                            {(prevArticle || nextArticle) && (
+                                <Box className={styles.chosunPrevNext}>
+                                    {prevArticle ? (
+                                        <UnstyledButton
+                                            component={Link}
+                                            href={`/article/${prevArticle.id}`}
+                                            className={styles.chosunPrevNextItem}
+                                        >
+                                            <Group gap={8} wrap="nowrap" align="flex-start">
+                                                <IconChevronLeft size={18} style={{ color: "#64748b", flexShrink: 0, marginTop: 2 }} />
+                                                <Stack gap={2}>
+                                                    <Text size="xs" className={styles.chosunMetaMuted}>이전 기사</Text>
+                                                    <Text size="sm" fw={600} lineClamp={1} className={styles.chosunPrevNextTitle}>
+                                                        {prevArticle.title}
+                                                    </Text>
+                                                </Stack>
+                                            </Group>
+                                        </UnstyledButton>
+                                    ) : (
+                                        <Box />
+                                    )}
+                                    {nextArticle ? (
+                                        <UnstyledButton
+                                            component={Link}
+                                            href={`/article/${nextArticle.id}`}
+                                            className={`${styles.chosunPrevNextItem} ${styles.chosunPrevNextItemRight}`}
+                                        >
+                                            <Group gap={8} wrap="nowrap" align="flex-start" justify="flex-end">
+                                                <Stack gap={2} style={{ textAlign: "right" }}>
+                                                    <Text size="xs" className={styles.chosunMetaMuted}>다음 기사</Text>
+                                                    <Text size="sm" fw={600} lineClamp={1} className={styles.chosunPrevNextTitle}>
+                                                        {nextArticle.title}
+                                                    </Text>
+                                                </Stack>
+                                                <IconChevronRight size={18} style={{ color: "#64748b", flexShrink: 0, marginTop: 2 }} />
+                                            </Group>
+                                        </UnstyledButton>
+                                    ) : (
+                                        <Box />
+                                    )}
+                                </Box>
+                            )}
+
+                            {/* Related articles inline */}
                             <Box className={styles.chosunModule}>
                                 <Title order={4} className={styles.chosunModuleTitle}>이 기사와 함께 본 기사</Title>
                                 {featuredRelated.length > 0 ? (
@@ -184,6 +249,7 @@ export function DesktopArticleDetail({
                                 )}
                             </Box>
 
+                            {/* Reporter card */}
                             <Box className={styles.chosunReporterCard}>
                                 <Box className={styles.chosunReporterCardAvatar}>{authorInitial}</Box>
                                 <Stack gap={2} style={{ flex: 1 }}>
@@ -197,11 +263,13 @@ export function DesktopArticleDetail({
                                 </button>
                             </Box>
 
+                            {/* Ad strip */}
                             <Box className={styles.chosunAdStrip}>
                                 <Text size="xs" className={styles.chosunAdLabel}>ADVERTISEMENT</Text>
                                 <Box className={styles.chosunAdInner}>광고 영역</Box>
                             </Box>
 
+                            {/* Popular news */}
                             <Box className={styles.chosunModule}>
                                 <Title order={4} className={styles.chosunModuleTitle}>
                                     {primaryCategory?.name || "종합"} 많이 본 뉴스
@@ -264,6 +332,7 @@ export function DesktopArticleDetail({
                                 )}
                             </Box>
 
+                            {/* Dual module: Series + Author articles */}
                             <div className={styles.chosunDualModule}>
                                 <Box className={styles.chosunSubModule}>
                                     <Title order={5} className={styles.chosunSubModuleTitle}>
@@ -303,6 +372,7 @@ export function DesktopArticleDetail({
                                 </Box>
                             </div>
 
+                            {/* Article info table */}
                             <Box className={styles.chosunInfoTable}>
                                 <Title order={5} className={styles.chosunSubModuleTitle}>기사 정보</Title>
                                 <div className={styles.chosunInfoRow}>
@@ -331,6 +401,7 @@ export function DesktopArticleDetail({
                         </article>
                     </GridCol>
 
+                    {/* Sidebar */}
                     <GridCol span={{ base: 12, md: 4 }}>
                         <aside className={styles.chosunAsidePane}>
                             <Box className={styles.chosunAsideModule}>
