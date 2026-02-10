@@ -16,6 +16,7 @@ const displayFont = Noto_Serif_KR({
 });
 
 const navItems = [
+  { href: "/admin", label: "대시보드" },
   { href: "/admin/articles", label: "기사 데스크" },
   { href: "/admin/write", label: "작성 스튜디오" },
   { href: "/admin/media", label: "미디어" },

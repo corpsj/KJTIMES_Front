@@ -1529,6 +1529,22 @@
   padding-bottom: 8px;
 }
 
+.admin2-desk-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 16px 0 4px;
+}
+
+.admin2-desk-pagination-info {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--admin2-ink);
+  min-width: 120px;
+  text-align: center;
+}
+
 @keyframes admin2-rise {
   from {
     opacity: 0;

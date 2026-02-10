@@ -2,10 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 
 const SPECIAL_ISSUE_CATEGORY_SLUG = "special-edition";
+const PAGE_SIZE = 20;
 
 type ArticleRow = {
   id: string;
@@ -75,6 +76,7 @@ const validSortValues = new Set(sortOptions.map((option) => option.value));
 export default function AdminArticles() {
   const [supabase] = useState(() => createClient());
   const searchParams = useSearchParams();
+  const router = useRouter();
   const searchParamsKey = searchParams.toString();
 
   const [articles, setArticles] = useState<ArticleRow[]>([]);
@@ -88,6 +90,18 @@ export default function AdminArticles() {
   const [bulkLoading, setBulkLoading] = useState(false);
   const [refreshToken, setRefreshToken] = useState(0);
   const searchTermRef = useRef("");
+
+  // Pagination state
+  const [page, setPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+
+  // Stats state
+  const [statsTotal, setStatsTotal] = useState(0);
+  const [statsPublished, setStatsPublished] = useState(0);
+  const [statsDraft, setStatsDraft] = useState(0);
+  const [statsPending, setStatsPending] = useState(0);
+
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
 
   const getCategoryName = (categories: ArticleRow["categories"]) => {
     if (!categories) return "미분류";
@@ -107,6 +121,23 @@ export default function AdminArticles() {
 
   const isSpecialIssueArticle = (article: ArticleRow) =>
     getCategorySlug(article.categories) === SPECIAL_ISSUE_CATEGORY_SLUG;
+
+  // Fetch stats
+  useEffect(() => {
+    const fetchStats = async () => {
+      const [totalRes, publishedRes, draftRes, pendingRes] = await Promise.all([
+        supabase.from("articles").select("id", { count: "exact", head: true }),
+        supabase.from("articles").select("id", { count: "exact", head: true }).eq("status", "published"),
+        supabase.from("articles").select("id", { count: "exact", head: true }).eq("status", "draft"),
+        supabase.from("articles").select("id", { count: "exact", head: true }).eq("status", "pending_review"),
+      ]);
+      setStatsTotal(totalRes.count ?? 0);
+      setStatsPublished(publishedRes.count ?? 0);
+      setStatsDraft(draftRes.count ?? 0);
+      setStatsPending(pendingRes.count ?? 0);
+    };
+    fetchStats();
+  }, [supabase, refreshToken]);
 
   useEffect(() => {
     const params = new URLSearchParams(searchParamsKey);
@@ -128,12 +159,43 @@ export default function AdminArticles() {
     setSortFilter(nextSort);
     setSearchTerm(nextSearch);
     searchTermRef.current = nextSearch;
+    setPage(1);
     setRefreshToken((prev) => prev + 1);
   }, [searchParamsKey]);
 
   useEffect(() => {
     const fetchArticles = async () => {
       setLoading(true);
+
+      // Build base query for count
+      let countQuery = supabase
+        .from("articles")
+        .select("id", { count: "exact", head: true });
+
+      if (statusFilter !== "all") {
+        countQuery = countQuery.eq("status", statusFilter);
+      }
+
+      const term = searchTermRef.current.trim().replace(/[%]/g, "");
+      if (term) {
+        countQuery = countQuery.or(`title.ilike.%${term}%,slug.ilike.%${term}%`);
+      }
+
+      const { count } = await countQuery;
+      const total = count ?? 0;
+      setTotalCount(total);
+
+      // Clamp page
+      const maxPage = Math.max(1, Math.ceil(total / PAGE_SIZE));
+      const safePage = Math.min(page, maxPage);
+      if (safePage !== page) {
+        setPage(safePage);
+      }
+
+      const from = (safePage - 1) * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
+
+      // Build data query
       let query = supabase
         .from("articles")
         .select("id, title, slug, status, created_at, updated_at, published_at, views, categories(name, slug)");
@@ -142,7 +204,6 @@ export default function AdminArticles() {
         query = query.eq("status", statusFilter);
       }
 
-      const term = searchTermRef.current.trim().replace(/[%]/g, "");
       if (term) {
         query = query.or(`title.ilike.%${term}%,slug.ilike.%${term}%`);
       }
@@ -157,6 +218,8 @@ export default function AdminArticles() {
           break;
       }
 
+      query = query.range(from, to);
+
       const { data } = await query;
       const fetched = data || [];
       const visibleIdSet = new Set(fetched.map((article) => article.id));
@@ -167,7 +230,7 @@ export default function AdminArticles() {
     };
 
     fetchArticles();
-  }, [statusFilter, sortFilter, supabase, refreshToken]);
+  }, [statusFilter, sortFilter, supabase, refreshToken, page]);
 
   const triggerRefresh = () => {
     setRefreshToken((prev) => prev + 1);
@@ -265,6 +328,74 @@ export default function AdminArticles() {
     }
 
     window.open(`/share/${article.slug}`, "_blank", "noopener,noreferrer");
+  };
+
+  const cloneArticle = async (article: ArticleRow) => {
+    setActionLoadingId(article.id);
+    try {
+      // Fetch full article data
+      const { data: fullArticle, error: fetchError } = await supabase
+        .from("articles")
+        .select("*")
+        .eq("id", article.id)
+        .single();
+
+      if (fetchError || !fullArticle) {
+        alert("기사 데이터를 불러올 수 없습니다.");
+        setActionLoadingId(null);
+        return;
+      }
+
+      const { data: { user } } = await supabase.auth.getUser();
+
+      // Generate a new slug
+      const newSlug = `copy-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+
+      const { data: newArticle, error: insertError } = await supabase
+        .from("articles")
+        .insert({
+          title: `[복사] ${fullArticle.title}`,
+          sub_title: fullArticle.sub_title,
+          slug: newSlug,
+          content: fullArticle.content,
+          excerpt: fullArticle.excerpt,
+          summary: fullArticle.summary,
+          category_id: fullArticle.category_id,
+          author_id: user?.id ?? fullArticle.author_id,
+          status: "draft",
+          seo_title: fullArticle.seo_title ? `[복사] ${fullArticle.seo_title}` : null,
+          seo_description: fullArticle.seo_description,
+          keywords: fullArticle.keywords,
+          published_at: null,
+          updated_at: new Date().toISOString(),
+        })
+        .select("id")
+        .single();
+
+      if (insertError || !newArticle) {
+        alert(`복제 실패: ${insertError?.message || "알 수 없는 오류"}`);
+        setActionLoadingId(null);
+        return;
+      }
+
+      // Clone article tags
+      const { data: tagRows } = await supabase
+        .from("article_tags")
+        .select("tag_id")
+        .eq("article_id", article.id);
+
+      if (tagRows && tagRows.length > 0) {
+        await supabase.from("article_tags").insert(
+          tagRows.map((row) => ({ article_id: newArticle.id, tag_id: row.tag_id }))
+        );
+      }
+
+      router.push(`/admin/write?id=${newArticle.id}`);
+    } catch {
+      alert("복제 중 오류가 발생했습니다.");
+    } finally {
+      setActionLoadingId(null);
+    }
   };
 
   const applyBulkStatus = async () => {
@@ -370,6 +501,7 @@ export default function AdminArticles() {
     setSearchTerm("");
     searchTermRef.current = "";
     setSelectedArticleIds([]);
+    setPage(1);
     triggerRefresh();
   };
 
@@ -394,6 +526,26 @@ export default function AdminArticles() {
             </div>
           </div>
 
+          {/* Statistics Summary */}
+          <div className="admin2-desk-stats">
+            <div className="admin2-desk-stat admin2-desk-stat--ink">
+              <div className="admin2-desk-stat-label">전체 기사</div>
+              <div className="admin2-desk-stat-value">{statsTotal.toLocaleString()}</div>
+            </div>
+            <div className="admin2-desk-stat admin2-desk-stat--green">
+              <div className="admin2-desk-stat-label">게시</div>
+              <div className="admin2-desk-stat-value">{statsPublished.toLocaleString()}</div>
+            </div>
+            <div className="admin2-desk-stat admin2-desk-stat--blue">
+              <div className="admin2-desk-stat-label">작성</div>
+              <div className="admin2-desk-stat-value">{statsDraft.toLocaleString()}</div>
+            </div>
+            <div className="admin2-desk-stat admin2-desk-stat--warning">
+              <div className="admin2-desk-stat-label">승인 대기</div>
+              <div className="admin2-desk-stat-value">{statsPending.toLocaleString()}</div>
+            </div>
+          </div>
+
           <div className="admin2-desk-controls">
             <label className="admin2-search admin2-desk-search">
               <span>⌕</span>
@@ -405,14 +557,17 @@ export default function AdminArticles() {
                   searchTermRef.current = event.target.value;
                 }}
                 onKeyDown={(event) => {
-                  if (event.key === "Enter") triggerRefresh();
+                  if (event.key === "Enter") {
+                    setPage(1);
+                    triggerRefresh();
+                  }
                 }}
               />
             </label>
 
             <label className="admin2-desk-select">
               <span>상태</span>
-              <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} aria-label="상태 필터">
+              <select value={statusFilter} onChange={(event) => { setStatusFilter(event.target.value); setPage(1); }} aria-label="상태 필터">
                 {statusOptions.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
@@ -423,7 +578,7 @@ export default function AdminArticles() {
 
             <label className="admin2-desk-select">
               <span>정렬</span>
-              <select value={sortFilter} onChange={(event) => setSortFilter(event.target.value)} aria-label="정렬">
+              <select value={sortFilter} onChange={(event) => { setSortFilter(event.target.value); setPage(1); }} aria-label="정렬">
                 {sortOptions.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
@@ -453,7 +608,7 @@ export default function AdminArticles() {
                 />
                 전체 선택
               </label>
-              <div className="admin2-badge">총 {articles.length.toLocaleString()}건</div>
+              <div className="admin2-badge">총 {totalCount.toLocaleString()}건</div>
             </div>
           </div>
 
@@ -562,6 +717,13 @@ export default function AdminArticles() {
                                 공유
                               </button>
                             ) : null}
+                            <button
+                              type="button"
+                              onClick={() => void cloneArticle(article)}
+                              disabled={actionLoadingId === article.id || bulkLoading}
+                            >
+                              복제
+                            </button>
                             <div className="admin2-inline-status">
                               <select
                                 value={article.status}
@@ -594,6 +756,31 @@ export default function AdminArticles() {
               </tbody>
             </table>
           </div>
+
+          {/* Pagination */}
+          {totalCount > PAGE_SIZE && (
+            <div className="admin2-desk-pagination">
+              <button
+                className="admin2-btn admin2-btn-ghost"
+                type="button"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page <= 1 || loading}
+              >
+                ← 이전
+              </button>
+              <span className="admin2-desk-pagination-info">
+                페이지 {page} / {totalPages}
+              </span>
+              <button
+                className="admin2-btn admin2-btn-ghost"
+                type="button"
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page >= totalPages || loading}
+              >
+                다음 →
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
