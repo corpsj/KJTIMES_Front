@@ -29,7 +29,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
       id, title, summary, excerpt, thumbnail_url, created_at, published_at, views,
       categories (name, slug)
     `)
-        .eq("status", "published")
+        .in("status", ["published", "shared"])
         .or(`title.ilike.${like},summary.ilike.${like},excerpt.ilike.${like}`)
         .order("published_at", { ascending: false })
         .limit(50);

@@ -3,6 +3,18 @@
 import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import {
+  Stack,
+  Paper,
+  Group,
+  Title,
+  Text,
+  Button,
+  Box,
+  Loader,
+  Divider,
+  Avatar,
+} from "@mantine/core";
+import {
   IconArrowLeft,
   IconArrowBackUp,
   IconTrash,
@@ -72,250 +84,119 @@ export default function MailDetailPage({
 
   if (loading) {
     return (
-      <div className="admin2-container">
-        <div className="admin2-loading">
-          <div className="admin2-spinner" />
-          <p>메일 불러오는 중...</p>
-        </div>
-      </div>
+      <Box py={64} ta="center" maw={900} mx="auto">
+        <Loader size="sm" mx="auto" />
+        <Text c="dimmed" mt="sm">메일 불러오는 중...</Text>
+      </Box>
     );
   }
 
   if (error || !message) {
     return (
-      <div className="admin2-container">
-        <div className="admin2-error">
-          <p>{error || "메일을 찾을 수 없습니다"}</p>
-          <button
-            className="admin2-btn admin2-btn-ghost"
-            onClick={() => router.push("/admin/mail")}
-          >
-            목록으로
-          </button>
-        </div>
-      </div>
+      <Box py={64} ta="center" maw={900} mx="auto">
+        <Text c="dimmed">{error || "메일을 찾을 수 없습니다"}</Text>
+        <Button
+          variant="default"
+          mt="sm"
+          onClick={() => router.push("/admin/mail")}
+        >
+          목록으로
+        </Button>
+      </Box>
     );
   }
 
   return (
-    <div className="admin2-container">
+    <Stack gap="lg" maw={900} mx="auto">
       {/* 헤더 */}
-      <header className="admin2-header">
-        <button
-          className="admin2-btn admin2-btn-ghost"
+      <Group justify="space-between" align="center">
+        <Button
+          variant="default"
+          leftSection={<IconArrowLeft size={18} />}
           onClick={() => router.push("/admin/mail")}
         >
-          <IconArrowLeft size={18} />
           목록으로
-        </button>
-        <div className="admin2-header-actions">
-          <button
-            className="admin2-btn admin2-btn-primary"
+        </Button>
+        <Group gap="xs">
+          <Button
+            leftSection={<IconArrowBackUp size={18} />}
             onClick={() =>
               router.push(
                 `/admin/mail/compose?reply=${uid}&to=${encodeURIComponent(message.from.address || "")}&subject=${encodeURIComponent(message.subject)}`
               )
             }
           >
-            <IconArrowBackUp size={18} />
             답장
-          </button>
-          <button className="admin2-btn admin2-btn-danger">
-            <IconTrash size={18} />
+          </Button>
+          <Button variant="default" color="red" leftSection={<IconTrash size={18} />}>
             삭제
-          </button>
-        </div>
-      </header>
+          </Button>
+        </Group>
+      </Group>
 
       {/* 메일 내용 */}
-      <div className="admin2-panel mail-detail">
-        <div className="mail-header">
-          <h1 className="mail-subject">{message.subject}</h1>
-          <div className="mail-meta">
-            <div className="mail-sender">
-              <div className="sender-avatar">
+      <Paper radius="md" withBorder style={{ overflow: "hidden" }}>
+        {/* Header */}
+        <Box p="lg" style={{ borderBottom: "1px solid var(--mantine-color-gray-3)" }}>
+          <Title order={3} mb="md" lh={1.4}>{message.subject}</Title>
+          <Group justify="space-between" align="center">
+            <Group gap="sm">
+              <Avatar radius="xl" size={40} color="gray">
                 <IconUser size={20} />
-              </div>
-              <div className="sender-info">
-                <span className="sender-name">
+              </Avatar>
+              <Box>
+                <Text size="sm" fw={500}>
                   {message.from.name || message.from.address}
-                </span>
+                </Text>
                 {message.from.name && (
-                  <span className="sender-email">&lt;{message.from.address}&gt;</span>
+                  <Text size="xs" c="dimmed">&lt;{message.from.address}&gt;</Text>
                 )}
-              </div>
-            </div>
-            <span className="mail-date">{formatDate(message.date)}</span>
-          </div>
-        </div>
+              </Box>
+            </Group>
+            <Text size="xs" c="dimmed">{formatDate(message.date)}</Text>
+          </Group>
+        </Box>
 
         {/* 첨부파일 */}
         {message.attachments.length > 0 && (
-          <div className="mail-attachments">
-            <div className="attachments-header">
-              <IconPaperclip size={16} />
-              <span>첨부파일 {message.attachments.length}개</span>
-            </div>
-            <div className="attachments-list">
+          <Box
+            p="md"
+            style={{
+              background: "var(--mantine-color-gray-0)",
+              borderBottom: "1px solid var(--mantine-color-gray-3)",
+            }}
+          >
+            <Group gap="xs" mb="xs">
+              <IconPaperclip size={16} style={{ color: "var(--mantine-color-gray-6)" }} />
+              <Text size="xs" c="dimmed">첨부파일 {message.attachments.length}개</Text>
+            </Group>
+            <Group gap="xs" wrap="wrap">
               {message.attachments.map((att, i) => (
-                <div key={i} className="attachment-item">
-                  <span className="attachment-name">{att.filename}</span>
-                  <span className="attachment-size">
-                    {formatFileSize(att.size)}
-                  </span>
-                </div>
+                <Paper key={i} p="xs" radius="sm" withBorder>
+                  <Group gap="xs" wrap="nowrap">
+                    <Text size="xs">{att.filename}</Text>
+                    <Text size="xs" c="dimmed">{formatFileSize(att.size)}</Text>
+                  </Group>
+                </Paper>
               ))}
-            </div>
-          </div>
+            </Group>
+          </Box>
         )}
 
         {/* 본문 */}
-        <div className="mail-body">
+        <Box p="lg" mih={200}>
           {message.html ? (
             <div
-              className="mail-html"
+              style={{ lineHeight: 1.6 }}
               dangerouslySetInnerHTML={{ __html: message.html }}
             />
           ) : (
-            <pre className="mail-text">{message.text}</pre>
+            <Text component="pre" style={{ whiteSpace: "pre-wrap", fontFamily: "inherit", margin: 0, lineHeight: 1.6 }}>
+              {message.text}
+            </Text>
           )}
-        </div>
-      </div>
-
-      <style jsx>{`
-        .admin2-container {
-          padding: 24px;
-          max-width: 900px;
-          margin: 0 auto;
-        }
-        .admin2-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 24px;
-        }
-        .admin2-header-actions {
-          display: flex;
-          gap: 8px;
-        }
-        .admin2-panel {
-          background: var(--admin2-bg-card, #fff);
-          border-radius: 12px;
-          border: 1px solid var(--admin2-border, #e5e7eb);
-          overflow: hidden;
-        }
-        .mail-header {
-          padding: 24px;
-          border-bottom: 1px solid var(--admin2-border, #e5e7eb);
-        }
-        .mail-subject {
-          font-size: 22px;
-          font-weight: 600;
-          margin: 0 0 16px 0;
-          line-height: 1.4;
-        }
-        .mail-meta {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-        .mail-sender {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-        }
-        .sender-avatar {
-          width: 40px;
-          height: 40px;
-          border-radius: 50%;
-          background: var(--admin2-bg-hover, #f3f4f6);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: var(--admin2-text-muted, #6b7280);
-        }
-        .sender-info {
-          display: flex;
-          flex-direction: column;
-        }
-        .sender-name {
-          font-weight: 500;
-        }
-        .sender-email {
-          font-size: 13px;
-          color: var(--admin2-text-muted, #6b7280);
-        }
-        .mail-date {
-          font-size: 13px;
-          color: var(--admin2-text-muted, #6b7280);
-        }
-        .mail-attachments {
-          padding: 16px 24px;
-          background: var(--admin2-bg-hover, #f9fafb);
-          border-bottom: 1px solid var(--admin2-border, #e5e7eb);
-        }
-        .attachments-header {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          font-size: 13px;
-          color: var(--admin2-text-muted, #6b7280);
-          margin-bottom: 8px;
-        }
-        .attachments-list {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 8px;
-        }
-        .attachment-item {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          padding: 8px 12px;
-          background: var(--admin2-bg-card, #fff);
-          border: 1px solid var(--admin2-border, #e5e7eb);
-          border-radius: 6px;
-          font-size: 13px;
-        }
-        .attachment-size {
-          color: var(--admin2-text-muted, #6b7280);
-        }
-        .mail-body {
-          padding: 24px;
-          min-height: 200px;
-        }
-        .mail-text {
-          white-space: pre-wrap;
-          font-family: inherit;
-          margin: 0;
-          line-height: 1.6;
-        }
-        .mail-html {
-          line-height: 1.6;
-        }
-        .admin2-loading,
-        .admin2-error {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          padding: 64px 24px;
-          color: var(--admin2-text-muted, #6b7280);
-        }
-        .admin2-spinner {
-          width: 24px;
-          height: 24px;
-          border: 2px solid var(--admin2-border, #e5e7eb);
-          border-top-color: var(--admin2-primary, #3b82f6);
-          border-radius: 50%;
-          animation: spin 0.8s linear infinite;
-        }
-        @keyframes spin {
-          to {
-            transform: rotate(360deg);
-          }
-        }
-      `}</style>
-    </div>
+        </Box>
+      </Paper>
+    </Stack>
   );
 }

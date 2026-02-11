@@ -259,16 +259,10 @@ export function DesktopArticleDetail({
                                         현장 중심의 정치·사회 이슈를 취재합니다.
                                     </Text>
                                 </Stack>
-                                <button type="button" className={styles.chosunFollowButton}>
-                                    기자 구독
-                                </button>
+                                {/* TODO: 기자 구독 기능 구현 후 활성화 */}
                             </Box>
 
-                            {/* Ad strip */}
-                            <Box className={styles.chosunAdStrip}>
-                                <Text size="xs" className={styles.chosunAdLabel}>ADVERTISEMENT</Text>
-                                <Box className={styles.chosunAdInner}>광고 영역</Box>
-                            </Box>
+                            {/* Ad strip — hidden until ad data is available */}
 
                             {/* Popular news */}
                             <Box className={styles.chosunModule}>

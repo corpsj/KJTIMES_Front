@@ -28,7 +28,7 @@ export default function RootLayout({
       <head>
         <ColorSchemeScript defaultColorScheme="light" />
       </head>
-      <body className={`${notoSansKr.variable} antialiased`}>
+      <body className={notoSansKr.variable}>
         <MantineProvider theme={theme} defaultColorScheme="light">
           <Notifications position="top-right" />
           {children}

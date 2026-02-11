@@ -2,6 +2,16 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import {
+  Stack,
+  Paper,
+  Group,
+  Button,
+  TextInput,
+  Textarea,
+  Alert,
+  Text,
+} from "@mantine/core";
 import { IconArrowLeft, IconSend } from "@tabler/icons-react";
 
 function ComposeForm() {
@@ -72,142 +82,59 @@ function ComposeForm() {
   };
 
   return (
-    <div className="admin2-container">
+    <Stack gap="lg" maw={800} mx="auto">
       {/* 헤더 */}
-      <header className="admin2-header">
-        <button
-          className="admin2-btn admin2-btn-ghost"
+      <Group justify="space-between" align="center">
+        <Button
+          variant="default"
+          leftSection={<IconArrowLeft size={18} />}
           onClick={() => router.push("/admin/mail")}
         >
-          <IconArrowLeft size={18} />
           취소
-        </button>
-        <button
-          className="admin2-btn admin2-btn-primary"
+        </Button>
+        <Button
+          leftSection={<IconSend size={18} />}
           onClick={handleSend}
           disabled={sending}
         >
-          <IconSend size={18} />
           {sending ? "발송 중..." : "보내기"}
-        </button>
-      </header>
+        </Button>
+      </Group>
 
       {/* 에러 메시지 */}
-      {error && <div className="admin2-alert admin2-alert-error">{error}</div>}
+      {error && (
+        <Alert color="red" withCloseButton onClose={() => setError(null)}>
+          {error}
+        </Alert>
+      )}
 
       {/* 작성 폼 */}
-      <div className="admin2-panel compose-form">
-        <div className="form-row">
-          <label>받는 사람</label>
-          <input
+      <Paper p="lg" radius="md" withBorder>
+        <Stack gap="md">
+          <TextInput
+            label="받는 사람"
             type="email"
             value={to}
-            onChange={(e) => setTo(e.target.value)}
+            onChange={(e) => setTo(e.currentTarget.value)}
             placeholder="email@example.com"
-            className="admin2-input"
           />
-        </div>
-        <div className="form-row">
-          <label>제목</label>
-          <input
-            type="text"
+          <TextInput
+            label="제목"
             value={subject}
-            onChange={(e) => setSubject(e.target.value)}
+            onChange={(e) => setSubject(e.currentTarget.value)}
             placeholder="메일 제목"
-            className="admin2-input"
           />
-        </div>
-        <div className="form-row form-row-body">
-          <label>본문</label>
-          <textarea
+          <Textarea
+            label="본문"
             value={body}
-            onChange={(e) => setBody(e.target.value)}
+            onChange={(e) => setBody(e.currentTarget.value)}
             placeholder="메일 내용을 입력하세요..."
-            className="admin2-textarea"
+            minRows={12}
+            autosize
           />
-        </div>
-      </div>
-
-      <style jsx>{`
-        .admin2-container {
-          padding: 24px;
-          max-width: 800px;
-          margin: 0 auto;
-        }
-        .admin2-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 24px;
-        }
-        .admin2-panel {
-          background: var(--admin2-bg-card, #fff);
-          border-radius: 12px;
-          border: 1px solid var(--admin2-border, #e5e7eb);
-          overflow: hidden;
-        }
-        .compose-form {
-          padding: 24px;
-        }
-        .form-row {
-          margin-bottom: 16px;
-        }
-        .form-row label {
-          display: block;
-          font-size: 13px;
-          font-weight: 500;
-          color: var(--admin2-text-muted, #6b7280);
-          margin-bottom: 6px;
-        }
-        .admin2-input {
-          width: 100%;
-          padding: 10px 14px;
-          font-size: 14px;
-          border: 1px solid var(--admin2-border, #e5e7eb);
-          border-radius: 8px;
-          background: var(--admin2-bg-card, #fff);
-          transition: border-color 0.15s;
-        }
-        .admin2-input:focus {
-          outline: none;
-          border-color: var(--admin2-primary, #3b82f6);
-        }
-        .form-row-body {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-        }
-        .admin2-textarea {
-          flex: 1;
-          min-height: 300px;
-          width: 100%;
-          padding: 14px;
-          font-size: 14px;
-          font-family: inherit;
-          line-height: 1.6;
-          border: 1px solid var(--admin2-border, #e5e7eb);
-          border-radius: 8px;
-          background: var(--admin2-bg-card, #fff);
-          resize: vertical;
-          transition: border-color 0.15s;
-        }
-        .admin2-textarea:focus {
-          outline: none;
-          border-color: var(--admin2-primary, #3b82f6);
-        }
-        .admin2-alert {
-          padding: 12px 16px;
-          border-radius: 8px;
-          margin-bottom: 16px;
-          font-size: 14px;
-        }
-        .admin2-alert-error {
-          background: #fef2f2;
-          color: #dc2626;
-          border: 1px solid #fecaca;
-        }
-      `}</style>
-    </div>
+        </Stack>
+      </Paper>
+    </Stack>
   );
 }
 
@@ -215,7 +142,7 @@ export default function ComposePage() {
   return (
     <Suspense
       fallback={
-        <div style={{ padding: 24, textAlign: "center" }}>로딩 중...</div>
+        <Text ta="center" py="lg" c="dimmed">로딩 중...</Text>
       }
     >
       <ComposeForm />

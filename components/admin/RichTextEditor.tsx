@@ -1,3 +1,4 @@
+import './editor.css';
 import { useEditor, EditorContent } from '@tiptap/react';
 import { useEffect, useState, useCallback } from 'react';
 import StarterKit from '@tiptap/starter-kit';

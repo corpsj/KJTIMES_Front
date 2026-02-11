@@ -1,6 +1,6 @@
-import { getDeviceType } from "@/utils/device";
-import { Header } from "./Header"; // This is the PC Header
-import { Footer } from "./Footer"; // This is the PC Footer
+import { Box } from "@mantine/core";
+import { Header } from "./Header";
+import { Footer } from "./Footer";
 import { MobileHeader } from "@/components/mobile/MobileHeader";
 import { MobileFooter } from "@/components/mobile/MobileFooter";
 import { PreviewHeader } from "./PreviewHeader";
@@ -9,8 +9,6 @@ import { PreviewHeader } from "./PreviewHeader";
 const PREVIEW_MODE = process.env.NEXT_PUBLIC_PREVIEW_MODE === "true";
 
 export async function DeviceLayout({ children }: { children: React.ReactNode }) {
-    const deviceType = await getDeviceType();
-
     // 프리뷰 모드: 간소화된 헤더만 표시
     if (PREVIEW_MODE) {
         return (
@@ -22,22 +20,29 @@ export async function DeviceLayout({ children }: { children: React.ReactNode }) 
         );
     }
 
-    if (deviceType === "mobile") {
-        return (
-            <>
-                <MobileHeader />
-                <main style={{ paddingBottom: '60px' }}>{children}</main>
-                <MobileFooter />
-            </>
-        );
-    }
-
-    // Desktop
+    // Render both layouts; CSS media queries handle visibility
     return (
         <>
-            <Header />
-            <main style={{ minHeight: '80vh' }}>{children}</main>
-            <Footer />
+            <Box visibleFrom="md">
+                <Header />
+            </Box>
+            <Box hiddenFrom="md">
+                <MobileHeader />
+            </Box>
+
+            <Box visibleFrom="md">
+                <main style={{ minHeight: '80vh' }}>{children}</main>
+            </Box>
+            <Box hiddenFrom="md">
+                <main style={{ paddingBottom: '60px' }}>{children}</main>
+            </Box>
+
+            <Box visibleFrom="md">
+                <Footer />
+            </Box>
+            <Box hiddenFrom="md">
+                <MobileFooter />
+            </Box>
         </>
     );
 }

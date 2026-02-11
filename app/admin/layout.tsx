@@ -1,6 +1,5 @@
 "use client";
 
-import "./admin2.css";
 import { useEffect, useState, useCallback } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { MantineProvider } from "@mantine/core";

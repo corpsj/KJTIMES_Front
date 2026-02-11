@@ -208,14 +208,10 @@ export function MobileArticleDetail({
                             <Text size="sm" fw={700} className={styles.relatedTitle}>{authorName} 기자</Text>
                             <Text size="xs" className={styles.metaText}>현장 중심 이슈를 취재합니다.</Text>
                         </Stack>
-                        <button type="button" className={styles.mobileFollowButton}>기자 구독</button>
+                        {/* TODO: 기자 구독 기능 구현 후 활성화 */}
                     </Box>
 
-                    {/* Ad */}
-                    <Box className={styles.mobileAdStrip}>
-                        <Text size="xs" className={styles.mobileAdLabel}>ADVERTISEMENT</Text>
-                        <Box className={styles.mobileAdInner}>광고 영역</Box>
-                    </Box>
+                    {/* Ad — hidden until ad data is available */}
 
                     {/* Related articles */}
                     {featuredRelated.length > 0 && (

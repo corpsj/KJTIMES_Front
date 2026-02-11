@@ -3,6 +3,18 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
+  Stack,
+  Paper,
+  Group,
+  Title,
+  Text,
+  Button,
+  Badge,
+  Table,
+  Box,
+  Loader,
+} from "@mantine/core";
+import {
   IconMail,
   IconMailOpened,
   IconPaperclip,
@@ -71,213 +83,113 @@ export default function MailPage() {
   };
 
   return (
-    <div className="admin2-container">
+    <Stack gap="lg" maw={1200} mx="auto">
       {/* 헤더 */}
-      <header className="admin2-header">
-        <div className="admin2-header-left">
-          <h1>
+      <Group justify="space-between" align="center">
+        <Group gap="sm">
+          <Title order={3} style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <IconMail size={24} />
             제보함
-          </h1>
-          <span className="admin2-badge">{total}개</span>
-        </div>
-        <div className="admin2-header-actions">
-          <button
-            className="admin2-btn admin2-btn-ghost"
+          </Title>
+          <Badge variant="filled" color="blue" size="sm">{total}개</Badge>
+        </Group>
+        <Group gap="xs">
+          <Button
+            variant="default"
+            leftSection={<IconRefresh size={18} className={loading ? "spin" : ""} />}
             onClick={fetchMails}
             disabled={loading}
           >
-            <IconRefresh size={18} className={loading ? "spin" : ""} />
             새로고침
-          </button>
-          <button
-            className="admin2-btn admin2-btn-primary"
+          </Button>
+          <Button
+            leftSection={<IconPencil size={18} />}
             onClick={() => router.push("/admin/mail/compose")}
           >
-            <IconPencil size={18} />
             메일 쓰기
-          </button>
-        </div>
-      </header>
+          </Button>
+        </Group>
+      </Group>
 
       {/* 메일 목록 */}
-      <div className="admin2-panel">
+      <Paper radius="md" withBorder style={{ overflow: "hidden" }}>
         {loading ? (
-          <div className="admin2-loading">
-            <div className="admin2-spinner" />
-            <p>메일 불러오는 중...</p>
-          </div>
+          <Box py={64} ta="center">
+            <Loader size="sm" mx="auto" />
+            <Text c="dimmed" mt="sm">메일 불러오는 중...</Text>
+          </Box>
         ) : error ? (
-          <div className="admin2-error">
-            <p>{error}</p>
-            <button className="admin2-btn admin2-btn-ghost" onClick={fetchMails}>
+          <Box py={64} ta="center">
+            <Text c="dimmed">{error}</Text>
+            <Button variant="default" mt="sm" onClick={fetchMails}>
               다시 시도
-            </button>
-          </div>
+            </Button>
+          </Box>
         ) : messages.length === 0 ? (
-          <div className="admin2-empty">
-            <IconMail size={48} stroke={1} />
-            <p>받은 메일이 없습니다</p>
-          </div>
+          <Box py={64} ta="center">
+            <IconMail size={48} stroke={1} style={{ color: "var(--mantine-color-gray-5)" }} />
+            <Text c="dimmed" mt="sm">받은 메일이 없습니다</Text>
+          </Box>
         ) : (
-          <table className="admin2-table">
-            <thead>
-              <tr>
-                <th style={{ width: 40 }}></th>
-                <th style={{ width: 200 }}>보낸 사람</th>
-                <th>제목</th>
-                <th style={{ width: 100 }}>날짜</th>
-              </tr>
-            </thead>
-            <tbody>
+          <Table striped highlightOnHover>
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th style={{ width: 40 }}></Table.Th>
+                <Table.Th style={{ width: 200 }}>보낸 사람</Table.Th>
+                <Table.Th>제목</Table.Th>
+                <Table.Th style={{ width: 100 }}>날짜</Table.Th>
+              </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>
               {messages.map((msg) => (
-                <tr
+                <Table.Tr
                   key={msg.id}
-                  className={`admin2-row-clickable ${!msg.seen ? "admin2-row-unread" : ""}`}
+                  style={{
+                    cursor: "pointer",
+                    background: !msg.seen ? "var(--mantine-color-blue-0)" : undefined,
+                  }}
                   onClick={() => router.push(`/admin/mail/${msg.uid}`)}
                 >
-                  <td>
+                  <Table.Td>
                     {msg.seen ? (
-                      <IconMailOpened size={18} className="text-muted" />
+                      <IconMailOpened size={18} style={{ color: "var(--mantine-color-gray-5)" }} />
                     ) : (
-                      <IconMail size={18} className="text-primary" />
+                      <IconMail size={18} style={{ color: "var(--mantine-color-blue-6)" }} />
                     )}
-                  </td>
-                  <td className="admin2-cell-sender">
-                    <span className={!msg.seen ? "font-bold" : ""}>
+                  </Table.Td>
+                  <Table.Td>
+                    <Text size="sm" fw={!msg.seen ? 600 : 400}>
                       {formatSender(msg.from)}
-                    </span>
-                  </td>
-                  <td className="admin2-cell-subject">
-                    <span className={!msg.seen ? "font-bold" : ""}>
-                      {msg.subject}
-                    </span>
-                    {msg.hasAttachments && (
-                      <IconPaperclip size={14} className="ml-2 text-muted" />
-                    )}
-                  </td>
-                  <td className="admin2-cell-date">{formatDate(msg.date)}</td>
-                </tr>
+                    </Text>
+                  </Table.Td>
+                  <Table.Td>
+                    <Group gap={8} wrap="nowrap">
+                      <Text size="sm" fw={!msg.seen ? 600 : 400} lineClamp={1}>
+                        {msg.subject}
+                      </Text>
+                      {msg.hasAttachments && (
+                        <IconPaperclip size={14} style={{ color: "var(--mantine-color-gray-5)", flexShrink: 0 }} />
+                      )}
+                    </Group>
+                  </Table.Td>
+                  <Table.Td>
+                    <Text size="xs" c="dimmed">{formatDate(msg.date)}</Text>
+                  </Table.Td>
+                </Table.Tr>
               ))}
-            </tbody>
-          </table>
+            </Table.Tbody>
+          </Table>
         )}
-      </div>
+      </Paper>
 
-      <style jsx>{`
-        .admin2-container {
-          padding: 24px;
-          max-width: 1200px;
-          margin: 0 auto;
-        }
-        .admin2-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 24px;
-        }
-        .admin2-header-left {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-        }
-        .admin2-header-left h1 {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          font-size: 24px;
-          font-weight: 600;
-          margin: 0;
-        }
-        .admin2-badge {
-          background: var(--admin2-primary, #3b82f6);
-          color: white;
-          padding: 2px 8px;
-          border-radius: 12px;
-          font-size: 12px;
-        }
-        .admin2-header-actions {
-          display: flex;
-          gap: 8px;
-        }
-        .admin2-panel {
-          background: var(--admin2-bg-card, #fff);
-          border-radius: 12px;
-          border: 1px solid var(--admin2-border, #e5e7eb);
-          overflow: hidden;
-        }
-        .admin2-table {
-          width: 100%;
-          border-collapse: collapse;
-        }
-        .admin2-table th {
-          text-align: left;
-          padding: 12px 16px;
-          font-weight: 500;
-          color: var(--admin2-text-muted, #6b7280);
-          border-bottom: 1px solid var(--admin2-border, #e5e7eb);
-          font-size: 13px;
-        }
-        .admin2-table td {
-          padding: 12px 16px;
-          border-bottom: 1px solid var(--admin2-border, #e5e7eb);
-        }
-        .admin2-row-clickable {
-          cursor: pointer;
-          transition: background 0.15s;
-        }
-        .admin2-row-clickable:hover {
-          background: var(--admin2-bg-hover, #f9fafb);
-        }
-        .admin2-row-unread {
-          background: var(--admin2-bg-unread, #eff6ff);
-        }
-        .admin2-row-unread:hover {
-          background: var(--admin2-bg-unread-hover, #dbeafe);
-        }
-        .font-bold {
-          font-weight: 600;
-        }
-        .text-muted {
-          color: var(--admin2-text-muted, #6b7280);
-        }
-        .text-primary {
-          color: var(--admin2-primary, #3b82f6);
-        }
-        .ml-2 {
-          margin-left: 8px;
-        }
-        .admin2-loading,
-        .admin2-empty,
-        .admin2-error {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          padding: 64px 24px;
-          color: var(--admin2-text-muted, #6b7280);
-        }
-        .admin2-spinner {
-          width: 24px;
-          height: 24px;
-          border: 2px solid var(--admin2-border, #e5e7eb);
-          border-top-color: var(--admin2-primary, #3b82f6);
-          border-radius: 50%;
-          animation: spin 0.8s linear infinite;
-        }
+      <style>{`
         @keyframes spin {
-          to {
-            transform: rotate(360deg);
-          }
+          to { transform: rotate(360deg); }
         }
         .spin {
           animation: spin 0.8s linear infinite;
         }
-        .admin2-cell-date {
-          color: var(--admin2-text-muted, #6b7280);
-          font-size: 13px;
-        }
       `}</style>
-    </div>
+    </Stack>
   );
 }
