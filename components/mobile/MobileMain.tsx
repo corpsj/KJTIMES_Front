@@ -119,7 +119,16 @@ export function MobileMain({ articles }: { articles: Article[] }) {
                         <Box key={article.id}>
                             <Link
                                 href={`/article/${article.id}`}
-                                style={{ textDecoration: "none", color: "inherit", display: "block" }}
+                                style={{
+                                    textDecoration: "none",
+                                    color: "inherit",
+                                    display: "block",
+                                    padding: "8px 4px",
+                                    marginLeft: -4,
+                                    marginRight: -4,
+                                    borderRadius: 8,
+                                    WebkitTapHighlightColor: "rgba(0,0,0,0.05)",
+                                }}
                             >
                                 <Group align="flex-start" wrap="nowrap" gap="sm">
                                     <Stack gap={4} style={{ flex: 1 }}>

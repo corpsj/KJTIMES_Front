@@ -6,6 +6,7 @@ import { LINKS } from "@/constants/navigation";
 
 export function MobileFooter() {
     const categoryLinks = LINKS.filter((link) => link.href !== "/");
+    const year = new Date().getFullYear();
 
     return (
         <Box component="footer" py="xl" mt="xl" style={{ borderTop: "1px solid #e2e8f0", background: "#f8fafc" }}>
@@ -54,25 +55,37 @@ export function MobileFooter() {
                             편집원칙
                         </Anchor>
                         <Anchor component={Link} href="/corrections" size="xs" c="dimmed" underline="never">
-                            정정보도
+                            정정보도/오류신고
                         </Anchor>
                     </Group>
 
-                    {/* Company info */}
+                    {/* Company info — matches desktop Footer exactly */}
                     <Stack gap={4}>
                         <Text size="xs" c="dimmed" style={{ lineHeight: 1.6 }}>
-                            광전타임즈 | 발행인: 선종인
+                            광전타임즈 | 대표: 선종인 | 발행·편집인: 장혁훈
                         </Text>
                         <Text size="xs" c="dimmed" style={{ lineHeight: 1.6 }}>
                             전남 함평군 함평읍 영수길 148 2층
                         </Text>
                         <Text size="xs" c="dimmed" style={{ lineHeight: 1.6 }}>
-                            전화: 010-1234-5678 | 이메일: contact@kjtimes.co.kr
+                            등록번호: 전남, 아00607
+                        </Text>
+                        <Text size="xs" c="dimmed" style={{ lineHeight: 1.6 }}>
+                            전화·제보: 010-9428-5361
+                        </Text>
+                        <Text size="xs" c="dimmed" style={{ lineHeight: 1.6 }}>
+                            팩스: 0504-255-5361
+                        </Text>
+                        <Text size="xs" c="dimmed" style={{ lineHeight: 1.6 }}>
+                            이메일: jebo@kjtimes.co.kr
+                        </Text>
+                        <Text size="xs" c="dimmed" style={{ lineHeight: 1.6 }}>
+                            사업자등록번호: 173-91-02454
                         </Text>
                     </Stack>
 
                     <Text size="xs" c="dimmed" style={{ opacity: 0.7 }}>
-                        © {new Date().getFullYear()} Kwangjeon Times. All rights reserved.
+                        Copyright © {year} 광전타임즈. All rights reserved.
                     </Text>
                 </Stack>
             </Container>

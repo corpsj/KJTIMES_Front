@@ -7,7 +7,7 @@ import { formatKoreanDate } from "@/utils/date";
 
 export function CategoryPageTemplate({ title, articles }: { title: string; articles: Article[] }) {
     return (
-        <Container size="xl" py="xl">
+        <Container size="xl" py="xl" px={{ base: "md", sm: "xl" }}>
             <Stack gap="xl">
                 <Title order={1}>{title}</Title>
 

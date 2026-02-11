@@ -10,9 +10,9 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
 
     if (!query) {
         return (
-            <Container size="md" py="xl">
+            <Container size="md" py="xl" px={{ base: "md", sm: "xl" }}>
                 <Stack gap="md">
-                    <Title order={1}>검색</Title>
+                    <Title order={1} size="h2">검색</Title>
                     <Text c="dimmed">검색어를 입력해 주세요.</Text>
                 </Stack>
             </Container>

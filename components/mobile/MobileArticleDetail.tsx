@@ -244,10 +244,10 @@ export function MobileArticleDetail({
                         </Box>
                     )}
 
-                    {/* Popular articles */}
-                    <Box className={styles.mobileInfoPanel}>
-                        <Title order={5} className={styles.blockSubHeading}>이 시각 많이 본 기사</Title>
-                        {rankedRelated.length > 0 ? (
+                    {/* Popular articles — only shown when we have data */}
+                    {rankedRelated.length > 0 && (
+                        <Box className={styles.mobileInfoPanel}>
+                            <Title order={5} className={styles.blockSubHeading}>이 시각 많이 본 기사</Title>
                             <ol className={styles.rankList}>
                                 {rankedRelated.map((related, index) => (
                                     <li key={`mobile-ranked-${related.id}`} className={styles.rankItem}>
@@ -258,11 +258,11 @@ export function MobileArticleDetail({
                                     </li>
                                 ))}
                             </ol>
-                        ) : (
-                            <Text size="sm" className={styles.emptyText}>많이 본 기사를 준비 중입니다.</Text>
-                        )}
+                        </Box>
+                    )}
 
-                        <Divider className={styles.separator} my="sm" />
+                    {/* Article meta + categories */}
+                    <Box className={styles.mobileInfoPanel}>
                         <Text size="xs" className={styles.metaText}>
                             카테고리: {primaryCategory?.name || "미분류"}
                         </Text>

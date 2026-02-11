@@ -20,7 +20,9 @@ export async function DeviceLayout({ children }: { children: React.ReactNode }) 
         );
     }
 
-    // Render both layouts; CSS media queries handle visibility
+    // Render both layouts; CSS media queries handle visibility.
+    // Headers and footers are wrapped for responsive show/hide.
+    // Children are rendered ONCE to avoid duplication.
     return (
         <>
             <Box visibleFrom="md">
@@ -30,12 +32,7 @@ export async function DeviceLayout({ children }: { children: React.ReactNode }) 
                 <MobileHeader />
             </Box>
 
-            <Box visibleFrom="md">
-                <main style={{ minHeight: '80vh' }}>{children}</main>
-            </Box>
-            <Box hiddenFrom="md">
-                <main style={{ paddingBottom: '60px' }}>{children}</main>
-            </Box>
+            <main style={{ minHeight: '80vh' }}>{children}</main>
 
             <Box visibleFrom="md">
                 <Footer />

@@ -14,14 +14,23 @@ import {
     TextInput,
     Button,
     Text,
+    ActionIcon,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconSearch } from "@tabler/icons-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { LINKS } from "@/constants/navigation";
 
 export function MobileHeader() {
     const [opened, { toggle, close }] = useDisclosure(false);
+    const pathname = usePathname();
+
+    // Determine which category is active based on pathname
+    const isActiveLink = (href: string) => {
+        if (href === "/") return pathname === "/";
+        return pathname === href || pathname.startsWith(href + "/");
+    };
 
     return (
         <>
@@ -51,15 +60,27 @@ export function MobileHeader() {
                                 alt="광전타임즈"
                             />
                         </Link>
-                        <Anchor
-                            component={Link}
-                            href="/admin/login"
-                            size="xs"
-                            c="dimmed"
-                            underline="never"
-                        >
-                            로그인
-                        </Anchor>
+                        <Group gap={6} wrap="nowrap">
+                            <ActionIcon
+                                component={Link}
+                                href="/search"
+                                variant="subtle"
+                                color="gray"
+                                size="sm"
+                                aria-label="검색"
+                            >
+                                <IconSearch size={18} />
+                            </ActionIcon>
+                            <Anchor
+                                component={Link}
+                                href="/admin/login"
+                                size="xs"
+                                c="dimmed"
+                                underline="never"
+                            >
+                                로그인
+                            </Anchor>
+                        </Group>
                     </Group>
                 </Container>
 
@@ -71,23 +92,28 @@ export function MobileHeader() {
                     style={{ borderTop: "1px solid #f1f5f9" }}
                 >
                     <Group gap="lg" px="md" h={42} wrap="nowrap" style={{ whiteSpace: "nowrap" }}>
-                        {LINKS.map((link) => (
-                            <Anchor
-                                key={link.label}
-                                component={Link}
-                                href={link.href}
-                                c="dark.9"
-                                fw={600}
-                                size="sm"
-                                underline="never"
-                                style={{
-                                    transition: "color 0.15s ease",
-                                    flexShrink: 0,
-                                }}
-                            >
-                                {link.label}
-                            </Anchor>
-                        ))}
+                        {LINKS.map((link) => {
+                            const active = isActiveLink(link.href);
+                            return (
+                                <Anchor
+                                    key={link.label}
+                                    component={Link}
+                                    href={link.href}
+                                    c={active ? "blue.7" : "dark.9"}
+                                    fw={active ? 800 : 600}
+                                    size="sm"
+                                    underline="never"
+                                    style={{
+                                        transition: "color 0.15s ease",
+                                        flexShrink: 0,
+                                        borderBottom: active ? "2px solid var(--mantine-color-blue-7)" : "2px solid transparent",
+                                        paddingBottom: 2,
+                                    }}
+                                >
+                                    {link.label}
+                                </Anchor>
+                            );
+                        })}
                     </Group>
                 </ScrollArea>
             </Box>
@@ -140,26 +166,31 @@ export function MobileHeader() {
                     카테고리
                 </Text>
                 <Stack gap="sm">
-                    {LINKS.map((link) => (
-                        <Anchor
-                            key={link.label}
-                            component={Link}
-                            href={link.href}
-                            c="dark.9"
-                            fw={600}
-                            underline="never"
-                            onClick={close}
-                            size="md"
-                            py={4}
-                            style={{
-                                borderBottom: "1px solid #f1f5f9",
-                                display: "block",
-                                transition: "color 0.15s ease",
-                            }}
-                        >
-                            {link.label}
-                        </Anchor>
-                    ))}
+                    {LINKS.map((link) => {
+                        const active = isActiveLink(link.href);
+                        return (
+                            <Anchor
+                                key={link.label}
+                                component={Link}
+                                href={link.href}
+                                c={active ? "blue.7" : "dark.9"}
+                                fw={active ? 800 : 600}
+                                underline="never"
+                                onClick={close}
+                                size="md"
+                                py={4}
+                                style={{
+                                    borderBottom: "1px solid #f1f5f9",
+                                    display: "block",
+                                    transition: "color 0.15s ease",
+                                    borderLeft: active ? "3px solid var(--mantine-color-blue-7)" : "3px solid transparent",
+                                    paddingLeft: 8,
+                                }}
+                            >
+                                {link.label}
+                            </Anchor>
+                        );
+                    })}
                 </Stack>
 
                 <Divider my="lg" />
@@ -175,7 +206,7 @@ export function MobileHeader() {
                         underline="never"
                         onClick={close}
                     >
-                        구독신청
+                        구독하기
                     </Anchor>
                     <Anchor
                         component={Link}

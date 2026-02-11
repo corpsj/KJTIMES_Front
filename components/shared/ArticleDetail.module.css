@@ -1186,3 +1186,78 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Mobile-specific overrides (768px) */
+@media (max-width: 768px) {
+  /* Article images: full-width */
+  .articleBody :global(img) {
+    max-width: 100%;
+    width: 100%;
+    height: auto;
+    margin: 1rem 0;
+    border-radius: 4px;
+  }
+
+  /* Font sizes: slightly smaller on mobile */
+  .articleBody {
+    font-size: 0.95rem;
+    line-height: 1.75;
+  }
+
+  .articleBody :global(h2) {
+    font-size: 1.25rem;
+  }
+
+  .articleBody :global(h3) {
+    font-size: 1.1rem;
+  }
+
+  .articleBody :global(h4) {
+    font-size: 1rem;
+  }
+
+  /* Table overflow: horizontal scroll for tables */
+  .articleBody :global(table) {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-collapse: collapse;
+  }
+
+  .articleBody :global(td),
+  .articleBody :global(th) {
+    min-width: 80px;
+    padding: 6px 8px;
+    white-space: nowrap;
+  }
+
+  /* Embedded iframes (videos) — responsive */
+  .articleBody :global(iframe) {
+    max-width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+  }
+
+  /* Summary lead: slightly smaller padding */
+  .summaryLead {
+    padding: 10px 0 10px 12px;
+    font-size: 0.9rem;
+  }
+
+  /* Mobile title: ensure readable sizing */
+  .mobileTitle {
+    font-size: clamp(1.35rem, 5vw, 1.75rem);
+  }
+
+  /* Share buttons: compact layout */
+  .mobileBottomShareBar {
+    padding: 10px 0;
+  }
+
+  /* Prev/Next: stack on very small screens */
+  .mobilePrevNext {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+}
