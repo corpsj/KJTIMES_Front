@@ -358,7 +358,7 @@ Critical Path: Task 1 → Task 2 → Task 3 → Task 10
 
 ---
 
-- [ ] 3. 홈페이지 레이아웃 현대화
+- [x] 3. 홈페이지 레이아웃 현대화
 
   **What to do**:
   - `app/(main)/page.tsx` 수정: 홈페이지 전체 레이아웃 구조 개선
@@ -453,7 +453,7 @@ Critical Path: Task 1 → Task 2 → Task 3 → Task 10
 
 ---
 
-- [ ] 4. 카테고리 페이지 개선
+- [x] 4. 카테고리 페이지 개선
 
   **What to do**:
   - `components/layout/CategoryPageTemplate.tsx` 수정
@@ -711,7 +711,7 @@ Critical Path: Task 1 → Task 2 → Task 3 → Task 10
 
 ---
 
-- [ ] 7. 기사 상세 페이지 읽기 경험 개선
+- [x] 7. 기사 상세 페이지 읽기 경험 개선
 
   **What to do**:
   - `components/shared/ArticleDetail.module.css` 리스타일 (기존 클래스명 유지, 스타일값만 변경)
@@ -802,7 +802,7 @@ Critical Path: Task 1 → Task 2 → Task 3 → Task 10
 
 ---
 
-- [ ] 8. 모바일 바텀 네비게이션 바 신규 추가
+- [x] 8. 모바일 바텀 네비게이션 바 신규 추가
 
   **What to do**:
   - 새 컴포넌트 `components/layout/BottomNav.tsx` 생성
@@ -968,7 +968,7 @@ Critical Path: Task 1 → Task 2 → Task 3 → Task 10
 
 ---
 
-- [ ] 10. 마이크로 애니메이션 및 최종 폴리싱
+- [x] 10. 마이크로 애니메이션 및 최종 폴리싱
 
   **What to do**:
   - 전체 사이트에 일관된 마이크로 트랜지션 적용:
