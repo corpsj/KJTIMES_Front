@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import {
     Container,
     Group,
@@ -21,7 +22,16 @@ import { SearchBar } from "@/components/shared/SearchBar";
 
 export function Header() {
     const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] = useDisclosure(false);
+    const [scrolled, setScrolled] = useState(false);
     const pathname = usePathname();
+
+    useEffect(() => {
+        const handleScroll = () => {
+            setScrolled(window.scrollY > 100);
+        };
+        window.addEventListener("scroll", handleScroll, { passive: true });
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
 
     const today = new Intl.DateTimeFormat("ko-KR", {
         year: "numeric",
@@ -94,16 +104,29 @@ export function Header() {
                             <Link href="/" style={{ textDecoration: 'none', color: 'inherit' }}>
                                 <Image
                                     src="/brand/KJ_sloganLogo.png"
-                                    style={{ height: '85px', width: 'auto', display: 'block' }}
+                                    style={{
+                                        height: scrolled ? '50px' : '70px',
+                                        width: 'auto',
+                                        display: 'block',
+                                        transition: 'height 200ms ease',
+                                    }}
                                     alt="광전타임즈 로고"
                                 />
                             </Link>
                         </Group>
                     </Container>
 
-                    <Box component="nav" aria-label="메인 메뉴" style={{ borderTop: "1px solid var(--mantine-color-gray-3)", borderBottom: "1px solid var(--mantine-color-gray-3)" }}>
+                    <Box
+                        component="nav"
+                        aria-label="메인 메뉴"
+                        style={{
+                            borderTop: "1px solid var(--mantine-color-gray-3)",
+                            borderBottom: "1px solid var(--mantine-color-gray-3)",
+                            transition: "height 200ms ease",
+                        }}
+                    >
                         <Container size="xl">
-                            <Group justify="center" gap="xl" h={50}>
+                            <Group justify="center" gap="lg" h={scrolled ? 48 : 56} style={{ transition: "height 200ms ease" }}>
                                 {LINKS.map((link) => (
                                     <Anchor
                                         key={link.label}
@@ -112,7 +135,7 @@ export function Header() {
                                         c="dark.9"
                                         fw={700}
                                         underline="never"
-                                        style={{ fontSize: '1.1rem' }}
+                                        style={{ fontSize: '1rem' }}
                                     >
                                         {link.label}
                                     </Anchor>
@@ -145,7 +168,7 @@ export function Header() {
                                 <Link href="/" style={{ textDecoration: "none", color: "inherit" }}>
                                     <Image
                                         src="/brand/KJ_sloganLogo.png"
-                                        style={{ height: "35px", width: "auto", display: "block" }}
+                                        style={{ height: "40px", width: "auto", display: "block" }}
                                         alt="광전타임즈"
                                     />
                                 </Link>
@@ -180,7 +203,7 @@ export function Header() {
                                 type="never"
                                 style={{ borderTop: "1px solid var(--mantine-color-newsBorder-0)" }}
                             >
-                                <Group gap="lg" px="md" h={42} wrap="nowrap" style={{ whiteSpace: "nowrap" }}>
+                                <Group gap="lg" px="md" h={48} wrap="nowrap" style={{ whiteSpace: "nowrap" }}>
                                     {LINKS.map((link) => {
                                         const active = isActiveLink(link.href);
                                         return (
@@ -235,7 +258,7 @@ export function Header() {
                 <Text size="xs" fw={700} c="dimmed" tt="uppercase" mb="xs" mt="lg" style={{ letterSpacing: "0.05em" }}>
                     카테고리
                 </Text>
-                <Stack gap="sm">
+                <Stack gap="md">
                     {LINKS.map((link) => {
                         const active = isActiveLink(link.href);
                         return (
