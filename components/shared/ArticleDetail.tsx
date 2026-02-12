@@ -1,8 +1,9 @@
 "use client";
 
-import { Badge, Box, Container, Divider, Grid, GridCol, Group, Image, Stack, Text, Title, UnstyledButton } from "@mantine/core";
+import { Badge, Box, Container, Divider, Grid, GridCol, Group, Stack, Text, Title, UnstyledButton } from "@mantine/core";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import Link from "next/link";
+import Image from "next/image";
 import { Article } from "@/types";
 import { formatKoreanDate } from "@/utils/date";
 import { LINKS } from "@/constants/navigation";
@@ -158,11 +159,17 @@ export function ArticleDetail({
                             {/* Hero image */}
                             {article.thumbnail_url && (
                                 <Box component="figure" className={styles.chosunHeroFigure}>
-                                    <Image
-                                        src={article.thumbnail_url}
-                                        alt={`${article.title} 대표 이미지`}
-                                        className={styles.chosunHeroImage}
-                                    />
+                                    <Box style={{ position: "relative", width: "100%", height: 400 }}>
+                                        <Image
+                                            src={article.thumbnail_url}
+                                            alt={`${article.title} 대표 이미지`}
+                                            fill
+                                            style={{ objectFit: "cover" }}
+                                            sizes="(max-width: 768px) 100vw, 720px"
+                                            priority
+                                            className={styles.chosunHeroImage}
+                                        />
+                                    </Box>
                                     <Text component="figcaption" size="xs" className={styles.chosunHeroCaption}>
                                         {article.excerpt || article.summary || `${article.title} 관련 이미지`}
                                     </Text>
@@ -247,11 +254,16 @@ export function ArticleDetail({
                                                 className={styles.chosunInlineItem}
                                             >
                                                 {related.thumbnail_url && (
-                                                    <Image
-                                                        src={related.thumbnail_url}
-                                                        alt={`${related.title} 썸네일`}
-                                                        className={styles.chosunInlineThumb}
-                                                    />
+                                                    <Box style={{ position: "relative", width: 80, height: 60, flexShrink: 0 }}>
+                                                        <Image
+                                                            src={related.thumbnail_url}
+                                                            alt={`${related.title} 썸네일`}
+                                                            fill
+                                                            style={{ objectFit: "cover" }}
+                                                            sizes="80px"
+                                                            className={styles.chosunInlineThumb}
+                                                        />
+                                                    </Box>
                                                 )}
                                                 <Stack gap={2} style={{ flex: 1 }}>
                                                     <Text size="sm" fw={600} className={styles.chosunInlineTitle} lineClamp={2}>
@@ -301,11 +313,16 @@ export function ArticleDetail({
                                     <div className={styles.chosunLeadGrid}>
                                         <Link href={`/article/${leadNews.id}`} className={styles.chosunLeadCard}>
                                             {leadNews.thumbnail_url && (
-                                                <Image
-                                                    src={leadNews.thumbnail_url}
-                                                    alt={`${leadNews.title} 썸네일`}
-                                                    className={styles.chosunLeadImage}
-                                                />
+                                                <Box style={{ position: "relative", width: "100%", height: 180 }}>
+                                                    <Image
+                                                        src={leadNews.thumbnail_url}
+                                                        alt={`${leadNews.title} 썸네일`}
+                                                        fill
+                                                        style={{ objectFit: "cover" }}
+                                                        sizes="(max-width: 768px) 100vw, 300px"
+                                                        className={styles.chosunLeadImage}
+                                                    />
+                                                </Box>
                                             )}
                                             <Text size="md" fw={700} className={styles.chosunLeadTitle} lineClamp={2}>
                                                 {leadNews.title}
@@ -340,11 +357,16 @@ export function ArticleDetail({
                                                 className={styles.chosunPhotoItem}
                                             >
                                                 {related.thumbnail_url && (
-                                                    <Image
-                                                        src={related.thumbnail_url}
-                                                        alt={`${related.title} 썸네일`}
-                                                        className={styles.chosunPhotoThumb}
-                                                    />
+                                                    <Box style={{ position: "relative", width: "100%", height: 100 }}>
+                                                        <Image
+                                                            src={related.thumbnail_url}
+                                                            alt={`${related.title} 썸네일`}
+                                                            fill
+                                                            style={{ objectFit: "cover" }}
+                                                            sizes="(max-width: 768px) 50vw, 150px"
+                                                            className={styles.chosunPhotoThumb}
+                                                        />
+                                                    </Box>
                                                 )}
                                                 <Text size="xs" className={styles.chosunPhotoTitle} lineClamp={2}>
                                                     {related.title}

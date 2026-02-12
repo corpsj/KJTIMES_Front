@@ -1,7 +1,8 @@
 "use client";
 
-import { Stack, Group, Text, Image, Box, Title } from "@mantine/core";
+import { Stack, Group, Text, Box, Title } from "@mantine/core";
 import Link from "next/link";
+import Image from "next/image";
 import { Article } from "@/types";
 
 export interface ArticleCardProps {
@@ -35,12 +36,14 @@ export function ArticleCard({
     return (
       <Stack gap="md">
         {showThumbnail && article.thumbnail_url && (
-          <Box component={Link} href={`/article/${article.id}`}>
+          <Box component={Link} href={`/article/${article.id}`} style={{ position: "relative", width: "100%", height: 300, borderRadius: "var(--mantine-radius-md)", overflow: "hidden" }}>
             <Image
               src={article.thumbnail_url}
-              height={300}
-              radius="md"
               alt={`${article.title} 대표 이미지`}
+              fill
+              style={{ objectFit: "cover" }}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              priority
             />
           </Box>
         )}
@@ -66,12 +69,13 @@ export function ArticleCard({
     return (
       <Stack gap="xs">
         {showThumbnail && article.thumbnail_url && (
-          <Box component={Link} href={`/article/${article.id}`}>
+          <Box component={Link} href={`/article/${article.id}`} style={{ position: "relative", width: "100%", height: 120, borderRadius: "var(--mantine-radius-sm)", overflow: "hidden" }}>
             <Image
               src={article.thumbnail_url}
-              height={120}
-              radius="sm"
               alt={`${article.title} 이미지`}
+              fill
+              style={{ objectFit: "cover" }}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"
             />
           </Box>
         )}
@@ -134,13 +138,13 @@ export function ArticleCard({
         )}
       </Stack>
       {showThumbnail && article.thumbnail_url && (
-        <Box component={Link} href={`/article/${article.id}`} style={{ flexShrink: 0 }}>
+        <Box component={Link} href={`/article/${article.id}`} style={{ position: "relative", width: 80, height: 60, flexShrink: 0, borderRadius: "var(--mantine-radius-sm)", overflow: "hidden" }}>
           <Image
             src={article.thumbnail_url}
-            w={80}
-            h={60}
-            radius="sm"
             alt={`${article.title} 썸네일`}
+            fill
+            style={{ objectFit: "cover" }}
+            sizes="80px"
           />
         </Box>
       )}

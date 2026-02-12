@@ -1,0 +1,12 @@
+# robots.txt for 광전타임즈 (kjtimes.co.kr)
+
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+
+# Sitemap
+Sitemap: https://kjtimes.co.kr/sitemap.xml
+
+# Crawl-delay for polite crawling
+Crawl-delay: 1

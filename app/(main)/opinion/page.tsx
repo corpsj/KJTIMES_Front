@@ -1,7 +1,18 @@
 import { CategoryPageTemplate } from "@/components/layout/CategoryPageTemplate";
 import { fetchCategoryArticles } from "@/lib/api/articles";
+import type { Metadata } from "next";
 
 export const revalidate = 60;
+
+export const metadata: Metadata = {
+  title: "오피니언 - 광전타임즈",
+  description: "광주·전남 지역 이슈에 대한 칼럼과 사설을 제공하는 광전타임즈 오피니언 섹션입니다.",
+  openGraph: {
+    title: "오피니언 - 광전타임즈",
+    description: "광주·전남 지역 이슈에 대한 칼럼과 사설",
+    url: "https://kjtimes.co.kr/opinion",
+  },
+};
 
 const RELATED_CATEGORIES = [
   { label: "정치", href: "/politics" },

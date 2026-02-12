@@ -5,8 +5,39 @@ import { MainNews } from "@/components/home/MainNews";
 import { PopularNews } from "@/components/home/PopularNews";
 import { CategorySection } from "@/components/home/CategorySection";
 import { IconNews } from "@tabler/icons-react";
+import type { Metadata } from "next";
 
 export const revalidate = 60;
+
+export const metadata: Metadata = {
+  title: "광전타임즈 - 광주·전남 지역 뉴스 포털",
+  description: "광주·전남 지역의 정확하고 빠른 뉴스를 전달하는 광전타임즈입니다. 정치, 경제, 사회, 문화, 스포츠 등 다양한 분야의 뉴스를 실시간으로 제공합니다.",
+  keywords: ["광전타임즈", "광주뉴스", "전남뉴스", "지역뉴스", "광주전남", "뉴스포털"],
+  openGraph: {
+    title: "광전타임즈 - 광주·전남 지역 뉴스 포털",
+    description: "광주·전남 지역의 정확하고 빠른 뉴스를 전달하는 광전타임즈",
+    url: "https://kjtimes.co.kr",
+    siteName: "광전타임즈",
+    locale: "ko_KR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "광전타임즈 - 광주·전남 지역 뉴스 포털",
+    description: "광주·전남 지역의 정확하고 빠른 뉴스를 전달하는 광전타임즈",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+};
 
 function EmptyState() {
   return (

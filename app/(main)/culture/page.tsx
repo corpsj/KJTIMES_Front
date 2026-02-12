@@ -1,7 +1,18 @@
 import { CategoryPageTemplate } from "@/components/layout/CategoryPageTemplate";
 import { fetchCategoryArticles } from "@/lib/api/articles";
+import type { Metadata } from "next";
 
 export const revalidate = 60;
+
+export const metadata: Metadata = {
+  title: "문화 - 광전타임즈",
+  description: "광주·전남 지역 문화 예술 소식과 공연 정보를 제공하는 광전타임즈 문화 섹션입니다.",
+  openGraph: {
+    title: "문화 - 광전타임즈",
+    description: "광주·전남 지역 문화 예술 소식과 공연 정보",
+    url: "https://kjtimes.co.kr/culture",
+  },
+};
 
 const RELATED_CATEGORIES = [
   { label: "사회", href: "/society" },

@@ -1,7 +1,18 @@
 import { CategoryPageTemplate } from "@/components/layout/CategoryPageTemplate";
 import { fetchCategoryArticles } from "@/lib/api/articles";
+import type { Metadata } from "next";
 
 export const revalidate = 60;
+
+export const metadata: Metadata = {
+  title: "스포츠 - 광전타임즈",
+  description: "광주·전남 지역 스포츠 뉴스와 경기 결과를 제공하는 광전타임즈 스포츠 섹션입니다.",
+  openGraph: {
+    title: "스포츠 - 광전타임즈",
+    description: "광주·전남 지역 스포츠 뉴스와 경기 결과",
+    url: "https://kjtimes.co.kr/sports",
+  },
+};
 
 const RELATED_CATEGORIES = [
   { label: "생활/문화", href: "/culture" },

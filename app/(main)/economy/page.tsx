@@ -1,7 +1,18 @@
 import { CategoryPageTemplate } from "@/components/layout/CategoryPageTemplate";
 import { fetchCategoryArticles } from "@/lib/api/articles";
+import type { Metadata } from "next";
 
 export const revalidate = 60;
+
+export const metadata: Metadata = {
+  title: "경제 - 광전타임즈",
+  description: "광주·전남 지역 경제 뉴스와 산업 동향을 제공하는 광전타임즈 경제 섹션입니다.",
+  openGraph: {
+    title: "경제 - 광전타임즈",
+    description: "광주·전남 지역 경제 뉴스와 산업 동향",
+    url: "https://kjtimes.co.kr/economy",
+  },
+};
 
 const RELATED_CATEGORIES = [
   { label: "정치", href: "/politics" },

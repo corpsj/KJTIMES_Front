@@ -265,3 +265,36 @@
   - Pattern: Mantine useForm hook for client-side validation, Paper component for form container, centered layout with max-width 400px
   - Key learning: Existing /app/login and /app/signup pages needed replacement, not duplication in /(main)/ route group
   - Note: about, advertise, corrections pages already well-designed (no changes needed)
+- 2026-02-12: Task 14 (Performance optimization) completed successfully.
+  - Replaced Mantine Image with Next.js Image in ArticleCard and ArticleDetail components:
+    - ArticleCard: 3 variants updated (featured, headline, compact) with fill layout and responsive sizes
+    - ArticleDetail: 4 image sections updated (hero, inline thumbnails, lead news, photo strip)
+    - Pattern: Box wrapper with position: relative + Image with fill prop + objectFit: cover
+    - Sizes prop for responsive loading: "(max-width: 768px) 100vw, 720px" pattern
+    - Priority prop for above-the-fold images (featured articles, hero images)
+  - Added comprehensive metadata to all pages:
+    - Homepage: Full metadata with title, description, keywords, openGraph, twitter, robots
+    - Category pages: 6 pages updated (politics, economy, society, culture, sports, opinion)
+    - Article detail page: Already had metadata (generateMetadata function)
+    - Search page: Client component, cannot use metadata export
+    - Pattern: Metadata export with openGraph and twitter card support
+  - Created robots.txt in public/:
+    - Allows all user agents except /admin/ and /api/
+    - Sitemap reference: https://kjtimes.co.kr/sitemap.xml
+    - Crawl-delay: 1 for polite crawling
+  - Created app/sitemap.ts:
+    - Dynamic sitemap generation using MetadataRoute.Sitemap type
+    - Fetches all published articles (up to 1000) from lib/api/articles
+    - Static pages: homepage, 7 categories, search, 4 info pages, terms
+    - Article pages: Dynamic URLs with lastModified from article.updated_at
+    - Change frequency: hourly for homepage/categories, weekly for articles, monthly for info pages
+    - Priority: 1.0 for homepage, 0.9 for categories, 0.7 for articles, 0.4-0.6 for info pages
+  - Configured next.config.ts for image optimization:
+    - remotePatterns: Allow all HTTPS and HTTP hostnames (for Supabase Storage and external images)
+    - formats: ['image/avif', 'image/webp'] for modern image formats
+    - deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840] for responsive images
+    - imageSizes: [16, 32, 48, 64, 96, 128, 256, 384] for icon-sized images
+  - Build verification: ✅ PASSED (3.3s compile, 303.2ms static generation)
+  - Pattern: next/image with fill layout requires parent Box with position: relative and explicit dimensions
+  - Key learning: Mantine Image must NOT be used for new images (per project constraints), only next/image
+  - Note: Admin pages still use Mantine Image (ThumbnailPicker.tsx) - intentionally left unchanged per task scope
