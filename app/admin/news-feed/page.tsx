@@ -34,7 +34,8 @@ export default function NewsFeedPage() {
                 display: "inline-block",
               }}
             >
-              NEXT_PUBLIC_NEWS_FACTORY_URL, NEXT_PUBLIC_NEWS_FACTORY_API_KEY
+              NEWS_FACTORY_URL, NEWS_FACTORY_API_KEY,
+              NEXT_PUBLIC_NEWS_FACTORY_ENABLED=true
             </code>
             &nbsp;환경변수를 설정해 주세요.
           </Text>
