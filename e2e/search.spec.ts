@@ -7,6 +7,7 @@ test.describe('Search Functionality', () => {
     await page.waitForLoadState('networkidle');
     
     const searchInput = page.locator('input[type="search"]').first();
+    await searchInput.waitFor({ state: 'visible', timeout: 10000 });
     await searchInput.fill('광주');
     await searchInput.press('Enter');
     
@@ -33,6 +34,7 @@ test.describe('Search Functionality', () => {
     await expect(page).toHaveURL(/q=TEST/);
     
     const searchInput = page.locator('input[type="search"]').first();
+    await searchInput.waitFor({ state: 'attached', timeout: 10000 });
     const inputValue = await searchInput.inputValue();
     expect(inputValue).toBe('TEST');
   });
@@ -154,7 +156,7 @@ test.describe('Search Functionality', () => {
     await expect(page).toHaveURL(/\/search/);
     expect(page.url()).toContain('q=');
     
-    const searchInput = page.locator('input[type="search"]').first();
+    const searchInput = page.locator('main input[type="search"], form input[type="search"]').last();
     await expect(searchInput).toBeVisible();
   });
 });

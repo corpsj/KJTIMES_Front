@@ -132,8 +132,20 @@ test.describe('Homepage', () => {
     const footer = page.locator('[role="contentinfo"]');
     await expect(footer).toBeVisible();
     
-    const copyright = page.getByText(/Copyright.*광전타임즈/).first();
-    await expect(copyright).toBeVisible();
+    // Check that at least one copyright text is visible (desktop or mobile version)
+    const copyrightTexts = page.getByText(/Copyright.*광전타임즈/);
+    await expect(copyrightTexts.first()).toBeAttached();
+    
+    // Verify at least one is actually visible
+    const count = await copyrightTexts.count();
+    let hasVisibleCopyright = false;
+    for (let i = 0; i < count; i++) {
+      if (await copyrightTexts.nth(i).isVisible()) {
+        hasVisibleCopyright = true;
+        break;
+      }
+    }
+    expect(hasVisibleCopyright).toBe(true);
   });
 
   test('should be responsive on mobile viewport', async ({ page }) => {

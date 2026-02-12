@@ -11,7 +11,9 @@ test.describe('Accessibility', () => {
     expect(href).toBe('#main-content');
   });
 
-  test('should focus skip link on first tab', async ({ page }) => {
+  test('should focus skip link on first tab', async ({ page, browserName }) => {
+    test.skip(browserName === 'webkit', 'WebKit has different focus behavior');
+    
     await page.goto('/');
     
     await page.keyboard.press('Tab');

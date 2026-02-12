@@ -1,0 +1,122 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - link "메인 콘텐츠로 건너뛰기" [ref=e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e6]:
+        - paragraph [ref=e7]: 2026년 2월 12일 목요일
+        - generic [ref=e9]:
+          - searchbox "검색어" [ref=e12]
+          - button "검색" [ref=e13] [cursor=pointer]:
+            - generic [ref=e15]: 검색
+        - generic [ref=e16]:
+          - link "로그인" [ref=e17] [cursor=pointer]:
+            - /url: /login
+          - separator [ref=e18]
+          - link "회원가입" [ref=e19] [cursor=pointer]:
+            - /url: /signup
+          - separator [ref=e20]
+          - link "구독하기" [ref=e21] [cursor=pointer]:
+            - /url: /subscribe
+      - separator [ref=e22]
+      - link "광전타임즈 로고" [ref=e25] [cursor=pointer]:
+        - /url: /
+        - img "광전타임즈 로고" [ref=e26]
+      - navigation "메인 메뉴" [ref=e27]:
+        - generic [ref=e29]:
+          - link "홈" [ref=e30] [cursor=pointer]:
+            - /url: /
+          - link "창간특별호" [ref=e31] [cursor=pointer]:
+            - /url: /special-edition
+          - link "정치" [ref=e32] [cursor=pointer]:
+            - /url: /politics
+          - link "경제" [ref=e33] [cursor=pointer]:
+            - /url: /economy
+          - link "사회" [ref=e34] [cursor=pointer]:
+            - /url: /society
+          - link "생활/문화" [ref=e35] [cursor=pointer]:
+            - /url: /culture
+          - link "오피니언" [ref=e36] [cursor=pointer]:
+            - /url: /opinion
+          - link "스포츠" [ref=e37] [cursor=pointer]:
+            - /url: /sports
+  - main [ref=e38]:
+    - generic [ref=e40]:
+      - generic [ref=e41]:
+        - heading "검색" [level=1] [ref=e42]
+        - generic [ref=e44]:
+          - searchbox "검색어를 입력해 주세요" [ref=e47]: TEST
+          - button "검색" [ref=e48] [cursor=pointer]:
+            - generic [ref=e50]: 검색
+      - generic [ref=e52]:
+        - generic [ref=e54]:
+          - generic [ref=e55]:
+            - paragraph [ref=e56]: 총 1개 검색 결과
+            - radiogroup [ref=e57]:
+              - generic [ref=e59]:
+                - radio "관련순" [checked]
+                - generic [ref=e60] [cursor=pointer]: 관련순
+              - generic [ref=e61]:
+                - radio "최신순"
+                - generic [ref=e62] [cursor=pointer]: 최신순
+          - link "창간특별호 TEST 가나다라 마바사 아자차카 타파하 2일 전 8" [ref=e64] [cursor=pointer]:
+            - /url: /article/d748b338-75a5-4335-8a4e-9022308f15ab
+            - generic [ref=e68]:
+              - generic [ref=e70]: 창간특별호
+              - heading "TEST" [level=3] [ref=e71]:
+                - mark [ref=e72]: TEST
+              - paragraph [ref=e73]: 가나다라 마바사 아자차카 타파하
+              - generic [ref=e74]:
+                - generic [ref=e75]:
+                  - img [ref=e76]
+                  - paragraph [ref=e79]: 2일 전
+                - generic [ref=e80]:
+                  - img [ref=e81]
+                  - paragraph [ref=e84]: "8"
+        - generic [ref=e87]:
+          - generic [ref=e89]:
+            - img [ref=e90]
+            - heading "필터" [level=4] [ref=e92]
+          - generic [ref=e93]:
+            - generic [ref=e94]:
+              - paragraph [ref=e95]: 카테고리
+              - generic [ref=e97]:
+                - textbox "카테고리 선택" [ref=e98] [cursor=pointer]: 전체 카테고리
+                - generic:
+                  - img
+            - generic [ref=e99]:
+              - paragraph [ref=e100]: 기간
+              - generic [ref=e102]:
+                - textbox "기간 선택" [ref=e103] [cursor=pointer]: 전체 기간
+                - generic:
+                  - img
+  - contentinfo [ref=e104]:
+    - generic [ref=e106]:
+      - generic [ref=e107]:
+        - paragraph [ref=e108]: 광전타임즈
+        - paragraph [ref=e109]:
+          - text: 전남 함평군 함평읍 영수길 148 2층
+          - text: "등록번호: 전남, 아00607 | 대표: 선종인 | 발행·편집인: 장혁훈"
+          - text: "전화·제보: 010-9428-5361 | 팩스: 0504-255-5361 | 이메일: jebo@kjtimes.co.kr"
+          - text: "사업자등록번호: 173-91-02454"
+        - paragraph [ref=e110]: Copyright © 2026 광전타임즈. All rights reserved.
+      - generic [ref=e111]:
+        - link "회사소개" [ref=e112] [cursor=pointer]:
+          - /url: /about
+        - link "광고안내" [ref=e113] [cursor=pointer]:
+          - /url: /advertise
+        - link "이용약관" [ref=e114] [cursor=pointer]:
+          - /url: /terms
+        - link "개인정보처리방침" [ref=e115] [cursor=pointer]:
+          - /url: /privacy
+        - link "편집원칙" [ref=e116] [cursor=pointer]:
+          - /url: /editorial
+        - link "정정보도/오류신고" [ref=e117] [cursor=pointer]:
+          - /url: /corrections
+  - button "Open Next.js Dev Tools" [ref=e123] [cursor=pointer]:
+    - img [ref=e124]
+  - alert [ref=e127]
+```

@@ -456,3 +456,126 @@
   - Lint Status: ✅ IMPROVED (target errors fixed, 2 admin errors remain - outside scope)
   - Cross-browser Status: ✅ VERIFIED (Chromium, Firefox, WebKit all functional)
   - Documentation Status: ✅ COMPLETE (README.md updated with 200+ lines)
+
+## [2026-02-12] Final Polish - Lint Errors & Hardcoded Colors
+
+### Lint Error Fixes
+**Pattern**: React hooks immutability violations
+- **Issue**: Modifying ref properties returned from hooks (e.g., `a.searchTermRef.current = v`)
+- **Root Cause**: Hooks like `useArticles` already update refs internally when state setters are called
+- **Fix**: Remove redundant ref assignments from component code
+- **Example**:
+  ```tsx
+  // ❌ Before (violates immutability)
+  onSearchChange={(v) => {
+    a.setSearchTerm(v);
+    a.searchTermRef.current = v;  // Redundant!
+  }}
+  
+  // ✅ After
+  onSearchChange={(v) => {
+    a.setSearchTerm(v);  // Hook handles ref update internally
+  }}
+  ```
+
+**Pattern**: TypeScript `any` type violations
+- **Issue**: ESLint rule `@typescript-eslint/no-explicit-any` rejects `any` types
+- **Fix**: Use type assertions with proper interface definitions
+- **Example**:
+  ```tsx
+  // ❌ Before
+  const envelope: any = msg.envelope || {};
+  envelope.to?.map((t: any) => ({ ... }))
+  
+  // ✅ After
+  const envelope = (msg.envelope || {}) as { 
+    subject?: string; 
+    from?: Array<{ name?: string; address?: string }>; 
+    to?: Array<{ name?: string; address?: string }>; 
+    date?: Date 
+  };
+  envelope.to?.map((t) => ({ ... }))  // Type inferred from assertion
+  ```
+
+### Hardcoded Color Removal
+**Pattern**: Systematic color token replacement
+- **Strategy**: Create sed script mapping hex colors to Mantine CSS variables
+- **Scope**: 45 instances across admin components and CSS files
+- **Result**: Reduced to 2 instances (CSS fallback values only)
+
+**Color Mapping Reference**:
+```
+#f1f3f5 → var(--mantine-color-gray-1)
+#228be6 → var(--mantine-color-blue-6)
+#d1d5db → var(--mantine-color-gray-3)
+#e9ecef → var(--mantine-color-gray-2)
+#6b7280 → var(--mantine-color-gray-6)
+#fafafa → var(--mantine-color-gray-0)
+#fa5252 → var(--mantine-color-red-6)
+```
+
+**CSS Files Updated**:
+- `components/admin/editor.css` (7 colors)
+- `components/admin/AdminSidebar.module.css` (4 colors)
+
+**TSX Files Updated** (inline styles):
+- All `components/admin/**/*.tsx` files (34 colors)
+- All `app/admin/**/*.tsx` files
+
+**Acceptable Exceptions**:
+- `app/globals.css` CSS custom property fallbacks:
+  ```css
+  --background: var(--mantine-color-newsSurface-0, #ffffff);
+  --foreground: var(--mantine-color-newsHeadline-9, #171717);
+  ```
+  These are fallback values for CSS variables, not hardcoded usage.
+
+### Lighthouse Performance Audit
+**Dev Server Score**: 61/100 (mobile)
+- **Target**: 70/100
+- **Gap**: 9 points below target
+- **Context**: Dev server scores are typically 10-20 points lower than production builds
+- **Expected Production Score**: 71-81/100 (likely meets target)
+- **Recommendation**: Run Lighthouse on production build for accurate assessment
+
+**Key Insight**: Dev server performance is not representative of production performance due to:
+- No minification
+- No tree-shaking
+- No code splitting optimization
+- Hot reload overhead
+- Source maps included
+
+### Verification Results
+- ✅ **Lint**: 0 errors (36 warnings acceptable)
+- ✅ **Build**: Passes successfully
+- ✅ **Hardcoded Colors**: 2 remaining (fallback values only)
+- ⚠️ **Lighthouse**: 61/100 (dev), likely 70+ in production
+- ⏸️ **Tests**: 85/104 passing (81.7%) - existing baseline, no regressions
+
+### Files Modified (17 total)
+**Admin Components**:
+- app/admin/articles/page.tsx
+- app/admin/write/page.tsx
+- app/admin/layout.tsx
+- app/admin/login/page.tsx
+- app/admin/page.tsx
+- components/admin/AdminHeader.tsx
+- components/admin/AdminSidebar.module.css
+- components/admin/EmptyState.tsx
+- components/admin/FigureImage.tsx
+- components/admin/RichTextEditor.tsx
+- components/admin/StatCard.tsx
+- components/admin/articles/ArticlesBatchBar.tsx
+- components/admin/articles/ArticlesFilterBar.tsx
+- components/admin/articles/ArticlesTable.tsx
+- components/admin/editor.css
+- components/admin/editor/ArticlePreviewModal.tsx
+- components/admin/media/MediaUploadZone.tsx
+
+**Utilities**:
+- utils/mail/imap.ts
+
+### Commit
+- Hash: `9f6b7c5`
+- Message: "Fix lint errors and remove hardcoded colors"
+- Lines changed: 47 insertions, 1354 deletions (mostly test result cleanup)

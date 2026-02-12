@@ -34,13 +34,14 @@ test.describe('Navigation', () => {
     await page.waitForLoadState('networkidle');
     
     const politicsLink = page.locator('nav[aria-label="메인 메뉴"] a[href="/politics"]');
-    const hasNav = await politicsLink.isVisible().catch(() => false);
+    await politicsLink.waitFor({ state: 'visible', timeout: 10000 });
     
-    if (hasNav) {
-      await politicsLink.click();
-      await page.waitForLoadState('networkidle');
-      await expect(page).toHaveURL('/politics');
-    }
+    await Promise.all([
+      page.waitForURL('**/politics', { timeout: 10000 }),
+      politicsLink.click()
+    ]);
+    
+    await expect(page).toHaveURL('/politics');
   });
 
   test('should open mobile drawer menu', async ({ page }) => {

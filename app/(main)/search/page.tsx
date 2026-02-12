@@ -161,6 +161,7 @@ function SearchContent() {
                     <form onSubmit={handleSearch}>
                         <Group gap="sm">
                             <TextInput
+                                type="search"
                                 placeholder="검색어를 입력해 주세요"
                                 value={query}
                                 onChange={(e) => setQuery(e.currentTarget.value)}

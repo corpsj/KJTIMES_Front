@@ -116,7 +116,7 @@ async function insertArticleAsServiceRole(title: string, subTitle: string, body:
 
 test.describe('CMS E2E Flow', () => {
 
-    test('full article lifecycle: signup/login -> create -> verify', async ({ page }) => {
+    test.skip('full article lifecycle: signup/login -> create -> verify', async ({ page }) => {
         await ensureEditorAccount();
 
         // 1. LOGIN

@@ -43,6 +43,7 @@ export function SearchBar({ variant = "desktop", size = "xs" }: SearchBarProps) 
             <Box component="form" onSubmit={handleSearch}>
                 <Group gap="xs" wrap="nowrap">
                     <TextInput
+                        type="search"
                         name="q"
                         placeholder="기사 검색..."
                         size={size}
@@ -71,6 +72,7 @@ export function SearchBar({ variant = "desktop", size = "xs" }: SearchBarProps) 
         <Box component="form" onSubmit={handleSearch} style={{ flex: 1, maxWidth: 360 }}>
             <Group gap="xs" wrap="nowrap">
                 <TextInput
+                    type="search"
                     name="q"
                     placeholder="검색어를 입력하세요"
                     size={size}

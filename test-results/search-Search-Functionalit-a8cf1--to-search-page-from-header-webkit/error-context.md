@@ -1,0 +1,116 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - link "메인 콘텐츠로 건너뛰기" [ref=e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e6]:
+        - paragraph [ref=e7]: 2026년 2월 12일 목요일
+        - generic [ref=e9]:
+          - searchbox "검색어" [active] [ref=e12]: 광주
+          - button "검색" [ref=e13] [cursor=pointer]:
+            - generic [ref=e15]: 검색
+        - generic [ref=e16]:
+          - link "로그인" [ref=e17] [cursor=pointer]:
+            - /url: /login
+          - separator [ref=e18]
+          - link "회원가입" [ref=e19] [cursor=pointer]:
+            - /url: /signup
+          - separator [ref=e20]
+          - link "구독하기" [ref=e21] [cursor=pointer]:
+            - /url: /subscribe
+      - separator [ref=e22]
+      - link "광전타임즈 로고" [ref=e25]:
+        - /url: /
+        - img "광전타임즈 로고" [ref=e26]
+      - navigation "메인 메뉴" [ref=e27]:
+        - generic [ref=e29]:
+          - link "홈" [ref=e30] [cursor=pointer]:
+            - /url: /
+          - link "창간특별호" [ref=e31] [cursor=pointer]:
+            - /url: /special-edition
+          - link "정치" [ref=e32] [cursor=pointer]:
+            - /url: /politics
+          - link "경제" [ref=e33] [cursor=pointer]:
+            - /url: /economy
+          - link "사회" [ref=e34] [cursor=pointer]:
+            - /url: /society
+          - link "생활/문화" [ref=e35] [cursor=pointer]:
+            - /url: /culture
+          - link "오피니언" [ref=e36] [cursor=pointer]:
+            - /url: /opinion
+          - link "스포츠" [ref=e37] [cursor=pointer]:
+            - /url: /sports
+  - main [ref=e38]:
+    - generic [ref=e40]:
+      - generic [ref=e41]:
+        - heading "검색" [level=1] [ref=e42]
+        - generic [ref=e44]:
+          - searchbox "검색어를 입력해 주세요" [ref=e47]: 광주
+          - button "검색" [ref=e48] [cursor=pointer]:
+            - generic [ref=e50]: 검색
+      - generic [ref=e52]:
+        - generic [ref=e56]:
+          - img [ref=e58]
+          - generic [ref=e61]:
+            - heading "검색 결과가 없습니다" [level=3] [ref=e62]
+            - paragraph [ref=e63]: "\"광주\"에 대한 검색 결과를 찾을 수 없습니다."
+          - generic [ref=e64]:
+            - generic [ref=e65]:
+              - img [ref=e67]
+              - paragraph [ref=e70]: 검색 팁
+            - list [ref=e71]:
+              - listitem [ref=e72]:
+                - generic [ref=e74]: 검색어의 철자가 정확한지 확인해주세요
+              - listitem [ref=e75]:
+                - generic [ref=e77]: 다른 검색어나 유사한 단어를 사용해보세요
+              - listitem [ref=e78]:
+                - generic [ref=e80]: 더 일반적인 검색어로 다시 검색해보세요
+              - listitem [ref=e81]:
+                - generic [ref=e83]: 필터를 초기화하고 다시 시도해보세요
+        - generic [ref=e86]:
+          - generic [ref=e88]:
+            - img [ref=e89]
+            - heading "필터" [level=4] [ref=e91]
+          - generic [ref=e92]:
+            - generic [ref=e93]:
+              - paragraph [ref=e94]: 카테고리
+              - generic [ref=e96]:
+                - textbox "카테고리 선택" [ref=e97] [cursor=pointer]: 전체 카테고리
+                - generic:
+                  - img
+            - generic [ref=e98]:
+              - paragraph [ref=e99]: 기간
+              - generic [ref=e101]:
+                - textbox "기간 선택" [ref=e102] [cursor=pointer]: 전체 기간
+                - generic:
+                  - img
+  - contentinfo [ref=e103]:
+    - generic [ref=e105]:
+      - generic [ref=e106]:
+        - paragraph [ref=e107]: 광전타임즈
+        - paragraph [ref=e108]:
+          - text: 전남 함평군 함평읍 영수길 148 2층
+          - text: "등록번호: 전남, 아00607 | 대표: 선종인 | 발행·편집인: 장혁훈"
+          - text: "전화·제보: 010-9428-5361 | 팩스: 0504-255-5361 | 이메일: jebo@kjtimes.co.kr"
+          - text: "사업자등록번호: 173-91-02454"
+        - paragraph [ref=e109]: Copyright © 2026 광전타임즈. All rights reserved.
+      - generic [ref=e110]:
+        - link "회사소개" [ref=e111] [cursor=pointer]:
+          - /url: /about
+        - link "광고안내" [ref=e112] [cursor=pointer]:
+          - /url: /advertise
+        - link "이용약관" [ref=e113] [cursor=pointer]:
+          - /url: /terms
+        - link "개인정보처리방침" [ref=e114] [cursor=pointer]:
+          - /url: /privacy
+        - link "편집원칙" [ref=e115] [cursor=pointer]:
+          - /url: /editorial
+        - link "정정보도/오류신고" [ref=e116] [cursor=pointer]:
+          - /url: /corrections
+  - button "Open Next.js Dev Tools" [ref=e122] [cursor=pointer]:
+    - img [ref=e123]
+  - alert [ref=e128]: 광전타임즈
+```
