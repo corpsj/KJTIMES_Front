@@ -1,0 +1,1 @@
+- 2026-02-12: classify issue #8/#9 as preview-artifact candidates, keep #7 as mixed until search layer is independently validated.

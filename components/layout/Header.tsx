@@ -43,7 +43,7 @@ export function Header() {
                             </Group>
                         </Box>
                         <Group gap="xs">
-                            <Anchor component={Link} href="/admin/login" size="xs" c="dimmed" underline="never">
+                            <Anchor component={Link} href="/login" size="xs" c="dimmed" underline="never">
                                 로그인
                             </Anchor>
                             <Divider orientation="vertical" h={10} />

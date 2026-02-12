@@ -1,0 +1,1 @@
+- 2026-02-12: need production env verification (Vercel) to conclusively confirm whether PREVIEW_MODE artifacts affected live tester session.

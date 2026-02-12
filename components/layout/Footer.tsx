@@ -39,9 +39,6 @@ export function Footer() {
                             정정보도/오류신고
                         </Anchor>
                     </Group>
-                    <Text size="sm" c="dimmed">
-                        Copyright © {year} 광전타임즈. All rights reserved.
-                    </Text>
                 </Stack>
 
                 <Group justify="space-between" align="start" visibleFrom="sm">

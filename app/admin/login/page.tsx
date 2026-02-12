@@ -113,15 +113,15 @@ export default function AdminLogin() {
           {/* Form */}
           <form onSubmit={handleSubmit}>
             <Stack gap="md">
-              <TextInput
-                label="아이디"
-                placeholder="admin"
-                value={id}
-                onChange={(event) => setId(event.currentTarget.value)}
-                autoComplete="username"
-                required
-                size="md"
-              />
+               <TextInput
+                 label="아이디"
+                 placeholder="아이디를 입력하세요"
+                 value={id}
+                 onChange={(event) => setId(event.currentTarget.value)}
+                 autoComplete="username"
+                 required
+                 size="md"
+               />
               <PasswordInput
                 label="비밀번호"
                 placeholder="********"

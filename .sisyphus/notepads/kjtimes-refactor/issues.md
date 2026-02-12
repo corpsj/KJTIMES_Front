@@ -1,0 +1,1 @@
+- 2026-02-12: lock cookie redirects broad public routes and drops query strings, which can distort QA symptoms.
