@@ -263,7 +263,7 @@ Critical Path: Task 1 → Task 2 → Task 3 → Task 10
 
 ---
 
-- [ ] 2. ArticleCard 컴포넌트 리디자인
+- [x] 2. ArticleCard 컴포넌트 리디자인
 
   **What to do**:
   - `components/shared/ArticleCard.tsx` 전면 리디자인
@@ -540,7 +540,7 @@ Critical Path: Task 1 → Task 2 → Task 3 → Task 10
 
 ---
 
-- [ ] 5. 헤더 리디자인
+- [x] 5. 헤더 리디자인
 
   **What to do**:
   - `components/layout/Header.tsx` 전면 리디자인
@@ -638,7 +638,7 @@ Critical Path: Task 1 → Task 2 → Task 3 → Task 10
 
 ---
 
-- [ ] 6. 푸터 현대적 리디자인
+- [x] 6. 푸터 현대적 리디자인
 
   **What to do**:
   - `components/layout/Footer.tsx` 리디자인
