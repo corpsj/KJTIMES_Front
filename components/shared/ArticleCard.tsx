@@ -1,6 +1,6 @@
 "use client";
 
-import { Stack, Group, Text, Box, Title } from "@mantine/core";
+import { Stack, Group, Text, Box, Title, useMantineTheme } from "@mantine/core";
 import Link from "next/link";
 import Image from "next/image";
 import { Article } from "@/types";
@@ -29,19 +29,40 @@ export function ArticleCard({
   showExcerpt = true,
   rank,
 }: ArticleCardProps) {
+  const theme = useMantineTheme();
   const excerpt = article.summary || article.excerpt;
 
   // Featured variant: Large headline with big image on top
   if (variant === "featured") {
     return (
-      <Stack gap="md">
+      <Stack gap={theme.other.spacing.cardGap}>
         {showThumbnail && article.thumbnail_url && (
-          <Box component={Link} href={`/article/${article.id}`} style={{ position: "relative", width: "100%", height: 300, borderRadius: "var(--mantine-radius-md)", overflow: "hidden" }}>
+          <Box
+            component={Link}
+            href={`/article/${article.id}`}
+            style={{
+              position: "relative",
+              width: "100%",
+              height: 400,
+              borderRadius: "var(--mantine-radius-md)",
+              overflow: "hidden",
+              boxShadow: theme.other.shadows.cardShadow,
+              display: "block",
+            }}
+            onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => {
+              const img = e.currentTarget.querySelector("img");
+              if (img) img.style.transform = "scale(1.03)";
+            }}
+            onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => {
+              const img = e.currentTarget.querySelector("img");
+              if (img) img.style.transform = "scale(1)";
+            }}
+          >
             <Image
               src={article.thumbnail_url}
               alt={`${article.title} 대표 이미지`}
               fill
-              style={{ objectFit: "cover" }}
+              style={{ objectFit: "cover", transition: "transform 150ms ease" }}
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               priority
             />
@@ -51,7 +72,15 @@ export function ArticleCard({
           href={`/article/${article.id}`}
           style={{ textDecoration: "none", color: "inherit" }}
         >
-          <Title order={2} style={{ fontSize: "28px", fontWeight: 800 }}>
+          <Title
+            order={2}
+            style={{
+              fontSize: theme.other.typography.headline.fontSize,
+              lineHeight: theme.other.typography.headline.lineHeight,
+              letterSpacing: theme.other.typography.headline.letterSpacing,
+              fontWeight: 800,
+            }}
+          >
             {article.title}
           </Title>
         </Link>
@@ -69,12 +98,32 @@ export function ArticleCard({
     return (
       <Stack gap="xs">
         {showThumbnail && article.thumbnail_url && (
-          <Box component={Link} href={`/article/${article.id}`} style={{ position: "relative", width: "100%", height: 120, borderRadius: "var(--mantine-radius-sm)", overflow: "hidden" }}>
+          <Box
+            component={Link}
+            href={`/article/${article.id}`}
+            style={{
+              position: "relative",
+              width: "100%",
+              height: 160,
+              borderRadius: "var(--mantine-radius-sm)",
+              overflow: "hidden",
+              boxShadow: theme.other.shadows.cardShadow,
+              display: "block",
+            }}
+            onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => {
+              const img = e.currentTarget.querySelector("img");
+              if (img) img.style.transform = "scale(1.05)";
+            }}
+            onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => {
+              const img = e.currentTarget.querySelector("img");
+              if (img) img.style.transform = "scale(1)";
+            }}
+          >
             <Image
               src={article.thumbnail_url}
               alt={`${article.title} 이미지`}
               fill
-              style={{ objectFit: "cover" }}
+              style={{ objectFit: "cover", transition: "transform 150ms ease" }}
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"
             />
           </Box>
@@ -83,7 +132,15 @@ export function ArticleCard({
           href={`/article/${article.id}`}
           style={{ textDecoration: "none", color: "inherit" }}
         >
-          <Title order={5}>{article.title}</Title>
+          <Title
+            order={5}
+            style={{
+              fontSize: theme.other.typography.subhead.fontSize,
+              lineHeight: theme.other.typography.subhead.lineHeight,
+            }}
+          >
+            {article.title}
+          </Title>
         </Link>
         {showExcerpt && excerpt && (
           <Text size="sm" c="dimmed" lineClamp={2}>
@@ -97,7 +154,22 @@ export function ArticleCard({
   // List variant: Title-only with optional ranking number
   if (variant === "list") {
     return (
-      <Group align="center" wrap="nowrap" style={{ cursor: "pointer" }}>
+      <Group
+        align="center"
+        wrap="nowrap"
+        style={{
+          cursor: "pointer",
+          padding: "4px 6px",
+          borderRadius: "var(--mantine-radius-sm)",
+          transition: "background-color 150ms ease",
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.backgroundColor = "var(--mantine-color-gray-0)";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.backgroundColor = "transparent";
+        }}
+      >
         {rank !== undefined && (
           <Text fw={700} c="red" w={20}>
             {rank}
@@ -106,7 +178,7 @@ export function ArticleCard({
         <Text
           component={Link}
           href={`/article/${article.id}`}
-          size="sm"
+          size="md"
           lineClamp={1}
           style={{ flex: 1, textDecoration: "none" }}
           c="dark.9"
@@ -124,10 +196,20 @@ export function ArticleCard({
         <Text
           component={Link}
           href={`/article/${article.id}`}
-          fw={700}
+          fw={600}
           lineClamp={2}
-          style={{ cursor: "pointer", textDecoration: "none" }}
+          style={{
+            cursor: "pointer",
+            textDecoration: "none",
+            transition: "color 150ms ease",
+          }}
           c="dark.9"
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = "var(--mantine-color-blue-7)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = "";
+          }}
         >
           {article.title}
         </Text>
@@ -138,13 +220,25 @@ export function ArticleCard({
         )}
       </Stack>
       {showThumbnail && article.thumbnail_url && (
-        <Box component={Link} href={`/article/${article.id}`} style={{ position: "relative", width: 80, height: 60, flexShrink: 0, borderRadius: "var(--mantine-radius-sm)", overflow: "hidden" }}>
+        <Box
+          component={Link}
+          href={`/article/${article.id}`}
+          style={{
+            position: "relative",
+            width: 100,
+            height: 75,
+            flexShrink: 0,
+            borderRadius: "var(--mantine-radius-sm)",
+            overflow: "hidden",
+            boxShadow: theme.other.shadows.cardShadow,
+          }}
+        >
           <Image
             src={article.thumbnail_url}
             alt={`${article.title} 썸네일`}
             fill
             style={{ objectFit: "cover" }}
-            sizes="80px"
+            sizes="100px"
           />
         </Box>
       )}
