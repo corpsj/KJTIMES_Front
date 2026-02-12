@@ -1,0 +1,92 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]: News Factory
+        - button "←" [active] [ref=e6]
+      - navigation [ref=e7]:
+        - link "◆ 대시보드" [ref=e8] [cursor=pointer]:
+          - /url: /admin
+          - generic [ref=e9]: ◆
+          - generic [ref=e10]: 대시보드
+        - link "◇ 보도자료" [ref=e11] [cursor=pointer]:
+          - /url: /admin/press-releases
+          - generic [ref=e12]: ◇
+          - generic [ref=e13]: 보도자료
+        - link "▤ 기사" [ref=e14] [cursor=pointer]:
+          - /url: /admin/articles
+          - generic [ref=e15]: ▤
+          - generic [ref=e16]: 기사
+        - link "⊡ 클라이언트" [ref=e17] [cursor=pointer]:
+          - /url: /admin/clients
+          - generic [ref=e18]: ⊡
+          - generic [ref=e19]: 클라이언트
+        - link "◫ 통계" [ref=e20] [cursor=pointer]:
+          - /url: /admin/stats
+          - generic [ref=e21]: ◫
+          - generic [ref=e22]: 통계
+        - link "◉ 모니터링" [ref=e23] [cursor=pointer]:
+          - /url: /admin/monitoring
+          - generic [ref=e24]: ◉
+          - generic [ref=e25]: 모니터링
+      - paragraph [ref=e27]: v2.0.0 · Admin
+    - main [ref=e28]:
+      - heading "News Factory v2" [level=1] [ref=e30]
+      - generic [ref=e32]:
+        - generic [ref=e33]:
+          - heading "대시보드" [level=2] [ref=e34]
+          - paragraph [ref=e35]: News Factory v2 시스템 현황
+        - generic [ref=e36]:
+          - generic [ref=e37]:
+            - generic [ref=e38]:
+              - generic [ref=e39]: ◇
+              - generic [ref=e40]: 전체 수집
+            - generic [ref=e41]:
+              - paragraph [ref=e42]: "19"
+              - paragraph [ref=e43]: 보도자료
+          - generic [ref=e44]:
+            - generic [ref=e45]:
+              - generic [ref=e46]: ▤
+              - generic [ref=e47]: AI 생성
+            - generic [ref=e48]:
+              - paragraph [ref=e49]: "4"
+              - paragraph [ref=e50]: 생성 기사
+          - generic [ref=e51]:
+            - generic [ref=e52]:
+              - generic [ref=e53]: ⊡
+              - generic [ref=e54]: 등록됨
+            - generic [ref=e55]:
+              - paragraph [ref=e56]: "2"
+              - paragraph [ref=e57]: 클라이언트
+          - generic [ref=e58]:
+            - generic [ref=e59]:
+              - generic [ref=e60]: ◫
+              - generic [ref=e61]: 마지막 실행
+            - generic [ref=e62]:
+              - paragraph [ref=e63]: 2026. 2. 12. PM 11:06:59
+              - paragraph [ref=e64]: 최근 크롤링
+        - generic [ref=e65]:
+          - heading "파이프라인 상태" [level=3] [ref=e66]
+          - generic [ref=e67]:
+            - generic [ref=e68]:
+              - generic [ref=e69]: "1"
+              - generic [ref=e70]: 크롤링
+              - generic [ref=e71]: →
+            - generic [ref=e72]:
+              - generic [ref=e73]: "2"
+              - generic [ref=e74]: 임베딩
+              - generic [ref=e75]: →
+            - generic [ref=e76]:
+              - generic [ref=e77]: "3"
+              - generic [ref=e78]: 기사생성
+              - generic [ref=e79]: →
+            - generic [ref=e80]:
+              - generic [ref=e81]: "4"
+              - generic [ref=e82]: 배포
+  - button "Open Next.js Dev Tools" [ref=e88] [cursor=pointer]:
+    - img [ref=e89]
+  - alert [ref=e92]
+```
