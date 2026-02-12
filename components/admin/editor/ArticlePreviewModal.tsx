@@ -47,7 +47,7 @@ export default function ArticlePreviewModal({
                 <Box
                     style={{ lineHeight: 1.7 }}
                     dangerouslySetInnerHTML={{
-                        __html: sanitizeHtml(content || "<p style='color:#6b7280'>미리보기할 본문이 없습니다.</p>"),
+                        __html: sanitizeHtml(content || "<p style='color:var(--mantine-color-gray-6)'>미리보기할 본문이 없습니다.</p>"),
                     }}
                 />
             </Stack>

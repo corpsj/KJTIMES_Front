@@ -39,7 +39,7 @@ function FigureImageView(props: any) {
             <div
                 style={{
                     position: "relative",
-                    border: selected ? "2px solid #228be6" : "2px solid transparent",
+                    border: selected ? "2px solid var(--mantine-color-blue-6)" : "2px solid transparent",
                     borderRadius: 6,
                     overflow: "hidden",
                     transition: "border-color 0.15s",
@@ -65,9 +65,9 @@ function FigureImageView(props: any) {
                             justifyContent: "center",
                             width: "100%",
                             height: 200,
-                            background: "#f3f4f6",
+                            background: "var(--mantine-color-gray-1)",
                             borderRadius: 4,
-                            color: "#9ca3af",
+                            color: "var(--mantine-color-gray-5)",
                             fontSize: "0.9rem",
                         }}
                     >
@@ -90,11 +90,11 @@ function FigureImageView(props: any) {
                         marginTop: 6,
                         padding: "6px 8px",
                         fontSize: "0.85rem",
-                        color: "#6b7280",
-                        border: "1px solid #d1d5db",
+                        color: "var(--mantine-color-gray-6)",
+                        border: "1px solid var(--mantine-color-gray-3)",
                         borderRadius: 4,
                         outline: "none",
-                        background: "#fafafa",
+                        background: "var(--mantine-color-gray-0)",
                         textAlign: "center",
                     }}
                 />
@@ -105,7 +105,7 @@ function FigureImageView(props: any) {
                         marginTop: 6,
                         padding: "4px 8px",
                         fontSize: "0.85rem",
-                        color: caption ? "#6b7280" : "#9ca3af",
+                        color: caption ? "var(--mantine-color-gray-6)" : "var(--mantine-color-gray-5)",
                         textAlign: "center",
                         cursor: "pointer",
                         borderRadius: 4,
@@ -115,8 +115,8 @@ function FigureImageView(props: any) {
                         ...(caption
                             ? {}
                             : {
-                                  border: "1px dashed #d1d5db",
-                                  background: "#fafafa",
+                                  border: "1px dashed var(--mantine-color-gray-3)",
+                                  background: "var(--mantine-color-gray-0)",
                               }),
                     }}
                 >

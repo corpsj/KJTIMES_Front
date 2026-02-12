@@ -20,13 +20,13 @@
   outline: none;
   font-size: 15px;
   line-height: 1.8;
-  color: #0b1220;
+  color: var(--mantine-color-newsHeadline-9);
 }
 
 .ProseMirror p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);
   float: left;
-  color: #adb5bd;
+  color: var(--mantine-color-gray-5);
   pointer-events: none;
   height: 0;
 }
@@ -56,21 +56,21 @@
 }
 
 .ProseMirror blockquote {
-  border-left: 3px solid #0f4c81;
+  border-left: 3px solid var(--mantine-color-newsBlue-6);
   padding-left: 16px;
   margin-left: 0;
-  color: #4b5563;
+  color: var(--mantine-color-newsHeadline-5);
   font-style: italic;
 }
 
 .ProseMirror hr {
   border: none;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid var(--mantine-color-newsBorder-1);
   margin: 1.5rem 0;
 }
 
 .ProseMirror a {
-  color: #0f4c81;
+  color: var(--mantine-color-newsBlue-6);
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 2px;
@@ -93,7 +93,7 @@
 
 /* Focus ring for images */
 .ProseMirror .ProseMirror-selectednode {
-  outline: 2px solid #228be6;
+  outline: 2px solid var(--mantine-color-blue-6);
   outline-offset: 2px;
   border-radius: 4px;
 }

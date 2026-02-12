@@ -88,8 +88,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             alignItems: "center",
             justifyContent: "center",
             height: "100vh",
-            background: "#f8f9fa",
-            color: "#868e96",
+            background: "var(--mantine-color-gray-0)",
+            color: "var(--mantine-color-gray-6)",
             fontSize: 14,
             gap: 8,
           }}
@@ -98,8 +98,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             style={{
               width: 20,
               height: 20,
-              border: "2px solid #dee2e6",
-              borderTopColor: "#228be6",
+              border: "2px solid var(--mantine-color-gray-3)",
+              borderTopColor: "var(--mantine-color-blue-6)",
               borderRadius: "50%",
               animation: "spin 0.6s linear infinite",
             }}
@@ -122,7 +122,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           style={{
             marginLeft: 260,
             flex: 1,
-            background: "#f8f9fa",
+            background: "var(--mantine-color-gray-0)",
             minHeight: "100vh",
             padding: 24,
             overflowY: "auto",

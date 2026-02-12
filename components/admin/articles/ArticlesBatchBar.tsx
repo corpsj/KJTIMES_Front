@@ -28,7 +28,7 @@ export default function ArticlesBatchBar({
     <Paper
       p="sm"
       style={{
-        border: "1px solid #228be6",
+        border: "1px solid var(--mantine-color-blue-6)",
         backgroundColor: "rgba(34, 139, 230, 0.04)",
       }}
     >

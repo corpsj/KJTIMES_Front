@@ -210,7 +210,7 @@ export default function AdminDashboard() {
                 key={article.id}
                 justify="space-between"
                 py="sm"
-                style={{ borderBottom: "1px solid #f1f3f5" }}
+                style={{ borderBottom: "1px solid var(--mantine-color-gray-1)" }}
               >
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <Text

@@ -15,7 +15,7 @@ export default function StatCard({ label, value, icon, color = "blue" }: StatCar
     <Paper
       p="md"
       shadow="0 1px 3px rgba(0,0,0,0.08)"
-      style={{ border: "1px solid #f1f3f5" }}
+      style={{ border: "1px solid var(--mantine-color-gray-1)" }}
     >
       <Group justify="space-between" align="flex-start">
         <div>

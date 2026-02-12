@@ -19,7 +19,7 @@ export default function AdminHeader({ title, subtitle, actions }: AdminHeaderPro
         gap: 16,
         paddingBottom: 20,
         marginBottom: 24,
-        borderBottom: "1px solid #e9ecef",
+        borderBottom: "1px solid var(--mantine-color-gray-2)",
       }}
     >
       <Stack gap={4}>

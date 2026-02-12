@@ -213,7 +213,6 @@ export default function AdminWrite() {
                                 content={form.content}
                                 onChange={(value) => {
                                     form.setContent(value);
-                                    form.contentRef.current = value;
                                     form.markDirty();
                                 }}
                                 onImageUpload={form.handleImageUpload}

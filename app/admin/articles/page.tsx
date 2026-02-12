@@ -76,7 +76,6 @@ export default function AdminArticles() {
         searchTerm={a.searchTerm}
         onSearchChange={(v) => {
           a.setSearchTerm(v);
-          a.searchTermRef.current = v;
         }}
         onSearchSubmit={() => {
           a.setPage(1);

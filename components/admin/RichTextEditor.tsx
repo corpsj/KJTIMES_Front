@@ -221,7 +221,7 @@ export function RichTextEditor({ content, onChange, onImageUpload }: RichTextEdi
     };
 
     const separatorStyle = {
-        borderLeft: '1px solid #dee2e6',
+        borderLeft: '1px solid var(--mantine-color-gray-3)',
         height: 20,
         marginInline: 4,
         alignSelf: 'center' as const,
@@ -232,7 +232,7 @@ export function RichTextEditor({ content, onChange, onImageUpload }: RichTextEdi
             withBorder
             radius="md"
             style={{
-                outline: isDragOver ? '2px dashed #228be6' : 'none',
+                outline: isDragOver ? '2px dashed var(--mantine-color-blue-6)' : 'none',
                 outlineOffset: -2,
                 transition: 'outline 0.15s',
             }}

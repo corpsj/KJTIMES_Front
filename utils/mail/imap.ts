@@ -66,7 +66,7 @@ export async function fetchInbox(
         flags: true,
         bodyStructure: true,
       })) {
-        const envelope: any = msg.envelope || {};
+        const envelope = (msg.envelope || {}) as { subject?: string; from?: Array<{ name?: string; address?: string }>; to?: Array<{ name?: string; address?: string }>; date?: Date };
         messages.push({
           id: msg.uid.toString(),
           uid: msg.uid,
@@ -76,7 +76,7 @@ export async function fetchInbox(
             address: envelope.from?.[0]?.address,
           },
           to:
-            envelope.to?.map((t: any) => ({
+            envelope.to?.map((t) => ({
               name: t.name,
               address: t.address,
             })) || [],
@@ -118,7 +118,7 @@ export async function fetchMessage(uid: number): Promise<MailDetail | null> {
 
       if (!msg) return null;
 
-      const envelope: any = msg.envelope || {};
+      const envelope = (msg.envelope || {}) as { subject?: string; from?: Array<{ name?: string; address?: string }>; to?: Array<{ name?: string; address?: string }>; date?: Date };
 
       // 본문 파싱 (간단한 버전)
       let html = "";
@@ -162,7 +162,7 @@ export async function fetchMessage(uid: number): Promise<MailDetail | null> {
           address: envelope.from?.[0]?.address,
         },
         to:
-          envelope.to?.map((t: any) => ({
+          envelope.to?.map((t) => ({
             name: t.name,
             address: t.address,
           })) || [],

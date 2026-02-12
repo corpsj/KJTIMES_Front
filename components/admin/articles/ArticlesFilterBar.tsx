@@ -33,7 +33,7 @@ export default function ArticlesFilterBar({
     <Paper
       p="md"
       shadow="0 1px 3px rgba(0,0,0,0.08)"
-      style={{ border: "1px solid #f1f3f5" }}
+      style={{ border: "1px solid var(--mantine-color-gray-1)" }}
     >
       <Group gap="sm" wrap="wrap">
         <TextInput

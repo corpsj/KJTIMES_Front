@@ -4,7 +4,7 @@
   left: 0;
   width: 260px;
   height: 100vh;
-  background: #1a1b1e;
+  background: var(--mantine-color-dark-7);
   display: flex;
   flex-direction: column;
   z-index: 200;
@@ -47,14 +47,14 @@
 }
 
 .navItem:hover {
-  background: #25262b;
+  background: var(--mantine-color-dark-6);
   color: rgba(255, 255, 255, 0.9);
 }
 
 .navItemActive {
-  background: #2c2e33;
+  background: var(--mantine-color-dark-5);
   color: #fff;
-  border-left-color: #228be6;
+  border-left-color: var(--mantine-color-blue-6);
 }
 
 .navIcon {
@@ -80,7 +80,7 @@
 
 .externalLink:hover {
   color: rgba(255, 255, 255, 0.7);
-  background: #25262b;
+  background: var(--mantine-color-dark-6);
 }
 
 .userSection {
@@ -95,7 +95,7 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: #228be6;
+  background: var(--mantine-color-blue-6);
   color: #fff;
   display: flex;
   align-items: center;

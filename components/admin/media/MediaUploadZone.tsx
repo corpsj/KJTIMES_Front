@@ -26,20 +26,20 @@ export default function MediaUploadZone({
         p="xl"
         radius="md"
         style={{
-          border: "2px dashed #d1d5db",
+          border: "2px dashed var(--mantine-color-gray-3)",
           backgroundColor: "rgba(248, 250, 252, 0.8)",
           cursor: "pointer",
         }}
       >
         <Stack align="center" gap="xs" py="md">
           <Dropzone.Accept>
-            <IconUpload size={40} color="#228be6" />
+            <IconUpload size={40} color="var(--mantine-color-blue-6)" />
           </Dropzone.Accept>
           <Dropzone.Reject>
-            <IconX size={40} color="#fa5252" />
+            <IconX size={40} color="var(--mantine-color-red-6)" />
           </Dropzone.Reject>
           <Dropzone.Idle>
-            <IconUpload size={40} color="#9ca3af" />
+            <IconUpload size={40} color="var(--mantine-color-gray-5)" />
           </Dropzone.Idle>
           <Text size="md" fw={600} c="dimmed">
             이미지를 끌어다 놓거나 클릭하여 업로드

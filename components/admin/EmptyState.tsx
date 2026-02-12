@@ -13,7 +13,7 @@ interface EmptyStateProps {
 export default function EmptyState({ icon, title, description, action }: EmptyStateProps) {
   return (
     <Stack align="center" justify="center" gap="md" py={60}>
-      <div style={{ color: "#adb5bd", fontSize: 48, lineHeight: 1 }}>{icon}</div>
+      <div style={{ color: "var(--mantine-color-gray-5)", fontSize: 48, lineHeight: 1 }}>{icon}</div>
       <Text fw={600} fz="lg" c="dimmed">
         {title}
       </Text>
