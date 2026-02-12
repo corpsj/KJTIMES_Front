@@ -1,6 +1,6 @@
 "use client";
 
-import { Stack, Text, Grid, GridCol, Divider } from "@mantine/core";
+import { Stack, Grid, GridCol, Divider } from "@mantine/core";
 import { Article } from "@/types";
 import { ArticleCard } from "@/components/shared/ArticleCard";
 
@@ -9,11 +9,7 @@ export function Headline({ articles }: { articles: Article[] }) {
     const subArticles = articles.slice(1, 3);
 
     if (!mainArticle) {
-        return (
-            <Stack gap="md" align="center" py="xl">
-                <Text c="dimmed">헤드라인 기사가 없습니다.</Text>
-            </Stack>
-        );
+        return null;
     }
 
     return (
@@ -25,20 +21,23 @@ export function Headline({ articles }: { articles: Article[] }) {
                 showExcerpt={true}
             />
 
-            <Divider />
-
-            <Grid>
-                {subArticles.map((article) => (
-                    <GridCol key={article.id} span={6}>
-                        <ArticleCard
-                            article={article}
-                            variant="headline"
-                            showThumbnail={true}
-                            showExcerpt={true}
-                        />
-                    </GridCol>
-                ))}
-            </Grid>
+            {subArticles.length > 0 && (
+                <>
+                    <Divider />
+                    <Grid>
+                        {subArticles.map((article) => (
+                            <GridCol key={article.id} span={{ base: 12, sm: 6 }}>
+                                <ArticleCard
+                                    article={article}
+                                    variant="headline"
+                                    showThumbnail={true}
+                                    showExcerpt={true}
+                                />
+                            </GridCol>
+                        ))}
+                    </Grid>
+                </>
+            )}
         </Stack>
     );
 }

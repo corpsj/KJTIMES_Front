@@ -104,3 +104,28 @@
   - Dev server runs without errors (GET / 200 in 2.9s)
   - Pattern: Single component with visibleFrom/hiddenFrom sections + Drawer for mobile menu
   - Key learning: Mantine responsive props (visibleFrom, hiddenFrom) eliminate need for separate Desktop/Mobile component files
+- 2026-02-12: Task 9 (Homepage redesign) completed successfully.
+  - Created CategorySection component (components/home/CategorySection.tsx):
+    - Props: title, categorySlug, articles
+    - Layout: Section title with bottom border + Grid of ArticleCard (variant="compact")
+    - Responsive: 4 columns on desktop (md), 2 on tablet (sm), 1 on mobile (base)
+    - "더보기" button linking to category page
+    - Returns null when no articles (hides empty sections)
+  - Unified homepage (app/(main)/page.tsx):
+    - Eliminated DesktopMain/MobileMain split - single responsive component
+    - Removed device detection (getDeviceType) - CSS-only responsive behavior
+    - Korean newspaper layout structure:
+      - Featured Headline section (top 3 articles)
+      - Main Content Grid: MainNews (8 cols) + PopularNews sidebar (4 cols)
+      - Category sections: Politics, Economy, Society (full width, conditional rendering)
+    - Responsive pattern: GridCol span={{ base: 12, lg: 8 }} for main, span={{ base: 12, lg: 4 }} for sidebar
+    - Sidebar order={{ base: 3, lg: 2 }} - moves below main content on mobile
+    - Fetches 30 articles total, 4 per category section
+    - Sorts by views for popular section
+  - Updated home components to hide when empty:
+    - Headline.tsx: Returns null when no mainArticle, hides sub-articles section when empty
+    - MainNews.tsx: Returns null when no articles, uses Grid for responsive layout
+    - PopularNews.tsx: Returns null when no articles
+  - Pattern: Conditional rendering with early return (if (!data) return null) instead of showing "준비 중" messages
+  - Build passes (npm run build: 4.8s TypeScript check, 292ms static generation)
+  - Key learning: Mantine Stack gap prop only accepts MantineSpacing values, not custom strings like "2rem" in responsive objects
