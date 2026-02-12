@@ -76,3 +76,31 @@
   - Eliminated ~400 lines of duplicated code between Desktop/Mobile variants
   - Build passes, dev server runs without errors, homepage loads correctly
   - Pattern applies to any Desktop/Mobile component pair: use Mantine responsive props instead of separate components
+- 2026-02-12: Task 8 (Header/Footer unification) completed successfully.
+  - Created SearchBar component (components/shared/SearchBar.tsx) with 3 variants:
+    - variant="desktop": Full search form with TextInput + Button (used in desktop header utility bar)
+    - variant="mobile": Icon-only ActionIcon linking to /search page (used in mobile header top bar)
+    - variant="drawer": Full search form with leftSection icon (used in mobile drawer menu)
+  - Unified Header component (components/layout/Header.tsx) merging Desktop + Mobile patterns:
+    - Desktop section: visibleFrom="md" - shows utility bar (date, search, login/subscribe), logo, full navigation bar
+    - Mobile section: hiddenFrom="md" - shows compact top bar (burger, logo, search icon, login), horizontal scrollable category nav
+    - Mobile Drawer: Mantine Drawer component with search form, category links, utility links (subscribe, about, advertise)
+    - Uses useDisclosure hook for drawer state management
+    - Active link detection with usePathname for visual feedback (blue highlight, border)
+  - Unified Footer component (components/layout/Footer.tsx):
+    - Mobile layout: hiddenFrom="sm" - stacked company info, links, copyright
+    - Desktop layout: visibleFrom="sm" - side-by-side company info + links
+    - Copyright now appears in both mobile and desktop sections (previously missing from mobile)
+  - Updated DeviceLayout (components/layout/DeviceLayout.tsx):
+    - Removed Box wrappers with visibleFrom/hiddenFrom - no longer needed
+    - Removed imports for MobileHeader and MobileFooter
+    - Simplified to single Header + children + Footer structure
+    - Header and Footer now handle their own responsive behavior internally
+  - Eliminated files (no longer imported):
+    - components/mobile/MobileHeader.tsx (235 lines) - functionality merged into unified Header
+    - components/mobile/MobileFooter.tsx (95 lines) - functionality merged into unified Footer
+  - Eliminated ~330 lines of duplicated code
+  - Build passes (npm run build: 3.2s, Turbopack)
+  - Dev server runs without errors (GET / 200 in 2.9s)
+  - Pattern: Single component with visibleFrom/hiddenFrom sections + Drawer for mobile menu
+  - Key learning: Mantine responsive props (visibleFrom, hiddenFrom) eliminate need for separate Desktop/Mobile component files

@@ -10,7 +10,6 @@ export function Footer() {
         <Box component="footer" mt={100} py="xl" bg="gray.0">
             <Container size="xl">
                 <Stack gap="lg" hiddenFrom="sm">
-                    {/* Mobile: stacked layout */}
                     <Box>
                         <Text fw={700} mb="xs">광전타임즈</Text>
                         <Text size="sm" c="dimmed" style={{ lineHeight: 1.6 }}>
@@ -39,10 +38,12 @@ export function Footer() {
                             정정보도/오류신고
                         </Anchor>
                     </Group>
+                    <Text size="sm" c="dimmed">
+                        Copyright © {year} 광전타임즈. All rights reserved.
+                    </Text>
                 </Stack>
 
                 <Group justify="space-between" align="start" visibleFrom="sm">
-                    {/* Desktop: side-by-side layout */}
                     <Box>
                         <Text fw={700} mb="xs">광전타임즈</Text>
                         <Text size="sm" c="dimmed" style={{ lineHeight: 1.6 }}>

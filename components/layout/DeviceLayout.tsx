@@ -1,15 +1,10 @@
-import { Box } from "@mantine/core";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
-import { MobileHeader } from "@/components/mobile/MobileHeader";
-import { MobileFooter } from "@/components/mobile/MobileFooter";
 import { PreviewHeader } from "./PreviewHeader";
 
-// 🔧 프리뷰 모드: 환경변수 사용 (단일 소스)
 const PREVIEW_MODE = process.env.NEXT_PUBLIC_PREVIEW_MODE === "true";
 
 export async function DeviceLayout({ children }: { children: React.ReactNode }) {
-    // 프리뷰 모드: 간소화된 헤더만 표시
     if (PREVIEW_MODE) {
         return (
             <>
@@ -20,26 +15,11 @@ export async function DeviceLayout({ children }: { children: React.ReactNode }) 
         );
     }
 
-    // Render both layouts; CSS media queries handle visibility.
-    // Headers and footers are wrapped for responsive show/hide.
-    // Children are rendered ONCE to avoid duplication.
     return (
         <>
-            <Box visibleFrom="md">
-                <Header />
-            </Box>
-            <Box hiddenFrom="md">
-                <MobileHeader />
-            </Box>
-
+            <Header />
             <main style={{ minHeight: '80vh' }}>{children}</main>
-
-            <Box visibleFrom="md">
-                <Footer />
-            </Box>
-            <Box hiddenFrom="md">
-                <MobileFooter />
-            </Box>
+            <Footer />
         </>
     );
 }
