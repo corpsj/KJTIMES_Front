@@ -1,8 +1,8 @@
 "use client";
 
-import { Stack, Title, Group, Text } from "@mantine/core";
-import Link from "next/link";
+import { Stack, Title, Text } from "@mantine/core";
 import { Article } from "@/types";
+import { ArticleCard } from "@/components/shared/ArticleCard";
 
 export function PopularNews({ articles }: { articles: Article[] }) {
     return (
@@ -15,19 +15,14 @@ export function PopularNews({ articles }: { articles: Article[] }) {
             )}
             <Stack gap="sm">
                 {articles.map((article, i) => (
-                    <Group key={article.id} align="center" wrap="nowrap" style={{ cursor: "pointer" }}>
-                        <Text fw={700} c="red" w={20}>{i + 1}</Text>
-                        <Text
-                            component={Link}
-                            href={`/article/${article.id}`}
-                            size="sm"
-                            lineClamp={1}
-                            style={{ flex: 1, textDecoration: "none" }}
-                            c="dark.9"
-                        >
-                            {article.title}
-                        </Text>
-                    </Group>
+                    <ArticleCard
+                        key={article.id}
+                        article={article}
+                        variant="list"
+                        rank={i + 1}
+                        showThumbnail={false}
+                        showExcerpt={false}
+                    />
                 ))}
             </Stack>
         </Stack>

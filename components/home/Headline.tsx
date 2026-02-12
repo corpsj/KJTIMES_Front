@@ -1,8 +1,8 @@
 "use client";
 
-import { Stack, Title, Text, Image, Grid, GridCol, Divider, Box } from "@mantine/core";
-import Link from "next/link";
+import { Stack, Text, Grid, GridCol, Divider } from "@mantine/core";
 import { Article } from "@/types";
+import { ArticleCard } from "@/components/shared/ArticleCard";
 
 export function Headline({ articles }: { articles: Article[] }) {
     const mainArticle = articles[0];
@@ -18,67 +18,24 @@ export function Headline({ articles }: { articles: Article[] }) {
 
     return (
         <Stack gap="xl">
-            {/* Main Headline */}
-            <Stack gap="md">
-                {mainArticle.thumbnail_url && (
-                    <Box component={Link} href={`/article/${mainArticle.id}`}>
-                        <Image
-                            src={mainArticle.thumbnail_url}
-                            height={300}
-                            radius="md"
-                            alt={`${mainArticle.title} 대표 이미지`}
-                        />
-                    </Box>
-                )}
-                <Link
-                    href={`/article/${mainArticle.id}`}
-                    style={{ textDecoration: "none", color: "inherit" }}
-                >
-                    <Title
-                        order={2}
-                        style={{ fontSize: "28px", fontWeight: 800 }}
-                    >
-                        {mainArticle.title}
-                    </Title>
-                </Link>
-                {(mainArticle.summary || mainArticle.excerpt) && (
-                    <Text c="dimmed" lineClamp={3}>
-                        {mainArticle.summary || mainArticle.excerpt}
-                    </Text>
-                )}
-            </Stack>
+            <ArticleCard
+                article={mainArticle}
+                variant="featured"
+                showThumbnail={true}
+                showExcerpt={true}
+            />
 
             <Divider />
 
-            {/* Sub Headlines */}
             <Grid>
                 {subArticles.map((article) => (
                     <GridCol key={article.id} span={6}>
-                        <Stack gap="xs">
-                            {article.thumbnail_url && (
-                                <Box component={Link} href={`/article/${article.id}`}>
-                                    <Image
-                                        src={article.thumbnail_url}
-                                        height={120}
-                                        radius="sm"
-                                        alt={`${article.title} 이미지`}
-                                    />
-                                </Box>
-                            )}
-                            <Link
-                                href={`/article/${article.id}`}
-                                style={{ textDecoration: "none", color: "inherit" }}
-                            >
-                                <Title order={5}>
-                                    {article.title}
-                                </Title>
-                            </Link>
-                            {(article.summary || article.excerpt) && (
-                                <Text size="sm" c="dimmed" lineClamp={2}>
-                                    {article.summary || article.excerpt}
-                                </Text>
-                            )}
-                        </Stack>
+                        <ArticleCard
+                            article={article}
+                            variant="headline"
+                            showThumbnail={true}
+                            showExcerpt={true}
+                        />
                     </GridCol>
                 ))}
             </Grid>

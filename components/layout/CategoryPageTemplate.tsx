@@ -1,9 +1,8 @@
 "use client";
 
-import { Container, Title, Text, Stack, Group, Image, Divider, Box } from "@mantine/core";
-import Link from "next/link";
+import { Container, Title, Text, Stack, Divider } from "@mantine/core";
 import { Article } from "@/types";
-import { formatKoreanDate } from "@/utils/date";
+import { ArticleCard } from "@/components/shared/ArticleCard";
 
 export function CategoryPageTemplate({ title, articles }: { title: string; articles: Article[] }) {
     return (
@@ -17,40 +16,12 @@ export function CategoryPageTemplate({ title, articles }: { title: string; artic
 
                 {articles.map((article) => (
                     <Stack key={article.id} gap="md">
-                        <Group align="flex-start" wrap="nowrap">
-                            <Stack gap={6} style={{ flex: 1 }}>
-                                <Text
-                                    component={Link}
-                                    href={`/article/${article.id}`}
-                                    fw={700}
-                                    size="lg"
-                                    lineClamp={2}
-                                    c="dark.9"
-                                    style={{ textDecoration: "none" }}
-                                >
-                                    {article.title}
-                                </Text>
-                                {(article.summary || article.excerpt) && (
-                                    <Text size="sm" c="dimmed" lineClamp={2}>
-                                        {article.summary || article.excerpt}
-                                    </Text>
-                                )}
-                                <Text size="xs" c="dimmed">
-                                    {formatKoreanDate(article.published_at || article.created_at)}
-                                </Text>
-                            </Stack>
-                            {article.thumbnail_url && (
-                                <Box component={Link} href={`/article/${article.id}`} style={{ flexShrink: 0 }}>
-                                    <Image
-                                        src={article.thumbnail_url}
-                                        h={90}
-                                        w={120}
-                                        radius="sm"
-                                        alt={`${article.title} 썸네일`}
-                                    />
-                                </Box>
-                            )}
-                        </Group>
+                        <ArticleCard
+                            article={article}
+                            variant="compact"
+                            showThumbnail={true}
+                            showExcerpt={true}
+                        />
                         <Divider />
                     </Stack>
                 ))}

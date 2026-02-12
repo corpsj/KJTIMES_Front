@@ -58,3 +58,11 @@
   - hooks/useArticles.ts: Extracted fetchArticleStats and fetchAdminArticles to lib/api/articles.client.ts. Mutations (status update, delete, clone, bulk) kept in hook due to tight UI state coupling.
   - app/(main)/category/[slug] does not exist — categories use dedicated routes (politics/, economy/, etc.) importing from utils/articles.ts.
   - Build passes, lint clean (no new warnings/errors).
+- 2026-02-12: Task 6 (ArticleCard component) completed successfully.
+  - Created unified ArticleCard component with 4 variants: featured, compact, list, headline
+  - Migrated 4 components to use ArticleCard: MainNews, Headline, PopularNews, CategoryPageTemplate
+  - Eliminated ~150 lines of duplicated article rendering code
+  - Pattern: variant="featured" (large image top), variant="headline" (medium image top), variant="compact" (horizontal thumbnail right), variant="list" (title only with rank)
+  - All components maintain identical visual appearance after migration
+  - Build passes, no console errors, homepage renders correctly
+  - Evidence: .sisyphus/evidence/task-6-homepage-no-articles.png
