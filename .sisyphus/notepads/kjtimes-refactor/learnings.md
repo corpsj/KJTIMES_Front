@@ -298,3 +298,39 @@
   - Pattern: next/image with fill layout requires parent Box with position: relative and explicit dimensions
   - Key learning: Mantine Image must NOT be used for new images (per project constraints), only next/image
   - Note: Admin pages still use Mantine Image (ThumbnailPicker.tsx) - intentionally left unchanged per task scope
+- 2026-02-12: Task 15 (Accessibility improvements) completed successfully.
+  - Added skip to main content link in Header.tsx:
+    - Pattern: Anchor with href="#main-content", positioned off-screen (left: -9999px)
+    - onFocus handler moves link to left: 0 (visible), onBlur moves back off-screen
+    - Styled with blue background, white text, high z-index (9999)
+    - Allows keyboard users to skip navigation and jump directly to main content
+  - Added ARIA landmarks throughout the site:
+    - Header: component="header" (semantic HTML5 header element)
+    - Navigation: component="nav" with aria-label="메인 메뉴" (desktop) and aria-label="카테고리 메뉴" (mobile)
+    - Main content: id="main-content" component="main" on homepage Container
+    - Footer: role="contentinfo" on footer Box component
+  - Fixed heading hierarchy across all pages:
+    - Homepage: Added h1 with className="sr-only" (screen reader only) - "광전타임즈 홈페이지"
+    - Changed MainNews.tsx from order={4} to order={2} (h2 for section headings)
+    - Changed PopularNews.tsx from order={4} to order={2} (h2 for section headings)
+    - CategorySection.tsx already used order={3} (h3 for subsections) - correct hierarchy
+    - Pattern: h1 (page title) → h2 (major sections) → h3 (subsections)
+  - Added comprehensive focus indicator styles in globals.css:
+    - *:focus-visible: 2px solid blue outline with 2px offset and 4px border-radius
+    - *:focus:not(:focus-visible): outline: none (removes outline for mouse clicks)
+    - Enhanced focus for interactive elements (button, a, input, textarea, select): outline + box-shadow with rgba(34, 139, 230, 0.2)
+    - Pattern: :focus-visible pseudo-class for keyboard-only focus indicators
+  - Added .sr-only utility class in globals.css:
+    - Pattern: position: absolute, width: 1px, height: 1px, overflow: hidden, clip: rect(0,0,0,0)
+    - Used for screen reader only content (e.g., h1 on homepage)
+    - Visually hidden but accessible to assistive technologies
+  - Existing accessibility features verified:
+    - Burger menu already has aria-label="메뉴 열기" (Task 8)
+    - All images have alt text (Task 14 next/image migration)
+    - Forms have proper labels (Task 13 reader auth UI)
+  - Build verification: ✅ PASSED (3.1s compile, 291.2ms static generation)
+  - Dev server verification: ✅ All landmarks present in HTML output
+  - Key learning: Skip links must be positioned off-screen but not display: none (screen readers need them in DOM)
+  - Pattern: ARIA landmarks improve navigation for screen reader users (role="contentinfo", aria-label, component="nav")
+  - Note: Heading hierarchy is critical for screen reader navigation - always start with h1 and nest logically
+

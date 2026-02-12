@@ -38,10 +38,32 @@ export function Header() {
 
     return (
         <>
+            <Anchor
+                href="#main-content"
+                className="skip-to-main"
+                underline="never"
+                style={{
+                    position: "absolute",
+                    left: "-9999px",
+                    top: 0,
+                    zIndex: 9999,
+                    background: "var(--mantine-color-blue-6)",
+                    color: "white",
+                    padding: "8px 16px",
+                    fontWeight: 700,
+                }}
+                onFocus={(e) => {
+                    e.currentTarget.style.left = "0";
+                }}
+                onBlur={(e) => {
+                    e.currentTarget.style.left = "-9999px";
+                }}
+            >
+                메인 콘텐츠로 건너뛰기
+            </Anchor>
+
             <Box component="header" mb="xl">
-                {/* Desktop Header */}
                 <Box visibleFrom="md">
-                    {/* Top Utility Bar */}
                     <Container size="xl" py="xs">
                         <Group justify="space-between" align="center">
                             <Text size="xs" c="dimmed">
@@ -79,8 +101,7 @@ export function Header() {
                         </Group>
                     </Container>
 
-                    {/* Desktop Navigation Bar */}
-                    <Box style={{ borderTop: "1px solid var(--mantine-color-gray-3)", borderBottom: "1px solid var(--mantine-color-gray-3)" }}>
+                    <Box component="nav" aria-label="메인 메뉴" style={{ borderTop: "1px solid var(--mantine-color-gray-3)", borderBottom: "1px solid var(--mantine-color-gray-3)" }}>
                         <Container size="xl">
                             <Group justify="center" gap="xl" h={50}>
                                 {LINKS.map((link) => (
@@ -152,38 +173,39 @@ export function Header() {
                             </Group>
                         </Container>
 
-                        {/* Horizontal scrollable category nav */}
-                        <ScrollArea
-                            w="100%"
-                            scrollbars="x"
-                            type="never"
-                            style={{ borderTop: "1px solid var(--mantine-color-newsBorder-0)" }}
-                        >
-                            <Group gap="lg" px="md" h={42} wrap="nowrap" style={{ whiteSpace: "nowrap" }}>
-                                {LINKS.map((link) => {
-                                    const active = isActiveLink(link.href);
-                                    return (
-                                        <Anchor
-                                            key={link.label}
-                                            component={Link}
-                                            href={link.href}
-                                            c={active ? "blue.7" : "dark.9"}
-                                            fw={active ? 800 : 600}
-                                            size="sm"
-                                            underline="never"
-                                            style={{
-                                                transition: "color 0.15s ease",
-                                                flexShrink: 0,
-                                                borderBottom: active ? "2px solid var(--mantine-color-blue-7)" : "2px solid transparent",
-                                                paddingBottom: 2,
-                                            }}
-                                        >
-                                            {link.label}
-                                        </Anchor>
-                                    );
-                                })}
-                            </Group>
-                        </ScrollArea>
+                        <Box component="nav" aria-label="카테고리 메뉴">
+                            <ScrollArea
+                                w="100%"
+                                scrollbars="x"
+                                type="never"
+                                style={{ borderTop: "1px solid var(--mantine-color-newsBorder-0)" }}
+                            >
+                                <Group gap="lg" px="md" h={42} wrap="nowrap" style={{ whiteSpace: "nowrap" }}>
+                                    {LINKS.map((link) => {
+                                        const active = isActiveLink(link.href);
+                                        return (
+                                            <Anchor
+                                                key={link.label}
+                                                component={Link}
+                                                href={link.href}
+                                                c={active ? "blue.7" : "dark.9"}
+                                                fw={active ? 800 : 600}
+                                                size="sm"
+                                                underline="never"
+                                                style={{
+                                                    transition: "color 0.15s ease",
+                                                    flexShrink: 0,
+                                                    borderBottom: active ? "2px solid var(--mantine-color-blue-7)" : "2px solid transparent",
+                                                    paddingBottom: 2,
+                                                }}
+                                            >
+                                                {link.label}
+                                            </Anchor>
+                                        );
+                                    })}
+                                </Group>
+                            </ScrollArea>
+                        </Box>
                     </Box>
                 </Box>
             </Box>

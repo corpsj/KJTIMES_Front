@@ -11,7 +11,7 @@ export function MainNews({ articles }: { articles: Article[] }) {
 
     return (
         <Stack gap="lg">
-            <Title order={4} style={{ borderBottom: "2px solid var(--mantine-color-newsHeadline-9)", paddingBottom: "8px" }}>
+            <Title order={2} style={{ borderBottom: "2px solid var(--mantine-color-newsHeadline-9)", paddingBottom: "8px" }}>
                 주요뉴스
             </Title>
             <Grid gutter="md">

@@ -82,8 +82,9 @@ export default async function Home() {
   const { data: societyArticles } = await fetchCategoryArticles("society", 4);
 
   return (
-    <Container size="xl" py={{ base: "md", md: "xl" }}>
+    <Container id="main-content" component="main" size="xl" py={{ base: "md", md: "xl" }}>
       <Stack gap="xl">
+        <Title order={1} className="sr-only">광전타임즈 홈페이지</Title>
         <Box>
           <Headline articles={safeArticles.slice(0, 3)} />
         </Box>

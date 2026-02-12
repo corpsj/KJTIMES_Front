@@ -7,7 +7,7 @@ export function Footer() {
     const year = new Date().getFullYear();
 
     return (
-        <Box component="footer" mt={100} py="xl" bg="gray.0">
+        <Box component="footer" role="contentinfo" mt={100} py="xl" bg="gray.0">
             <Container size="xl">
                 <Stack gap="lg" hiddenFrom="sm">
                     <Box>
