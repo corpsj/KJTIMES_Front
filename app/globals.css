@@ -9,6 +9,14 @@ body {
   font-family: var(--font-noto-sans-kr), "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
 }
 
+a {
+  transition: color 150ms ease;
+}
+
+button {
+  transition: all 150ms ease;
+}
+
 /* ─── Article body: figure + figcaption styling ─── */
 .tiptap-content figure[data-figure-image],
 .tiptap-content figure {

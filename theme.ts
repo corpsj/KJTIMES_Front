@@ -34,6 +34,16 @@ export const theme = createTheme({
       caption: { fontSize: "0.85rem", lineHeight: 1.4 },
       byline: { fontSize: "0.85rem", lineHeight: 1.3, fontWeight: 700 },
     },
+    spacing: {
+      sectionGap: "3rem",
+      cardGap: "1.5rem",
+      compactGap: "0.75rem",
+    },
+    shadows: {
+      cardShadow: "0 2px 8px rgba(0, 0, 0, 0.08)",
+      elevatedShadow: "0 8px 24px rgba(0, 0, 0, 0.12)",
+      subtleShadow: "0 1px 3px rgba(0, 0, 0, 0.05)",
+    },
   },
 
   colors: {
