@@ -53,6 +53,10 @@ export function Header() {
                                     로그인
                                 </Anchor>
                                 <Divider orientation="vertical" h={10} />
+                                <Anchor component={Link} href="/signup" size="xs" c="dimmed" underline="never">
+                                    회원가입
+                                </Anchor>
+                                <Divider orientation="vertical" h={10} />
                                 <Anchor component={Link} href="/subscribe" size="xs" c="dimmed" underline="never">
                                     구독하기
                                 </Anchor>
@@ -134,6 +138,15 @@ export function Header() {
                                         underline="never"
                                     >
                                         로그인
+                                    </Anchor>
+                                    <Anchor
+                                        component={Link}
+                                        href="/signup"
+                                        size="xs"
+                                        c="dimmed"
+                                        underline="never"
+                                    >
+                                        가입
                                     </Anchor>
                                 </Group>
                             </Group>
@@ -231,6 +244,28 @@ export function Header() {
                 <Divider my="lg" />
 
                 <Stack gap="sm">
+                    <Anchor
+                        component={Link}
+                        href="/login"
+                        size="md"
+                        c="blue"
+                        fw={700}
+                        underline="never"
+                        onClick={closeDrawer}
+                    >
+                        로그인
+                    </Anchor>
+                    <Anchor
+                        component={Link}
+                        href="/signup"
+                        size="md"
+                        c="blue"
+                        fw={700}
+                        underline="never"
+                        onClick={closeDrawer}
+                    >
+                        회원가입
+                    </Anchor>
                     <Anchor
                         component={Link}
                         href="/subscribe"

@@ -192,3 +192,76 @@
   - Pattern: Grid layout with main content + sidebar, FilterSort for client-side sorting, "더보기" pagination
   - Key learning: CategoryPageTemplate now requires categorySlug prop (breaking change from Task 6 version)
   - Responsive pattern: GridCol span={{ base: 12, sm: 6, lg: 4 }} for 3-column grid on desktop
+- 2026-02-12: Task 12 (Search page redesign) completed successfully.
+  - Created 4 search components in components/search/:
+    - SearchSort.tsx: SegmentedControl for relevance/latest sort (23 lines)
+    - SearchFilters.tsx: Category + date Select dropdowns with clear button (104 lines)
+    - SearchResults.tsx: Maps results to SearchResultCard with Mantine Highlight for search term highlighting (136 lines)
+    - EmptyState.tsx: Paper with search tips and helpful message (48 lines)
+  - Enhanced search page (app/(main)/search/page.tsx):
+    - Changed from simple Stack layout to Grid layout with main (span 8) + sidebar (span 4, visibleFrom="md")
+    - Added URL state management for filters: query, category, date, sort params
+    - Implemented client-side filtering logic:
+      - Category filter: Matches article.categories[0].slug or article.categories.slug
+      - Date filter: Calculates days difference from published_at/created_at (today, week, month, 3months, year)
+      - Sort: relevance (default search order) or latest (published_at desc)
+    - Added result count display: "총 X개 검색 결과"
+    - Integrated SearchSort, SearchFilters, SearchResults, EmptyState components
+    - Replaced direct Supabase query with searchArticlesClient from lib/api/articles.client.ts
+    - Replaced CategoryPageTemplate with SearchResults component for better highlighting
+  - Search term highlighting pattern:
+    - Uses Mantine Highlight component with yellow background (--mantine-color-yellow-2)
+    - Highlights query in both title (h3, fw 600) and summary/excerpt (p, lineClamp 2)
+    - highlightStyles: backgroundColor yellow-2, fontWeight 700 for title, 600 for excerpt
+  - URL state management pattern:
+    - Read from searchParams: q, category, date, sort
+    - Update URL using router.push with URLSearchParams
+    - Preserve query param when changing filters
+    - Sync filter state with URL params using useEffect
+  - Filter logic pattern:
+    - Client-side filtering: Filter articles array before rendering, not in query
+    - Category filter: Check article.categories (handle both array and object)
+    - Date filter: Calculate diffDays = (now - publishedDate) / (1000 * 60 * 60 * 24)
+    - Sort: relevance = default order from search, latest = sort by published_at desc
+  - Empty state pattern:
+    - Show EmptyState when filteredResults.length === 0 && !loading
+    - Also show when articles.length === 0 (no results from search)
+    - EmptyState includes search tips list with helpful suggestions
+  - TypeScript fix: article.views can be null, check !== null in addition to !== undefined
+  - Build verification: ✅ PASSED (3.5s TypeScript check, 293.7ms static generation)
+  - Pattern: Grid layout with main content + sidebar, client-side filtering, URL state management, Mantine Highlight for search terms
+  - Key learning: Mantine Highlight component is perfect for search term highlighting with customizable highlightStyles
+- 2026-02-12: Task 13 (Reader auth UI + info pages) completed successfully.
+  - Created 3 reader authentication components in components/reader/:
+    - LoginForm.tsx: Email + password form with Mantine useForm validation (67 lines)
+    - SignupForm.tsx: Name + email + password + confirm password form (82 lines)
+    - AccountMenu.tsx: User dropdown menu with profile/settings/logout (placeholder, 46 lines)
+  - Replaced existing /app/login and /app/signup pages:
+    - /app/login: Previously redirected to /admin/login, now shows LoginForm
+    - /app/signup: Previously showed admin contact message, now shows SignupForm
+  - Created /app/(main)/terms page with TermsContent component:
+    - Terms of service with 8 sections (목적, 정의, 약관의 효력, 서비스 제공, 서비스 중단, 회원가입, 개인정보보호, 이용자 의무)
+    - Consistent layout with other info pages (Container, Stack, Title, Text, Divider)
+  - Updated Header.tsx to add signup links:
+    - Desktop: Added "회원가입" link between "로그인" and "구독하기" with Divider
+    - Mobile: Added "가입" link next to "로그인" in top bar
+    - Mobile Drawer: Added "로그인" and "회원가입" as prominent blue links above "구독하기"
+  - Updated Footer.tsx to add terms link:
+    - Added "이용약관" link between "광고안내" and "개인정보처리방침" in both mobile and desktop sections
+  - Installed @mantine/form package (3 packages added):
+    - Required for useForm hook in LoginForm and SignupForm
+    - Provides client-side validation (email format, password length, password match)
+  - Form validation patterns:
+    - Email: /^\S+@\S+$/ regex test
+    - Password: Minimum 8 characters
+    - Confirm password: Must match password field
+    - Name: Minimum 2 characters
+  - Placeholder authentication logic:
+    - Forms show alert "로그인/회원가입 기능을 준비 중입니다"
+    - No backend integration (as per task requirements)
+    - AccountMenu logout shows alert "로그아웃 기능을 준비 중입니다"
+  - Build verification: ✅ PASSED (3.3s compile, 297.0ms static generation)
+  - Dev server verification: ✅ All pages return HTTP 200 (/login, /signup, /terms)
+  - Pattern: Mantine useForm hook for client-side validation, Paper component for form container, centered layout with max-width 400px
+  - Key learning: Existing /app/login and /app/signup pages needed replacement, not duplication in /(main)/ route group
+  - Note: about, advertise, corrections pages already well-designed (no changes needed)

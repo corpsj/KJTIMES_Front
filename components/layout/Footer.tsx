@@ -28,6 +28,9 @@ export function Footer() {
                         <Anchor component={Link} href="/advertise" size="sm" c="dimmed" underline="never">
                             광고안내
                         </Anchor>
+                        <Anchor component={Link} href="/terms" size="sm" c="dimmed" underline="never">
+                            이용약관
+                        </Anchor>
                         <Anchor component={Link} href="/privacy" size="sm" c="dimmed" underline="never">
                             개인정보처리방침
                         </Anchor>
@@ -62,6 +65,9 @@ export function Footer() {
                         </Anchor>
                         <Anchor component={Link} href="/advertise" size="sm" c="dimmed" underline="never">
                             광고안내
+                        </Anchor>
+                        <Anchor component={Link} href="/terms" size="sm" c="dimmed" underline="never">
+                            이용약관
                         </Anchor>
                         <Anchor component={Link} href="/privacy" size="sm" c="dimmed" underline="never">
                             개인정보처리방침
