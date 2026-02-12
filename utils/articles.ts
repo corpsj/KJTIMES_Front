@@ -1,18 +1,8 @@
-import { createClient } from "@/utils/supabase/server";
+import { fetchCategoryArticles as _fetchCategoryArticles } from "@/lib/api/articles";
 import { Article } from "@/types";
 
+/** @deprecated Use `fetchCategoryArticles` from `@/lib/api/articles` directly. */
 export async function fetchCategoryArticles(categorySlug: string, limit = 30): Promise<Article[]> {
-    const supabase = await createClient();
-    const { data } = await supabase
-        .from("articles")
-        .select(`
-      id, title, summary, excerpt, thumbnail_url, created_at, published_at, views,
-      categories!inner (name, slug)
-    `)
-        .eq("status", "published")
-        .eq("categories.slug", categorySlug)
-        .order("published_at", { ascending: false })
-        .limit(limit);
-
+    const { data } = await _fetchCategoryArticles(categorySlug, limit);
     return data || [];
 }

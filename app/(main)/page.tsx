@@ -1,10 +1,9 @@
 import { getDeviceType } from "@/utils/device";
 import { DesktopMain } from "@/components/desktop/DesktopMain";
 import { MobileMain } from "@/components/mobile/MobileMain";
-import { createClient } from "@/utils/supabase/server";
+import { fetchArticles } from "@/lib/api/articles";
 import { Container, Stack, Text, Title } from "@mantine/core";
 
-// Revalidate every 60 seconds
 export const revalidate = 60;
 
 function EmptyState() {
@@ -22,19 +21,7 @@ function EmptyState() {
 
 export default async function Home() {
   const device = await getDeviceType();
-  const supabase = await createClient();
-
-  // Fetch articles
-  const { data: articles } = await supabase
-    .from("articles")
-    .select(`
-      id, title, summary, excerpt, thumbnail_url, created_at, published_at, views,
-      categories (name, slug)
-    `)
-    .eq("status", "published")
-    .order("published_at", { ascending: false })
-    .limit(20);
-
+  const { data: articles } = await fetchArticles(20);
   const safeArticles = articles || [];
 
   if (safeArticles.length === 0) {

@@ -35,3 +35,26 @@
     3. Info pages HTTP 200 status ✓
   - Files modified: 3 (app/admin/login/page.tsx, components/layout/Header.tsx, components/layout/Footer.tsx)
   - Ready for Task 3 (PREVIEW_MODE cleanup) and Tasks 4+ (Foundation phase)
+- 2026-02-12: Task 3 completed - PREVIEW_MODE and SPECIAL_ISSUE_LOCK_COOKIE disabled.
+- 2026-02-12: Removed PREVIEW_MODE redirect logic (lines 88-105 in middleware.ts) - no longer redirects / to /special-edition.
+- 2026-02-12: Disabled SPECIAL_ISSUE_LOCK_COOKIE 12-hour lock mechanism (lines 107-134 in middleware.ts) - commented out to prevent forced redirects.
+- 2026-02-12: Converted search page from server component to client component with Suspense boundary for useSearchParams() hook.
+- 2026-02-12: Search page now includes persistent search input - query param from URL populates the search box.
+- 2026-02-12: Search query filter verified: .in("status", ["published", "shared"]) includes both published and shared articles.
+- 2026-02-12: QA Scenario 1 PASSED: Main page (/) loads without redirect to /special-edition.
+- 2026-02-12: QA Scenario 2 PASSED: Search query "TEST" persists in search box after submit, URL shows ?q=TEST, results display correctly.
+- 2026-02-12: npm run build passed successfully - no TypeScript or build errors.
+- 2026-02-12: Task 4 (Data Access Layer) completed successfully.
+  - Created lib/api/ with server/client split:
+    - lib/api/articles.ts: Server-only (fetchArticles, fetchArticleById, fetchCategoryArticles, fetchRelatedArticles, fetchArticleTags, fetchSeriesArticlesByTag, incrementArticleViews, uniqueArticlesById)
+    - lib/api/articles.client.ts: Browser-only (searchArticlesClient, fetchArticleStats, fetchAdminArticles)
+    - lib/api/categories.ts: Server-only (fetchCategories, fetchCategoryBySlug)
+    - lib/api/authors.ts: Server-only (fetchAuthorProfile, fetchAuthorArticles)
+  - CRITICAL LEARNING: Cannot mix server/client Supabase imports in same file. Next.js 16 Turbopack traces import chains and fails if server-only modules (next/headers) are reachable from client components. Split into .ts (server) and .client.ts (browser) files.
+  - ApiResult<T> pattern: { data: T | null; error: Error | null } applied to all new functions.
+  - Supabase PromiseLike does NOT support .catch() — must use async/await with try/catch instead of .then().catch() chains.
+  - utils/articles.ts converted to deprecated shim re-exporting from lib/api/articles.ts (6 category pages still import from it).
+  - Migrated pages: homepage, article detail, special-edition. All render identically.
+  - hooks/useArticles.ts: Extracted fetchArticleStats and fetchAdminArticles to lib/api/articles.client.ts. Mutations (status update, delete, clone, bulk) kept in hook due to tight UI state coupling.
+  - app/(main)/category/[slug] does not exist — categories use dedicated routes (politics/, economy/, etc.) importing from utils/articles.ts.
+  - Build passes, lint clean (no new warnings/errors).

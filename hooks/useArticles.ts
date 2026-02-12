@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { notifications } from "@mantine/notifications";
 import { createClient } from "@/utils/supabase/client";
+import { fetchArticleStats, fetchAdminArticles } from "@/lib/api/articles.client";
 
 /* ──────────────────────────── Types ──────────────────────────── */
 
@@ -118,31 +119,14 @@ export function useArticles() {
 
   // Fetch stats
   useEffect(() => {
-    const fetchStats = async () => {
-      const [totalRes, publishedRes, draftRes, pendingRes] =
-        await Promise.all([
-          supabase
-            .from("articles")
-            .select("id", { count: "exact", head: true }),
-          supabase
-            .from("articles")
-            .select("id", { count: "exact", head: true })
-            .eq("status", "published"),
-          supabase
-            .from("articles")
-            .select("id", { count: "exact", head: true })
-            .eq("status", "draft"),
-          supabase
-            .from("articles")
-            .select("id", { count: "exact", head: true })
-            .eq("status", "pending_review"),
-        ]);
-      setStatsTotal(totalRes.count ?? 0);
-      setStatsPublished(publishedRes.count ?? 0);
-      setStatsDraft(draftRes.count ?? 0);
-      setStatsPending(pendingRes.count ?? 0);
+    const loadStats = async () => {
+      const stats = await fetchArticleStats(supabase);
+      setStatsTotal(stats.total);
+      setStatsPublished(stats.published);
+      setStatsDraft(stats.draft);
+      setStatsPending(stats.pending);
     };
-    fetchStats();
+    loadStats();
   }, [supabase, refreshToken]);
 
   useEffect(() => {
@@ -176,56 +160,22 @@ export function useArticles() {
   }, [searchParamsKey]);
 
   useEffect(() => {
-    const fetchArticles = async () => {
+    const loadArticles = async () => {
       setLoading(true);
 
-      let countQuery = supabase
-        .from("articles")
-        .select("id", { count: "exact", head: true });
-      if (statusFilter !== "all")
-        countQuery = countQuery.eq("status", statusFilter);
-      const term = searchTermRef.current.trim().replace(/[%]/g, "");
-      if (term)
-        countQuery = countQuery.or(
-          `title.ilike.%${term}%,slug.ilike.%${term}%`
-        );
+      const result = await fetchAdminArticles(supabase, {
+        statusFilter,
+        searchTerm: searchTermRef.current,
+        sortFilter,
+        page,
+        pageSize: PAGE_SIZE,
+      });
 
-      const { count } = await countQuery;
-      const total = count ?? 0;
-      setTotalCount(total);
+      setTotalCount(result.total);
+      if (result.safePage !== page) setPage(result.safePage);
 
-      const maxPage = Math.max(1, Math.ceil(total / PAGE_SIZE));
-      const safePage = Math.min(page, maxPage);
-      if (safePage !== page) setPage(safePage);
-
-      const from = (safePage - 1) * PAGE_SIZE;
-      const to = from + PAGE_SIZE - 1;
-
-      let query = supabase
-        .from("articles")
-        .select(
-          "id, title, slug, status, created_at, updated_at, published_at, views, categories(name, slug)"
-        );
-
-      if (statusFilter !== "all") query = query.eq("status", statusFilter);
-      if (term)
-        query = query.or(
-          `title.ilike.%${term}%,slug.ilike.%${term}%`
-        );
-
-      switch (sortFilter) {
-        case "oldest":
-          query = query.order("updated_at", { ascending: true });
-          break;
-        default:
-          query = query.order("updated_at", { ascending: false });
-          break;
-      }
-
-      query = query.range(from, to);
-      const { data } = await query;
-      const fetched = data || [];
-      const visibleIdSet = new Set(fetched.map((a) => a.id));
+      const fetched = result.articles;
+      const visibleIdSet = new Set(fetched.map((a: { id: string }) => a.id));
 
       setArticles(fetched);
       setSelectedArticleIds((cur) =>
@@ -234,7 +184,7 @@ export function useArticles() {
       setLoading(false);
     };
 
-    fetchArticles();
+    loadArticles();
   }, [statusFilter, sortFilter, supabase, refreshToken, page]);
 
   const triggerRefresh = () => setRefreshToken((p) => p + 1);

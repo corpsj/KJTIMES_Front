@@ -5,23 +5,20 @@ import { getDeviceType } from "@/utils/device";
 import { getSiteUrl } from "@/utils/site";
 import { DesktopArticleDetail } from "@/components/desktop/DesktopArticleDetail";
 import { MobileArticleDetail } from "@/components/mobile/MobileArticleDetail";
-import { Article } from "@/types";
+import {
+    fetchArticleById,
+    fetchRelatedArticles,
+    fetchArticleTags,
+    fetchSeriesArticlesByTag,
+    incrementArticleViews,
+    uniqueArticlesById,
+    type ArticleDetail,
+} from "@/lib/api/articles";
+import { fetchAuthorArticles } from "@/lib/api/authors";
 
 const PUBLISHER_NAME = "광전타임즈";
 const SPECIAL_ISSUE_CATEGORY_SLUG = "special-edition";
 
-type ArticleDetail = Article & {
-    content: string;
-    status: string;
-    author_id?: string | null;
-    seo_title?: string | null;
-    seo_description?: string | null;
-    keywords?: string | null;
-};
-type ArticleTag = {
-    id: string;
-    name: string;
-};
 type ArticlePageParams = Promise<{ id: string }>;
 
 function extractCategorySlug(article: ArticleDetail) {
@@ -31,146 +28,9 @@ function extractCategorySlug(article: ArticleDetail) {
     return article.categories?.slug || null;
 }
 
-async function fetchArticle(id: string, supabase?: Awaited<ReturnType<typeof createClient>>) {
-    const client = supabase || (await createClient());
-    const { data, error } = await client
-        .from("articles")
-        .select(`
-      id, title, sub_title, content, summary, excerpt, thumbnail_url, status, author_id,
-      created_at, published_at, updated_at, views, slug,
-      seo_title, seo_description, keywords,
-      categories (name, slug),
-      author:profiles (full_name)
-    `)
-        .in("status", ["published", "shared"])
-        .eq("id", id)
-        .single();
-
-    if (error || !data) return null;
-    return data as unknown as ArticleDetail;
-}
-
-function applyVisibilityFilter<T>(query: T, includeShared: boolean) {
-    if (includeShared) {
-        return (query as { in: (column: string, values: string[]) => T }).in("status", ["published", "shared"]);
-    }
-    return (query as { eq: (column: string, value: string) => T }).eq("status", "published");
-}
-
-async function fetchRelatedArticles(
-    categorySlug: string | null,
-    articleId: string,
-    supabase: Awaited<ReturnType<typeof createClient>>,
-    includeShared = false
-) {
-    if (!categorySlug) return [];
-
-    let query = supabase
-        .from("articles")
-        .select(`
-      id, title, summary, excerpt, thumbnail_url, created_at, published_at, views,
-      categories!inner (name, slug)
-    `)
-        .neq("id", articleId)
-        .eq("categories.slug", categorySlug);
-
-    query = applyVisibilityFilter(query, includeShared);
-
-    const { data } = await query
-        .order("published_at", { ascending: false })
-        .limit(5);
-
-    return data || [];
-}
-
-async function fetchArticleTags(
-    articleId: string,
-    supabase: Awaited<ReturnType<typeof createClient>>
-): Promise<ArticleTag[]> {
-    const { data } = await supabase
-        .from("article_tags")
-        .select("tag_id, tags(name)")
-        .eq("article_id", articleId)
-        .limit(8);
-
-    type ArticleTagRow = {
-        tag_id?: string | null;
-        tags?: { name?: string | null } | { name?: string | null }[] | null;
-    };
-
-    return ((data as ArticleTagRow[] | null) || [])
-        .map((row) => {
-            const normalizedTag = Array.isArray(row.tags) ? row.tags[0] : row.tags;
-            if (!row.tag_id || !normalizedTag?.name) return null;
-            return { id: row.tag_id, name: normalizedTag.name };
-        })
-        .filter((row): row is ArticleTag => Boolean(row));
-}
-
-async function fetchSeriesArticlesByTag(
-    tagId: string,
-    articleId: string,
-    supabase: Awaited<ReturnType<typeof createClient>>,
-    includeShared = false
-) {
-    let query = supabase
-        .from("articles")
-        .select(`
-      id, title, summary, excerpt, thumbnail_url, created_at, published_at, views,
-      categories (name, slug),
-      article_tags!inner (tag_id)
-    `)
-        .eq("article_tags.tag_id", tagId)
-        .neq("id", articleId);
-
-    query = applyVisibilityFilter(query, includeShared);
-
-    const { data } = await query
-        .order("published_at", { ascending: false })
-        .limit(6);
-
-    return (data || []) as unknown as Article[];
-}
-
-async function fetchAuthorArticles(
-    authorId: string | null | undefined,
-    articleId: string,
-    supabase: Awaited<ReturnType<typeof createClient>>,
-    includeShared = false
-) {
-    if (!authorId) return [];
-
-    let query = supabase
-        .from("articles")
-        .select(`
-      id, title, summary, excerpt, thumbnail_url, created_at, published_at, views,
-      categories (name, slug)
-    `)
-        .eq("author_id", authorId)
-        .neq("id", articleId);
-
-    query = applyVisibilityFilter(query, includeShared);
-
-    const { data } = await query
-        .order("published_at", { ascending: false })
-        .limit(6);
-
-    return (data || []) as unknown as Article[];
-}
-
-function uniqueArticlesById(articles: Article[], excludeIds: Set<string>) {
-    const result: Article[] = [];
-    for (const article of articles) {
-        if (!article?.id || excludeIds.has(article.id)) continue;
-        excludeIds.add(article.id);
-        result.push(article);
-    }
-    return result;
-}
-
 export async function generateMetadata({ params }: { params: ArticlePageParams }): Promise<Metadata> {
     const { id } = await params;
-    const article = await fetchArticle(id);
+    const { data: article } = await fetchArticleById(id);
     if (!article) return {};
 
     const siteUrl = await getSiteUrl();
@@ -215,7 +75,7 @@ export default async function ArticlePage({ params }: { params: ArticlePageParam
     const supabase = await createClient();
     const device = await getDeviceType();
 
-    const article = await fetchArticle(id, supabase);
+    const { data: article } = await fetchArticleById(id, supabase);
 
     if (!article) {
         notFound();
@@ -227,8 +87,7 @@ export default async function ArticlePage({ params }: { params: ArticlePageParam
     const categorySlug = extractCategorySlug(article);
     const includeShared = article.status === "shared" || categorySlug === SPECIAL_ISSUE_CATEGORY_SLUG;
 
-    // Increment views atomically (Server-side side effect)
-    await supabase.rpc("increment_article_views", { article_id: id });
+    await incrementArticleViews(id, supabase);
 
     const [rawRelatedArticles, articleTags, rawAuthorArticles] = await Promise.all([
         fetchRelatedArticles(categorySlug, id, supabase, includeShared),
