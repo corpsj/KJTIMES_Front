@@ -57,20 +57,7 @@ export interface NfDelivery {
 
 export type TabKey = "explore" | "subscriptions" | "deliveries";
 
-/* ──────── Category mapping (NF → KJTIMES) ──────── */
-
-const CATEGORY_MAP: Record<string, string> = {
-  행정: "society",
-  복지: "society",
-  문화: "culture",
-  경제: "economy",
-  안전: "society",
-  기타: "society",
-  정치: "politics",
-  사회: "society",
-  스포츠: "sports",
-  오피니언: "opinion",
-};
+import { NF_CATEGORY_MAP } from "@/constants/news-factory";
 
 /* ──────── Cron presets ──────── */
 
@@ -244,7 +231,7 @@ export function useNewsFeed() {
   const importArticle = async (art: NfArticle) => {
     setImportingIds((s) => new Set(s).add(art.id));
     try {
-      const categorySlug = CATEGORY_MAP[art.category || ""] || "society";
+      const categorySlug = NF_CATEGORY_MAP[art.category || ""] || "society";
       const { data: catRow } = await supabase
         .from("categories")
         .select("id")

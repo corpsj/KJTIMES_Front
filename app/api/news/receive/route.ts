@@ -1,22 +1,9 @@
 import { NextResponse } from "next/server";
 import { createServiceClient } from "@/utils/supabase/server";
 import { sanitizeHtmlServer } from "@/utils/sanitize";
+import { NF_CATEGORY_MAP } from "@/constants/news-factory";
 
 const API_SECRET = process.env.NEWS_RECEIVE_SECRET;
-
-// 뉴스팩토리 카테고리 → KJTIMES 카테고리 슬러그 매핑
-const CATEGORY_MAP: Record<string, string> = {
-  행정: "society",
-  복지: "society",
-  문화: "culture",
-  경제: "economy",
-  안전: "society",
-  기타: "society",
-  정치: "politics",
-  사회: "society",
-  스포츠: "sports",
-  오피니언: "opinion",
-};
 
 export async function POST(request: Request) {
   // 1. 인증 확인
@@ -50,7 +37,7 @@ export async function POST(request: Request) {
 
     // 3. 카테고리 슬러그 → category_id 조회
     const supabase = createServiceClient();
-    const categorySlug = CATEGORY_MAP[category] || "society";
+    const categorySlug = NF_CATEGORY_MAP[category] || "society";
     const { data: categoryRow } = await supabase
       .from("categories")
       .select("id")
