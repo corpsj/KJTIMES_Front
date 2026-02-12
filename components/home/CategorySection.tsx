@@ -43,13 +43,13 @@ export function CategorySection({ title, categorySlug, articles }: CategorySecti
       </Group>
 
       <Grid gutter={{ base: "md", md: "lg" }}>
-        {articles.map((article) => (
+        {articles.map((article, i) => (
           <GridCol key={article.id} span={{ base: 12, sm: 6, md: 3 }}>
             <ArticleCard
               article={article}
-              variant="compact"
+              variant={i === 0 ? "headline" : "compact"}
               showThumbnail={true}
-              showExcerpt={true}
+              showExcerpt={i === 0}
             />
           </GridCol>
         ))}

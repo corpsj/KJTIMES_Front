@@ -83,7 +83,7 @@ export default async function Home() {
 
   return (
     <Container id="main-content" component="main" size="xl" py={{ base: "md", md: "xl" }}>
-      <Stack gap="xl">
+      <Stack gap={48}>
         <Title order={1} className="sr-only">광전타임즈 홈페이지</Title>
         <Box>
           <Headline articles={safeArticles.slice(0, 3)} />

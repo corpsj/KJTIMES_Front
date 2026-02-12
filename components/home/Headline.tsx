@@ -1,6 +1,6 @@
 "use client";
 
-import { Stack, Grid, GridCol, Divider } from "@mantine/core";
+import { Grid, GridCol } from "@mantine/core";
 import { Article } from "@/types";
 import { ArticleCard } from "@/components/shared/ArticleCard";
 
@@ -13,20 +13,20 @@ export function Headline({ articles }: { articles: Article[] }) {
     }
 
     return (
-        <Stack gap="xl">
-            <ArticleCard
-                article={mainArticle}
-                variant="featured"
-                showThumbnail={true}
-                showExcerpt={true}
-            />
-
+        <Grid gutter={{ base: "md", md: "xl" }}>
+            <GridCol span={{ base: 12, md: 8 }}>
+                <ArticleCard
+                    article={mainArticle}
+                    variant="featured"
+                    showThumbnail={true}
+                    showExcerpt={true}
+                />
+            </GridCol>
             {subArticles.length > 0 && (
-                <>
-                    <Divider />
-                    <Grid>
+                <GridCol span={{ base: 12, md: 4 }}>
+                    <Grid gutter="md">
                         {subArticles.map((article) => (
-                            <GridCol key={article.id} span={{ base: 12, sm: 6 }}>
+                            <GridCol key={article.id} span={{ base: 6, md: 12 }}>
                                 <ArticleCard
                                     article={article}
                                     variant="headline"
@@ -36,8 +36,8 @@ export function Headline({ articles }: { articles: Article[] }) {
                             </GridCol>
                         ))}
                     </Grid>
-                </>
+                </GridCol>
             )}
-        </Stack>
+        </Grid>
     );
 }
