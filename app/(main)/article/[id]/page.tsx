@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
-import { getDeviceType } from "@/utils/device";
 import { getSiteUrl } from "@/utils/site";
-import { DesktopArticleDetail } from "@/components/desktop/DesktopArticleDetail";
-import { MobileArticleDetail } from "@/components/mobile/MobileArticleDetail";
+import { ArticleDetail } from "@/components/shared/ArticleDetail";
 import {
     fetchArticleById,
     fetchRelatedArticles,
@@ -12,7 +10,7 @@ import {
     fetchSeriesArticlesByTag,
     incrementArticleViews,
     uniqueArticlesById,
-    type ArticleDetail,
+    type ArticleDetail as ArticleDetailType,
 } from "@/lib/api/articles";
 import { fetchAuthorArticles } from "@/lib/api/authors";
 
@@ -21,7 +19,7 @@ const SPECIAL_ISSUE_CATEGORY_SLUG = "special-edition";
 
 type ArticlePageParams = Promise<{ id: string }>;
 
-function extractCategorySlug(article: ArticleDetail) {
+function extractCategorySlug(article: ArticleDetailType) {
     if (Array.isArray(article.categories)) {
         return article.categories[0]?.slug || null;
     }
@@ -73,7 +71,6 @@ export async function generateMetadata({ params }: { params: ArticlePageParams }
 export default async function ArticlePage({ params }: { params: ArticlePageParams }) {
     const { id } = await params;
     const supabase = await createClient();
-    const device = await getDeviceType();
 
     const { data: article } = await fetchArticleById(id, supabase);
 
@@ -131,33 +128,13 @@ export default async function ArticlePage({ params }: { params: ArticlePageParam
         mainEntityOfPage: `${siteUrl}/article/${article.id}`,
     };
 
-    if (device === "mobile") {
-        return (
-            <>
-                <script
-                    type="application/ld+json"
-                    dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-                />
-                <MobileArticleDetail
-                    article={article}
-                    relatedArticles={relatedArticles}
-                    seriesArticles={seriesArticles}
-                    authorArticles={authorArticles}
-                    articleTags={articleTags.map((tag) => tag.name)}
-                    seriesLabel={primaryTag?.name || null}
-                    shareUrl={shareUrl}
-                />
-            </>
-        );
-    }
-
     return (
         <>
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
             />
-            <DesktopArticleDetail
+            <ArticleDetail
                 article={article}
                 relatedArticles={relatedArticles}
                 seriesArticles={seriesArticles}

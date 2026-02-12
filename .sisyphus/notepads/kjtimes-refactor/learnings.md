@@ -66,3 +66,13 @@
   - All components maintain identical visual appearance after migration
   - Build passes, no console errors, homepage renders correctly
   - Evidence: .sisyphus/evidence/task-6-homepage-no-articles.png
+- 2026-02-12: Task 7 (ArticleDetail merge) completed successfully.
+  - Created unified ArticleDetail component merging Desktop (455 lines) + Mobile (344 lines) → single responsive component (500 lines)
+  - Key pattern: Mantine Grid with responsive columns - `<GridCol span={{ base: 12, md: 8 }}>` for main content, `<GridCol span={4} visibleFrom="md">` for sidebar
+  - Sidebar hidden on mobile using `visibleFrom="md"` prop - no JavaScript required, pure CSS media queries
+  - Mobile breadcrumb shown only on mobile using `hiddenFrom="md"` prop
+  - Type conflict resolution: Renamed imported type `ArticleDetail` to `ArticleDetailType` to avoid collision with component name
+  - Removed device detection logic from article page - no longer needs `getDeviceType()` or conditional rendering
+  - Eliminated ~400 lines of duplicated code between Desktop/Mobile variants
+  - Build passes, dev server runs without errors, homepage loads correctly
+  - Pattern applies to any Desktop/Mobile component pair: use Mantine responsive props instead of separate components
