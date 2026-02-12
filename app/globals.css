@@ -1,6 +1,6 @@
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: var(--mantine-color-newsSurface-0, #ffffff);
+  --foreground: var(--mantine-color-newsHeadline-9, #171717);
 }
 
 body {
@@ -27,7 +27,7 @@ body {
 .tiptap-content figure figcaption {
   margin-top: 8px;
   font-size: 0.85rem;
-  color: #6b7280;
+  color: var(--mantine-color-newsHeadline-4);
   line-height: 1.5;
   text-align: center;
 }

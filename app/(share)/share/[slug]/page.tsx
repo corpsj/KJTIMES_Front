@@ -146,7 +146,7 @@ export default async function SharedArticlePage({ params }: { params: Promise<{ 
   const mobileMoreArticles = circulationCandidates.slice(1, MOBILE_RELATED_LIMIT + 1);
 
   const renderHeader = () => (
-    <Box py="xl" px="md" style={{ borderBottom: "2px solid #000" }}>
+    <Box py="xl" px="md" style={{ borderBottom: "2px solid var(--mantine-color-newsHeadline-9)" }}>
       <Container size="lg">
         <Center>
           <Stack align="center" gap={5}>
@@ -164,7 +164,7 @@ export default async function SharedArticlePage({ params }: { params: Promise<{ 
   );
 
   const renderFooter = () => (
-    <Box py={80} bg="gray.0" mt={100} style={{ borderTop: "1px solid #eee" }}>
+    <Box py={80} bg="gray.0" mt={100} style={{ borderTop: "1px solid var(--mantine-color-newsBorder-0)" }}>
       <Container size="lg">
         <Stack align="center" gap="sm">
           <Text fw={700} size="lg">

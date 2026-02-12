@@ -180,7 +180,7 @@ export function DesktopArticleDetail({
                                             className={styles.chosunPrevNextItem}
                                         >
                                             <Group gap={8} wrap="nowrap" align="flex-start">
-                                                <IconChevronLeft size={18} style={{ color: "#64748b", flexShrink: 0, marginTop: 2 }} />
+                                                <IconChevronLeft size={18} style={{ color: "var(--mantine-color-newsMuted-4)", flexShrink: 0, marginTop: 2 }} />
                                                 <Stack gap={2}>
                                                     <Text size="xs" className={styles.chosunMetaMuted}>이전 기사</Text>
                                                     <Text size="sm" fw={600} lineClamp={1} className={styles.chosunPrevNextTitle}>
@@ -205,7 +205,7 @@ export function DesktopArticleDetail({
                                                         {nextArticle.title}
                                                     </Text>
                                                 </Stack>
-                                                <IconChevronRight size={18} style={{ color: "#64748b", flexShrink: 0, marginTop: 2 }} />
+                                                <IconChevronRight size={18} style={{ color: "var(--mantine-color-newsMuted-4)", flexShrink: 0, marginTop: 2 }} />
                                             </Group>
                                         </UnstyledButton>
                                     ) : (

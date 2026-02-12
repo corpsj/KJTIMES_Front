@@ -144,7 +144,7 @@ export function ShareActions({
                 leftSection={<IconShare size={iconSize} />}
                 style={
                     isDark
-                        ? { background: "#1a2634", borderColor: "#344457", color: "#e6edf7" }
+                        ? { background: "var(--mantine-color-dark-8)", borderColor: "var(--mantine-color-dark-5)", color: "var(--mantine-color-gray-1)" }
                         : undefined
                 }
                 onClick={handleNativeShare}
@@ -162,7 +162,7 @@ export function ShareActions({
                         leftSection={copied ? <IconCheck size={iconSize} /> : <IconCopy size={iconSize} />}
                         style={
                             isDark
-                                ? { color: "#bfccdc", border: "1px dashed #33475e", background: "transparent" }
+                                ? { color: "var(--mantine-color-gray-4)", border: "1px dashed var(--mantine-color-dark-5)", background: "transparent" }
                                 : undefined
                         }
                         onClick={copy}
@@ -195,7 +195,7 @@ export function ShareActions({
             </ActionIcon>
 
             {status && (
-                <Text size="xs" c={isDark ? "#9cadbf" : "dimmed"}>
+                <Text size="xs" c={isDark ? "gray.5" : "dimmed"}>
                     {status}
                 </Text>
             )}

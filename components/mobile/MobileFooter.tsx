@@ -9,7 +9,7 @@ export function MobileFooter() {
     const year = new Date().getFullYear();
 
     return (
-        <Box component="footer" py="xl" mt="xl" style={{ borderTop: "1px solid #e2e8f0", background: "#f8fafc" }}>
+        <Box component="footer" py="xl" mt="xl" style={{ borderTop: "1px solid var(--mantine-color-newsMuted-1)", background: "var(--mantine-color-newsMuted-0)" }}>
             <Container size="md">
                 <Stack gap="lg">
                     {/* Logo */}
@@ -38,7 +38,7 @@ export function MobileFooter() {
                         ))}
                     </Group>
 
-                    <Divider color="#e2e8f0" />
+                    <Divider color="newsMuted.1" />
 
                     {/* Info links */}
                     <Group gap="md" wrap="wrap">

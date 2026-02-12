@@ -17,7 +17,7 @@ export function Opinion({ articles }: { articles: Article[] }) {
 
     return (
         <Stack gap="xl">
-            <Title order={4} style={{ borderBottom: "2px solid black", paddingBottom: "8px" }}>
+            <Title order={4} style={{ borderBottom: "2px solid var(--mantine-color-newsHeadline-9)", paddingBottom: "8px" }}>
                 오피니언
             </Title>
             {opinionArticles.map((article) => (

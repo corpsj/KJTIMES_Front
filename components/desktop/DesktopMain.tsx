@@ -20,13 +20,13 @@ export function DesktopMain({ articles }: { articles: Article[] }) {
                                 width: 80,
                                 height: 80,
                                 borderRadius: "50%",
-                                background: "#f1f5f9",
+                                background: "var(--mantine-color-newsBorder-0)",
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
                             }}
                         >
-                            <IconNews size={36} color="#94a3b8" />
+                            <IconNews size={36} color="var(--mantine-color-newsMuted-3)" />
                         </Box>
                         <Title order={3} c="dimmed" ta="center">
                             게시된 기사가 없습니다
@@ -53,7 +53,7 @@ export function DesktopMain({ articles }: { articles: Article[] }) {
                 </GridCol>
 
                 {/* CENTER COLUMN: Headline */}
-                <GridCol span={6} order={2} style={{ borderLeft: "1px solid #eee", borderRight: "1px solid #eee" }}>
+                <GridCol span={6} order={2} style={{ borderLeft: "1px solid var(--mantine-color-newsBorder-0)", borderRight: "1px solid var(--mantine-color-newsBorder-0)" }}>
                     <Headline articles={articles.slice(5, 8)} />
                 </GridCol>
 

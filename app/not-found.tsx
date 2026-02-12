@@ -11,7 +11,7 @@ export default function NotFound() {
                     w={220}
                     fit="contain"
                 />
-                <Title order={1} ta="center" style={{ fontSize: "4rem", color: "#dee2e6" }}>
+                <Title order={1} ta="center" style={{ fontSize: "4rem", color: "var(--mantine-color-gray-3)" }}>
                     404
                 </Title>
                 <Title order={2} ta="center" size="h3">
@@ -28,8 +28,8 @@ export default function NotFound() {
                             alignItems: "center",
                             padding: "8px 20px",
                             borderRadius: 8,
-                            background: "#228be6",
-                            color: "#fff",
+                            background: "var(--mantine-color-blue-6)",
+                            color: "var(--mantine-color-white)",
                             textDecoration: "none",
                             fontWeight: 600,
                             fontSize: "0.95rem",
@@ -44,8 +44,8 @@ export default function NotFound() {
                             alignItems: "center",
                             padding: "8px 20px",
                             borderRadius: 8,
-                            background: "#e7f5ff",
-                            color: "#228be6",
+                            background: "var(--mantine-color-blue-0)",
+                            color: "var(--mantine-color-blue-6)",
                             textDecoration: "none",
                             fontWeight: 600,
                             fontSize: "0.95rem",

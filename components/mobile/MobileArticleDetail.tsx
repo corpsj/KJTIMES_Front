@@ -167,10 +167,10 @@ export function MobileArticleDetail({
                                     className={styles.mobilePrevNextItem}
                                 >
                                     <Group gap={6} wrap="nowrap" align="flex-start">
-                                        <IconChevronLeft size={16} style={{ color: "#64748b", flexShrink: 0, marginTop: 2 }} />
+                                        <IconChevronLeft size={16} style={{ color: "var(--mantine-color-newsMuted-4)", flexShrink: 0, marginTop: 2 }} />
                                         <Stack gap={1}>
                                             <Text size="xs" className={styles.metaText}>이전 기사</Text>
-                                            <Text size="sm" fw={600} lineClamp={1} style={{ color: "#1f2937" }}>
+                                            <Text size="sm" fw={600} lineClamp={1} style={{ color: "var(--mantine-color-newsHeadline-7)" }}>
                                                 {prevArticle.title}
                                             </Text>
                                         </Stack>
@@ -188,11 +188,11 @@ export function MobileArticleDetail({
                                     <Group gap={6} wrap="nowrap" align="flex-start" justify="flex-end">
                                         <Stack gap={1} style={{ textAlign: "right" }}>
                                             <Text size="xs" className={styles.metaText}>다음 기사</Text>
-                                            <Text size="sm" fw={600} lineClamp={1} style={{ color: "#1f2937" }}>
+                                            <Text size="sm" fw={600} lineClamp={1} style={{ color: "var(--mantine-color-newsHeadline-7)" }}>
                                                 {nextArticle.title}
                                             </Text>
                                         </Stack>
-                                        <IconChevronRight size={16} style={{ color: "#64748b", flexShrink: 0, marginTop: 2 }} />
+                                        <IconChevronRight size={16} style={{ color: "var(--mantine-color-newsMuted-4)", flexShrink: 0, marginTop: 2 }} />
                                     </Group>
                                 </UnstyledButton>
                             ) : (

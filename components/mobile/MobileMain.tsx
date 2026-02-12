@@ -34,13 +34,13 @@ export function MobileMain({ articles }: { articles: Article[] }) {
                                 width: 64,
                                 height: 64,
                                 borderRadius: "50%",
-                                background: "#f1f5f9",
+                                background: "var(--mantine-color-newsBorder-0)",
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
                             }}
                         >
-                            <IconNews size={28} color="#94a3b8" />
+                            <IconNews size={28} color="var(--mantine-color-newsMuted-3)" />
                         </Box>
                         <Title order={4} c="dimmed" ta="center">
                             게시된 기사가 없습니다
@@ -72,7 +72,7 @@ export function MobileMain({ articles }: { articles: Article[] }) {
                             textDecoration: "none",
                             color: "inherit",
                             overflow: "hidden",
-                            borderColor: "#e2e8f0",
+                                    borderColor: "var(--mantine-color-newsMuted-1)",
                         }}
                     >
                         <Card.Section>
@@ -111,7 +111,7 @@ export function MobileMain({ articles }: { articles: Article[] }) {
                     </Card>
                 )}
 
-                <Divider color="#e2e8f0" />
+                <Divider color="newsMuted.1" />
 
                 {/* Article List */}
                 <Stack gap="md">
@@ -168,12 +168,12 @@ export function MobileMain({ articles }: { articles: Article[] }) {
                                             w={104}
                                             radius="sm"
                                             alt={`${article.title} 썸네일`}
-                                            style={{ objectFit: "cover", flexShrink: 0, border: "1px solid #e2e8f0" }}
+                                            style={{ objectFit: "cover", flexShrink: 0, border: "1px solid var(--mantine-color-newsMuted-1)" }}
                                         />
                                     )}
                                 </Group>
                             </Link>
-                            {index < listItems.length - 1 && <Divider mt="md" color="#f1f5f9" />}
+                            {index < listItems.length - 1 && <Divider mt="md" color="newsBorder.0" />}
                         </Box>
                     ))}
                 </Stack>

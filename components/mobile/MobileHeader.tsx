@@ -38,8 +38,8 @@ export function MobileHeader() {
             <Box
                 component="header"
                 style={{
-                    borderBottom: "1px solid #e2e8f0",
-                    background: "#fff",
+                    borderBottom: "1px solid var(--mantine-color-newsMuted-1)",
+                    background: "var(--mantine-color-newsSurface-0)",
                     position: "sticky",
                     top: 0,
                     zIndex: 100,
@@ -89,7 +89,7 @@ export function MobileHeader() {
                     w="100%"
                     scrollbars="x"
                     type="never"
-                    style={{ borderTop: "1px solid #f1f5f9" }}
+                    style={{ borderTop: "1px solid var(--mantine-color-newsBorder-0)" }}
                 >
                     <Group gap="lg" px="md" h={42} wrap="nowrap" style={{ whiteSpace: "nowrap" }}>
                         {LINKS.map((link) => {
@@ -134,7 +134,7 @@ export function MobileHeader() {
                 padding="md"
                 size="80%"
                 styles={{
-                    header: { borderBottom: "1px solid #e2e8f0", paddingBottom: 12 },
+                    header: { borderBottom: "1px solid var(--mantine-color-newsMuted-1)", paddingBottom: 12 },
                     body: { paddingTop: 16 },
                 }}
             >
@@ -150,8 +150,8 @@ export function MobileHeader() {
                             style={{ flex: 1 }}
                             styles={{
                                 input: {
-                                    borderColor: "#d1d5db",
-                                    "&:focus": { borderColor: "#2563eb" },
+                                    borderColor: "var(--mantine-color-newsHeadline-2)",
+                                    "&:focus": { borderColor: "var(--mantine-color-newsAccent-6)" },
                                 },
                             }}
                         />
@@ -180,7 +180,7 @@ export function MobileHeader() {
                                 size="md"
                                 py={4}
                                 style={{
-                                    borderBottom: "1px solid #f1f5f9",
+                                    borderBottom: "1px solid var(--mantine-color-newsBorder-0)",
                                     display: "block",
                                     transition: "color 0.15s ease",
                                     borderLeft: active ? "3px solid var(--mantine-color-blue-7)" : "3px solid transparent",
