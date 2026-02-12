@@ -129,3 +129,30 @@
   - Pattern: Conditional rendering with early return (if (!data) return null) instead of showing "준비 중" messages
   - Build passes (npm run build: 4.8s TypeScript check, 292ms static generation)
   - Key learning: Mantine Stack gap prop only accepts MantineSpacing values, not custom strings like "2rem" in responsive objects
+- 2026-02-12: Task 10 (Article detail page redesign) completed successfully.
+  - Enhanced typography for better readability:
+    - Body text: Increased from 1.03rem to 1.08rem with 1.92 line-height
+    - Added max-width: 720px to article body for optimal reading line length
+    - Increased paragraph spacing from 1.05rem to 1.2rem
+    - Added letter-spacing: -0.01em for better Korean text rendering
+  - Reading time estimate:
+    - Created calculateReadingTime() function using 350 characters/minute for Korean text
+    - Displays "읽는 시간 X분" in article meta line
+    - Minimum 1 minute, calculated from plain text (HTML tags stripped)
+  - Comment placeholder section:
+    - Added chosunCommentPlaceholder style with border, padding, background
+    - Shows "댓글 기능을 준비 중입니다" message
+    - Positioned after reporter card, before article info table
+  - Enhanced image captions:
+    - Added background color (newsSurface-3) for better visibility
+    - Added left border (2px, newsBorder-5) for visual hierarchy
+    - Increased padding (6px 8px) and font-size (0.88rem)
+    - Improved line-height (1.5) for better readability
+  - Improved author information:
+    - Changed generic bio to category-specific: "광전타임즈 {category} 담당 기자"
+    - Removed TODO comment about subscription feature
+  - Share buttons: Already comprehensive (Facebook, Twitter, native share, copy link) via ShareActions component
+  - Related articles: Already well-implemented with deduplication and multiple sections
+  - Build verification: ✅ PASSED (5.6s TypeScript check, 291.9ms static generation)
+  - Pattern: Typography improvements focused on readability (larger font, better spacing, constrained width)
+  - Key learning: Korean text readability benefits from slightly larger font-size (1.08rem+) and generous line-height (1.9+)

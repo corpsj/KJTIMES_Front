@@ -20,6 +20,19 @@ function dedupeArticles(articles: Article[], excludeId: string) {
     });
 }
 
+/**
+ * Calculate reading time estimate based on Korean text.
+ * Average Korean reading speed: ~300-400 characters per minute.
+ * We use 350 characters/minute as a middle ground.
+ */
+function calculateReadingTime(htmlContent: string): number {
+    // Strip HTML tags and get plain text
+    const plainText = htmlContent.replace(/<[^>]*>/g, '');
+    const charCount = plainText.length;
+    const minutes = Math.ceil(charCount / 350);
+    return Math.max(1, minutes); // Minimum 1 minute
+}
+
 export function ArticleDetail({
     article,
     relatedArticles = [],
@@ -68,6 +81,7 @@ export function ArticleDetail({
     const authorInitial = (authorName || "편집국").trim().charAt(0);
     const normalizedContent = sanitizeHtml(normalizeArticleHtml(article.content));
     const categoryLinks = LINKS.filter((link) => link.href !== "/");
+    const readingTime = calculateReadingTime(article.content);
 
     return (
         <Box component="section" className={styles.chosunDesktopWrap}>
@@ -103,6 +117,7 @@ export function ArticleDetail({
                                     </Text>
                                 )}
                                 <Text size="xs" className={styles.chosunMetaMuted} visibleFrom="md">조회 {views.toLocaleString()}</Text>
+                                <Text size="xs" className={styles.chosunMetaMuted}>읽는 시간 {readingTime}분</Text>
                             </Group>
 
                             {/* Title */}
@@ -262,10 +277,17 @@ export function ArticleDetail({
                                 <Stack gap={2} style={{ flex: 1 }}>
                                     <Text size="sm" className={styles.chosunReporterCardName}>{authorName} 기자</Text>
                                     <Text size="xs" className={styles.chosunMetaMuted}>
-                                        현장 중심의 정치·사회 이슈를 취재합니다.
+                                        광전타임즈 {primaryCategory?.name || "종합"} 담당 기자
                                     </Text>
                                 </Stack>
-                                {/* TODO: 기자 구독 기능 구현 후 활성화 */}
+                            </Box>
+
+                            {/* Comment placeholder */}
+                            <Box className={styles.chosunCommentPlaceholder}>
+                                <Title order={4} className={styles.chosunModuleTitle}>댓글</Title>
+                                <Text size="sm" className={styles.chosunEmptyText} ta="center" py="xl">
+                                    댓글 기능을 준비 중입니다.
+                                </Text>
                             </Box>
 
                             {/* Ad strip — hidden until ad data is available */}
