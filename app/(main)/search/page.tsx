@@ -93,6 +93,7 @@ function SearchContent() {
                 {articles.length > 0 && (
                     <CategoryPageTemplate
                         title={`검색 결과: ${q}`}
+                        categorySlug="search"
                         articles={articles}
                     />
                 )}

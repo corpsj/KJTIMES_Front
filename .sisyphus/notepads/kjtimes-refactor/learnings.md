@@ -156,3 +156,39 @@
   - Build verification: ✅ PASSED (5.6s TypeScript check, 291.9ms static generation)
   - Pattern: Typography improvements focused on readability (larger font, better spacing, constrained width)
   - Key learning: Korean text readability benefits from slightly larger font-size (1.08rem+) and generous line-height (1.9+)
+- 2026-02-12: Task 11 (Category pages redesign) completed successfully.
+  - Created CategoryHeader component (components/category/CategoryHeader.tsx):
+    - Props: categoryName, categorySlug, articleCount, description
+    - Displays breadcrumb navigation (Home > Category Name) using Mantine Breadcrumbs
+    - Shows category title, optional description, and article count
+    - Clean, minimal design with proper spacing
+  - Created CategorySidebar component (components/category/CategorySidebar.tsx):
+    - Props: relatedCategories, popularArticles
+    - Shows related categories as NavLink list in Paper with border
+    - Shows popular articles using ArticleCard variant="list" with rank numbers
+    - Returns null when no content (conditional rendering pattern)
+    - Desktop-only visibility handled by parent Grid (visibleFrom="md")
+  - Created FilterSort component (components/category/FilterSort.tsx):
+    - Props: sortBy, onSortChange
+    - Uses Mantine SegmentedControl with "최신순" and "인기순" options
+    - Controlled component pattern for state management
+  - Enhanced CategoryPageTemplate (components/layout/CategoryPageTemplate.tsx):
+    - Changed from simple Stack layout to Grid with main content (span 8) + sidebar (span 4)
+    - Added CategoryHeader at top with breadcrumb, title, description, article count
+    - Added FilterSort controls above article grid
+    - Article grid: 3 columns on desktop (lg), 2 on tablet (sm), 1 on mobile (base)
+    - Uses ArticleCard variant="compact" for consistent card display
+    - Implements "더보기" button with displayCount state (shows 12 initially, loads 12 more on click)
+    - Sidebar hidden on mobile using visibleFrom="md" prop
+    - Client-side sorting: latest (by published_at) or popular (by views)
+  - Updated 7 category pages to use enhanced template:
+    - politics, economy, society, culture, sports, opinion, special-edition
+    - Each page now fetches 50 articles, calculates popular articles (top 5 by views)
+    - Passes category-specific description and related categories
+    - Uses lib/api/articles.ts (fetchCategoryArticles) instead of utils/articles.ts
+  - Fixed search page and special-edition page to include required categorySlug prop
+  - Build verification: ✅ PASSED (5.0s TypeScript check, 296.8ms static generation)
+  - Dev server verification: ✅ All category pages return HTTP 200
+  - Pattern: Grid layout with main content + sidebar, FilterSort for client-side sorting, "더보기" pagination
+  - Key learning: CategoryPageTemplate now requires categorySlug prop (breaking change from Task 6 version)
+  - Responsive pattern: GridCol span={{ base: 12, sm: 6, lg: 4 }} for 3-column grid on desktop
