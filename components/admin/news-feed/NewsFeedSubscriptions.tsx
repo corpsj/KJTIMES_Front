@@ -89,19 +89,19 @@ export default function NewsFeedSubscriptions({
                     </Badge>
                   </Group>
                   <Text size="xs" c="dimmed">
-                    {sub.filters?.regions?.length
-                      ? `지역: ${sub.filters.regions.join(", ")}`
+                    {sub.filter_regions?.length
+                      ? `지역: ${sub.filter_regions.join(", ")}`
                       : ""}
-                    {sub.filters?.regions?.length &&
-                    sub.filters?.categories?.length
+                    {sub.filter_regions?.length &&
+                    sub.filter_categories?.length
                       ? " · "
                       : ""}
-                    {sub.filters?.categories?.length
-                      ? `카테고리: ${sub.filters.categories.join(", ")}`
+                    {sub.filter_categories?.length
+                      ? `카테고리: ${sub.filter_categories.join(", ")}`
                       : ""}
                   </Text>
                   <Text size="xs" c="dimmed">
-                    스케줄: {cronToKorean(sub.schedule || "")}
+                    스케줄: {cronToKorean(sub.schedule_cron || "")}
                     {sub.max_articles
                       ? ` · 최대 ${sub.max_articles}건`
                       : ""}

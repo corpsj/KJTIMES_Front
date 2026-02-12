@@ -74,7 +74,7 @@ export default function NewsFeedDeliveries({
                   : "—"}
               </Table.Td>
               <Table.Td>
-                {d.subscription_name || d.subscription_id || "—"}
+                {d.subscription_id || "—"}
               </Table.Td>
               <Table.Td>{d.article_count ?? "—"}</Table.Td>
               <Table.Td>
@@ -98,7 +98,7 @@ export default function NewsFeedDeliveries({
               </Table.Td>
               <Table.Td>
                 <Text size="xs" c="dimmed">
-                  {d.error || "—"}
+                  {d.error_message || "—"}
                 </Text>
               </Table.Td>
             </Table.Tr>

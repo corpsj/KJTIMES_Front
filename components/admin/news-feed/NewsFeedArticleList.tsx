@@ -94,21 +94,14 @@ export default function NewsFeedArticleList({
                       {art.category}
                     </Badge>
                   )}
-                  {art.region && (
+                  {art.source && (
                     <Badge variant="light" color="blue" size="xs">
-                      {art.region}
+                      {art.source}
                     </Badge>
                   )}
-                  {art.source && (
+                  {art.published_at && (
                     <Text size="xs" c="dimmed">
-                      {art.source}
-                    </Text>
-                  )}
-                  {(art.published_at || art.created_at) && (
-                    <Text size="xs" c="dimmed">
-                      {new Date(
-                        art.published_at || art.created_at || ""
-                      ).toLocaleDateString("ko-KR")}
+                      {new Date(art.published_at).toLocaleDateString("ko-KR")}
                     </Text>
                   )}
                 </Group>

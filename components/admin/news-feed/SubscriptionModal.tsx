@@ -32,20 +32,22 @@ export default function SubscriptionModal({
 }: SubscriptionModalProps) {
   const [name, setName] = useState(editing?.name || "");
   const [selRegions, setSelRegions] = useState<string[]>(
-    editing?.filters?.regions || []
+    editing?.filter_regions || []
   );
   const [selCategories, setSelCategories] = useState<string[]>(
-    editing?.filters?.categories || []
+    editing?.filter_categories || []
   );
   const [cronPreset, setCronPreset] = useState(() => {
-    const match = CRON_PRESETS.find((p) => p.value === editing?.schedule);
+    const match = CRON_PRESETS.find((p) => p.value === editing?.schedule_cron);
     return match ? match.value : "";
   });
-  const [cronCustom, setCronCustom] = useState(editing?.schedule || "");
+  const [cronCustom, setCronCustom] = useState(editing?.schedule_cron || "");
   const [maxArticles, setMaxArticles] = useState(
-    editing?.max_articles ?? 10
+    editing?.max_articles ?? 20
   );
-  const [webhookUrl, setWebhookUrl] = useState(editing?.webhook_url || "");
+  const [selKeywords, setSelKeywords] = useState<string[]>(
+    editing?.filter_keywords || []
+  );
   const [saving, setSaving] = useState(false);
 
   const schedule = cronPreset || cronCustom;
@@ -65,14 +67,12 @@ export default function SubscriptionModal({
     try {
       const payload: Record<string, unknown> = {
         name: name.trim(),
-        filters: {
-          regions: selRegions,
-          categories: selCategories,
-        },
-        schedule,
+        filter_regions: selRegions.length > 0 ? selRegions : undefined,
+        filter_categories: selCategories.length > 0 ? selCategories : undefined,
+        filter_keywords: selKeywords.length > 0 ? selKeywords : undefined,
+        schedule_cron: schedule,
         max_articles: maxArticles,
       };
-      if (webhookUrl) payload.webhook_url = webhookUrl;
 
       if (editing) {
         await nfFetch(`/api/v1/subscriptions/${editing.id}`, {
@@ -254,14 +254,6 @@ export default function SubscriptionModal({
           onChange={(e) =>
             setMaxArticles(Number(e.currentTarget.value) || 10)
           }
-        />
-
-        {/* Webhook URL */}
-        <TextInput
-          label="웹훅 URL (선택)"
-          value={webhookUrl}
-          onChange={(e) => setWebhookUrl(e.currentTarget.value)}
-          placeholder="https://..."
         />
 
         {/* Actions */}

@@ -13,11 +13,11 @@ export interface NfArticle {
   summary?: string;
   content?: string;
   category?: string;
-  region?: string;
   source?: string;
   source_url?: string;
+  images?: string[];
   published_at?: string;
-  created_at?: string;
+  processed_at?: string;
 }
 
 export interface NfRegion {
@@ -32,26 +32,27 @@ export interface NfCategory {
 
 export interface NfSubscription {
   id: string;
-  name: string;
-  filters?: {
-    regions?: string[];
-    categories?: string[];
-  };
-  schedule?: string;
-  max_articles?: number;
-  is_active?: boolean;
-  webhook_url?: string;
-  created_at?: string;
+  name: string | null;
+  filter_regions: string[] | null;
+  filter_categories: string[] | null;
+  filter_keywords: string[] | null;
+  schedule_cron: string;
+  schedule_tz?: string;
+  max_articles: number;
+  is_active: boolean;
+  last_delivered_at: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface NfDelivery {
   id: string;
   subscription_id?: string;
-  subscription_name?: string;
-  delivered_at?: string;
+  article_ids?: string[];
   article_count?: number;
   status?: string;
-  error?: string;
+  error_message?: string;
+  delivered_at?: string;
 }
 
 export type TabKey = "explore" | "subscriptions" | "deliveries";
@@ -163,20 +164,16 @@ export function useNewsFeed() {
 
     (async () => {
       try {
-        const [r, c] = await Promise.all([
-          nfFetch<NfRegion[] | { data: NfRegion[] }>("/api/v1/regions").catch(
-            () => [] as NfRegion[]
+        const [rRes, cRes] = await Promise.all([
+          nfFetch<{ regions: NfRegion[] }>("/api/v1/regions").catch(
+            () => ({ regions: [] as NfRegion[] })
           ),
-          nfFetch<NfCategory[] | { data: NfCategory[] }>(
+          nfFetch<{ categories: NfCategory[] }>(
             "/api/v1/categories"
-          ).catch(() => [] as NfCategory[]),
+          ).catch(() => ({ categories: [] as NfCategory[] })),
         ]);
-        setRegions(
-          Array.isArray(r) ? r : (r as { data: NfRegion[] }).data ?? []
-        );
-        setCategories(
-          Array.isArray(c) ? c : (c as { data: NfCategory[] }).data ?? []
-        );
+        setRegions(rRes.regions ?? []);
+        setCategories(cRes.categories ?? []);
       } catch {
         /* ignore – filters will be unavailable */
       }
@@ -196,22 +193,19 @@ export function useNewsFeed() {
         params.set("offset", String(pageNum * LIMIT));
         if (filterRegion) params.set("region", filterRegion);
         if (filterCategory) params.set("category", filterCategory);
-        if (filterKeyword) params.set("q", filterKeyword);
+        if (filterKeyword) params.set("keyword", filterKeyword);
         if (filterFrom) params.set("from", filterFrom);
         if (filterTo) params.set("to", filterTo);
 
-        const res = await nfFetch<
-          | { data: NfArticle[]; total?: number }
-          | NfArticle[]
-        >(`/api/v1/articles?${params}`);
+        const res = await nfFetch<{
+          articles: NfArticle[];
+          total: number;
+          limit: number;
+          offset: number;
+        }>(`/api/v1/articles?${params}`);
 
-        if (Array.isArray(res)) {
-          setArticles(res);
-          setTotalArticles(res.length);
-        } else {
-          setArticles(res.data ?? []);
-          setTotalArticles(res.total ?? (res.data?.length || 0));
-        }
+        setArticles(res.articles ?? []);
+        setTotalArticles(res.total ?? res.articles?.length ?? 0);
       } catch (err) {
         setArticlesError(
           err instanceof Error
@@ -296,13 +290,10 @@ export function useNewsFeed() {
     setSubsLoading(true);
     setSubsError("");
     try {
-      const res = await nfFetch<
-        NfSubscription[] | { data: NfSubscription[] }
-      >("/api/v1/subscriptions");
-      const list = Array.isArray(res)
-        ? res
-        : (res as { data: NfSubscription[] }).data ?? [];
-      setSubscriptions(list);
+      const res = await nfFetch<{ subscriptions: NfSubscription[] }>(
+        "/api/v1/subscriptions"
+      );
+      setSubscriptions(res.subscriptions ?? []);
     } catch (err) {
       setSubsError(
         err instanceof Error
@@ -358,13 +349,13 @@ export function useNewsFeed() {
     setDeliveriesLoading(true);
     setDeliveriesError("");
     try {
-      const res = await nfFetch<NfDelivery[] | { data: NfDelivery[] }>(
-        "/api/v1/deliveries"
-      );
-      const list = Array.isArray(res)
-        ? res
-        : (res as { data: NfDelivery[] }).data ?? [];
-      setDeliveries(list);
+      const res = await nfFetch<{
+        deliveries: NfDelivery[];
+        total: number;
+        limit: number;
+        offset: number;
+      }>("/api/v1/deliveries");
+      setDeliveries(res.deliveries ?? []);
     } catch (err) {
       setDeliveriesError(
         err instanceof Error
