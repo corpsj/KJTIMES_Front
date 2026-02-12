@@ -1,6 +1,6 @@
 "use client";
 
-import { Breadcrumbs, Anchor, Title, Text, Stack } from "@mantine/core";
+import { Breadcrumbs, Anchor, Title, Text, Stack, Badge, Group } from "@mantine/core";
 import Link from "next/link";
 
 interface CategoryHeaderProps {
@@ -25,19 +25,20 @@ export function CategoryHeader({
         <Text c="dimmed">{categoryName}</Text>
       </Breadcrumbs>
 
-      <Title order={1} size="h1">
-        {categoryName}
-      </Title>
+      <Group gap="sm" align="center">
+        <Title order={1} size="h1">
+          {categoryName}
+        </Title>
+        <Badge variant="light" color="blue" size="lg">
+          {articleCount}
+        </Badge>
+      </Group>
 
       {description && (
         <Text c="dimmed" size="md">
           {description}
         </Text>
       )}
-
-      <Text c="dimmed" size="sm">
-        총 {articleCount}개 기사
-      </Text>
     </Stack>
   );
 }

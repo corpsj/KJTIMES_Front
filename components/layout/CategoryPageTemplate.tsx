@@ -60,8 +60,17 @@ export function CategoryPageTemplate({
               </Text>
             )}
 
+            {displayedArticles.length > 0 && (
+              <ArticleCard
+                article={displayedArticles[0]}
+                variant="featured"
+                showThumbnail={true}
+                showExcerpt={true}
+              />
+            )}
+
             <Grid gutter="md">
-              {displayedArticles.map((article) => (
+              {displayedArticles.slice(1).map((article) => (
                 <GridCol key={article.id} span={{ base: 12, sm: 6, lg: 4 }}>
                   <ArticleCard
                     article={article}
