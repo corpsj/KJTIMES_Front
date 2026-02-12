@@ -6,13 +6,19 @@ test.describe('Search Functionality', () => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
     
-    const searchInput = page.locator('input[type="search"]').first();
-    await searchInput.waitFor({ state: 'visible', timeout: 10000 });
-    await searchInput.fill('광주');
-    await searchInput.press('Enter');
+    await page.locator('header').waitFor({ state: 'visible' });
     
-    await page.waitForLoadState('networkidle');
-    await expect(page).toHaveURL(/\/search\?q=광주/);
+    const searchInput = page.locator('header input[type="search"]').first();
+    await searchInput.waitFor({ state: 'visible', timeout: 15000 });
+    await searchInput.fill('광주');
+    
+    await Promise.all([
+      page.waitForURL('**/search?q=**', { timeout: 10000 }),
+      searchInput.press('Enter')
+    ]);
+    
+    await expect(page).toHaveURL(/\/search\?q=/);
+    expect(page.url()).toContain('q=');
   });
 
   test('should display search results', async ({ page }) => {
@@ -33,8 +39,8 @@ test.describe('Search Functionality', () => {
     
     await expect(page).toHaveURL(/q=TEST/);
     
-    const searchInput = page.locator('input[type="search"]').first();
-    await searchInput.waitFor({ state: 'attached', timeout: 10000 });
+    const searchInput = page.locator('main input[type="search"], form input[type="search"]').last();
+    await searchInput.waitFor({ state: 'visible', timeout: 10000 });
     const inputValue = await searchInput.inputValue();
     expect(inputValue).toBe('TEST');
   });

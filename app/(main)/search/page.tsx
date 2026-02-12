@@ -38,6 +38,11 @@ function SearchContent() {
         setDateFilter(dateParam);
         setSortBy(sortParam === "latest" ? "latest" : "relevance");
     }, [categoryParam, dateParam, sortParam]);
+    
+    // Sync query state with URL param
+    useEffect(() => {
+        setQuery(q);
+    }, [q]);
 
     // Fetch articles when query changes
     useEffect(() => {
