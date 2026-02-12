@@ -12,7 +12,6 @@ interface AccountMenuProps {
 
 export function AccountMenu({ user }: AccountMenuProps) {
   const handleLogout = () => {
-    console.log("Logout clicked");
     alert("로그아웃 기능을 준비 중입니다");
   };
 

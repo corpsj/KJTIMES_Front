@@ -1,0 +1,102 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - link "메인 콘텐츠로 건너뛰기" [ref=e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e6]:
+        - paragraph [ref=e7]: 2026년 2월 12일 목요일
+        - generic [ref=e9]:
+          - textbox "검색어" [ref=e12]:
+            - /placeholder: 검색어를 입력하세요
+          - button "검색" [ref=e13] [cursor=pointer]:
+            - generic [ref=e15]: 검색
+        - generic [ref=e16]:
+          - link "로그인" [ref=e17] [cursor=pointer]:
+            - /url: /login
+          - separator [ref=e18]
+          - link "회원가입" [ref=e19] [cursor=pointer]:
+            - /url: /signup
+          - separator [ref=e20]
+          - link "구독하기" [ref=e21] [cursor=pointer]:
+            - /url: /subscribe
+      - separator [ref=e22]
+      - link "광전타임즈 로고" [ref=e25]:
+        - /url: /
+        - img "광전타임즈 로고" [ref=e26]
+      - navigation "메인 메뉴" [ref=e27]:
+        - generic [ref=e29]:
+          - link "홈" [ref=e30] [cursor=pointer]:
+            - /url: /
+          - link "창간특별호" [ref=e31] [cursor=pointer]:
+            - /url: /special-edition
+          - link "정치" [ref=e32] [cursor=pointer]:
+            - /url: /politics
+          - link "경제" [ref=e33] [cursor=pointer]:
+            - /url: /economy
+          - link "사회" [ref=e34] [cursor=pointer]:
+            - /url: /society
+          - link "생활/문화" [ref=e35] [cursor=pointer]:
+            - /url: /culture
+          - link "오피니언" [ref=e36] [cursor=pointer]:
+            - /url: /opinion
+          - link "스포츠" [ref=e37] [cursor=pointer]:
+            - /url: /sports
+  - main [ref=e38]:
+    - generic [ref=e41]:
+      - generic [ref=e43]:
+        - generic [ref=e44]:
+          - link "홈" [ref=e45] [cursor=pointer]:
+            - /url: /
+          - generic [ref=e46]: ›
+          - paragraph [ref=e47]: 정치
+        - heading "정치" [level=1] [ref=e48]
+        - paragraph [ref=e49]: 대한민국 정치 뉴스와 정책 분석
+        - paragraph [ref=e50]: 총 0개 기사
+      - generic [ref=e52]:
+        - radiogroup [ref=e53]:
+          - generic [ref=e54]:
+            - radio "최신순" [checked]
+            - generic [ref=e55] [cursor=pointer]: 최신순
+          - generic [ref=e56]:
+            - radio "인기순"
+            - generic [ref=e57] [cursor=pointer]: 인기순
+        - paragraph [ref=e58]: 등록된 기사가 없습니다.
+      - generic [ref=e61]:
+        - heading "관련 카테고리" [level=4] [ref=e62]
+        - generic [ref=e63]:
+          - link "경제" [ref=e64] [cursor=pointer]:
+            - /url: /economy
+            - generic [ref=e65]: 경제
+          - link "사회" [ref=e66] [cursor=pointer]:
+            - /url: /society
+            - generic [ref=e67]: 사회
+          - link "오피니언" [ref=e68] [cursor=pointer]:
+            - /url: /opinion
+            - generic [ref=e69]: 오피니언
+  - contentinfo [ref=e70]:
+    - generic [ref=e72]:
+      - generic [ref=e73]:
+        - paragraph [ref=e74]: 광전타임즈
+        - paragraph [ref=e75]:
+          - text: 전남 함평군 함평읍 영수길 148 2층
+          - text: "등록번호: 전남, 아00607 | 대표: 선종인 | 발행·편집인: 장혁훈"
+          - text: "전화·제보: 010-9428-5361 | 팩스: 0504-255-5361 | 이메일: jebo@kjtimes.co.kr"
+          - text: "사업자등록번호: 173-91-02454"
+        - paragraph [ref=e76]: Copyright © 2026 광전타임즈. All rights reserved.
+      - generic [ref=e77]:
+        - link "회사소개" [ref=e78] [cursor=pointer]:
+          - /url: /about
+        - link "광고안내" [ref=e79] [cursor=pointer]:
+          - /url: /advertise
+        - link "이용약관" [ref=e80] [cursor=pointer]:
+          - /url: /terms
+        - link "개인정보처리방침" [ref=e81] [cursor=pointer]:
+          - /url: /privacy
+        - link "편집원칙" [ref=e82] [cursor=pointer]:
+          - /url: /editorial
+        - link "정정보도/오류신고" [ref=e83] [cursor=pointer]:
+          - /url: /corrections
+```

@@ -11,7 +11,6 @@ import {
   Button,
   Box,
   Loader,
-  Divider,
   Avatar,
 } from "@mantine/core";
 import {

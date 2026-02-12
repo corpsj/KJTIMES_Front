@@ -19,10 +19,9 @@ export function LoginForm() {
     },
   });
 
-  const handleSubmit = async (values: typeof form.values) => {
+  const handleSubmit = async () => {
     setLoading(true);
     // Placeholder: 실제 인증 로직은 추후 구현
-    console.log("Login attempt:", values);
     setTimeout(() => {
       alert("로그인 기능을 준비 중입니다");
       setLoading(false);

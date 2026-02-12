@@ -1,0 +1,87 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - link "메인 콘텐츠로 건너뛰기" [ref=e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e6]:
+        - paragraph [ref=e7]: 2026년 2월 12일 목요일
+        - generic [ref=e9]:
+          - textbox "검색어" [ref=e12]:
+            - /placeholder: 검색어를 입력하세요
+          - button "검색" [ref=e13] [cursor=pointer]:
+            - generic [ref=e15]: 검색
+        - generic [ref=e16]:
+          - link "로그인" [ref=e17] [cursor=pointer]:
+            - /url: /login
+          - separator [ref=e18]
+          - link "회원가입" [ref=e19] [cursor=pointer]:
+            - /url: /signup
+          - separator [ref=e20]
+          - link "구독하기" [ref=e21] [cursor=pointer]:
+            - /url: /subscribe
+      - separator [ref=e22]
+      - link "광전타임즈 로고" [ref=e25] [cursor=pointer]:
+        - /url: /
+        - img "광전타임즈 로고" [ref=e26]
+      - navigation "메인 메뉴" [ref=e27]:
+        - generic [ref=e29]:
+          - link "홈" [ref=e30] [cursor=pointer]:
+            - /url: /
+          - link "창간특별호" [ref=e31] [cursor=pointer]:
+            - /url: /special-edition
+          - link "정치" [ref=e32] [cursor=pointer]:
+            - /url: /politics
+          - link "경제" [ref=e33] [cursor=pointer]:
+            - /url: /economy
+          - link "사회" [ref=e34] [cursor=pointer]:
+            - /url: /society
+          - link "생활/문화" [ref=e35] [cursor=pointer]:
+            - /url: /culture
+          - link "오피니언" [ref=e36] [cursor=pointer]:
+            - /url: /opinion
+          - link "스포츠" [ref=e37] [cursor=pointer]:
+            - /url: /sports
+  - main [ref=e38]:
+    - generic [ref=e40]:
+      - img [ref=e42]
+      - heading "아직 게시된 기사가 없습니다" [level=2] [ref=e47]
+      - paragraph [ref=e48]: 광전타임즈가 곧 새로운 소식을 전해드리겠습니다.
+  - contentinfo [ref=e49]:
+    - generic [ref=e51]:
+      - generic [ref=e52]:
+        - paragraph [ref=e53]: 광전타임즈
+        - paragraph [ref=e54]:
+          - text: 전남 함평군 함평읍 영수길 148 2층
+          - text: "등록번호: 전남, 아00607 | 대표: 선종인 | 발행·편집인: 장혁훈"
+          - text: "전화·제보: 010-9428-5361 | 팩스: 0504-255-5361 | 이메일: jebo@kjtimes.co.kr"
+          - text: "사업자등록번호: 173-91-02454"
+        - paragraph [ref=e55]: Copyright © 2026 광전타임즈. All rights reserved.
+      - generic [ref=e56]:
+        - link "회사소개" [active] [ref=e57] [cursor=pointer]:
+          - /url: /about
+        - link "광고안내" [ref=e58] [cursor=pointer]:
+          - /url: /advertise
+        - link "이용약관" [ref=e59] [cursor=pointer]:
+          - /url: /terms
+        - link "개인정보처리방침" [ref=e60] [cursor=pointer]:
+          - /url: /privacy
+        - link "편집원칙" [ref=e61] [cursor=pointer]:
+          - /url: /editorial
+        - link "정정보도/오류신고" [ref=e62] [cursor=pointer]:
+          - /url: /corrections
+  - generic [ref=e67] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e68]:
+      - img [ref=e69]
+    - generic [ref=e73]:
+      - button "Open issues overlay" [ref=e74]:
+        - generic [ref=e75]:
+          - generic [ref=e76]: "0"
+          - generic [ref=e77]: "1"
+        - generic [ref=e78]: Issue
+      - button "Collapse issues badge" [ref=e79]:
+        - img [ref=e80]
+  - alert [ref=e82]
+```

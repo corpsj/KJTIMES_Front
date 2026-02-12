@@ -1,6 +1,5 @@
 import { CategoryPageTemplate } from "@/components/layout/CategoryPageTemplate";
 import { fetchCategoryArticles } from "@/lib/api/articles";
-import { LINKS } from "@/constants/navigation";
 import type { Metadata } from "next";
 
 export const revalidate = 60;

@@ -67,20 +67,6 @@ const formatArticleDateTime = (value?: string | null) => {
   });
 };
 
-const extractPlainText = (html: string) => {
-  return html
-    .replace(/<[^>]+>/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-};
-
-const calculateReadMinutes = (html: string) => {
-  const plainText = extractPlainText(html);
-  if (!plainText) return 1;
-  const words = plainText.split(" ").filter(Boolean).length;
-  return Math.max(1, Math.ceil(words / 260));
-};
-
 export default async function SharedArticlePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const supabase = createAnonClient(
@@ -125,16 +111,12 @@ export default async function SharedArticlePage({ params }: { params: Promise<{ 
     }
   }
 
-  const sectionName = Array.isArray(article?.categories)
-    ? article?.categories[0]?.name || SPECIAL_ISSUE_CATEGORY_SLUG
-    : article?.categories?.name || SPECIAL_ISSUE_CATEGORY_SLUG;
-  const publishedSource = article?.published_at || article?.created_at;
-  const lastUpdated = article?.updated_at || null;
-  const isUpdated =
-    Boolean(publishedSource && lastUpdated) &&
-    Math.abs(new Date(lastUpdated || "").getTime() - new Date(publishedSource || "").getTime()) > 60 * 1000;
-  const readMinutes = calculateReadMinutes(article?.content || "");
-  const deckText = article?.excerpt || article?.summary || "";
+   const publishedSource = article?.published_at || article?.created_at;
+   const lastUpdated = article?.updated_at || null;
+   const isUpdated =
+     Boolean(publishedSource && lastUpdated) &&
+     Math.abs(new Date(lastUpdated || "").getTime() - new Date(publishedSource || "").getTime()) > 60 * 1000;
+   const deckText = article?.excerpt || article?.summary || "";
 
   const currentArticleCard = relatedSpecialIssueArticles.find((item) => item.slug === article?.slug) || null;
   const circulationCandidates = relatedSpecialIssueArticles.filter((item) => item.slug !== article?.slug);

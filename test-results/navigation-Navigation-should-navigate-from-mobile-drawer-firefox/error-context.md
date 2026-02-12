@@ -1,0 +1,82 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - link "메인 콘텐츠로 건너뛰기" [ref=e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - banner [ref=e3]:
+    - generic [ref=e5]:
+      - generic [ref=e7]:
+        - button "메뉴 열기" [active] [ref=e8] [cursor=pointer]
+        - link "광전타임즈" [ref=e10] [cursor=pointer]:
+          - /url: /
+          - img "광전타임즈" [ref=e11]
+        - generic [ref=e12]:
+          - link "검색" [ref=e13] [cursor=pointer]:
+            - /url: /search
+            - img [ref=e15]
+          - link "로그인" [ref=e18] [cursor=pointer]:
+            - /url: /login
+          - link "가입" [ref=e19] [cursor=pointer]:
+            - /url: /signup
+      - navigation "카테고리 메뉴" [ref=e20]:
+        - generic [ref=e24]:
+          - link "홈" [ref=e25] [cursor=pointer]:
+            - /url: /
+          - link "창간특별호" [ref=e26] [cursor=pointer]:
+            - /url: /special-edition
+          - link "정치" [ref=e27] [cursor=pointer]:
+            - /url: /politics
+          - link "경제" [ref=e28] [cursor=pointer]:
+            - /url: /economy
+          - link "사회" [ref=e29] [cursor=pointer]:
+            - /url: /society
+          - link "생활/문화" [ref=e30] [cursor=pointer]:
+            - /url: /culture
+          - link "오피니언" [ref=e31] [cursor=pointer]:
+            - /url: /opinion
+          - link "스포츠" [ref=e32] [cursor=pointer]:
+            - /url: /sports
+  - main [ref=e33]:
+    - generic [ref=e35]:
+      - img [ref=e37]
+      - heading "아직 게시된 기사가 없습니다" [level=2] [ref=e42]
+      - paragraph [ref=e43]: 광전타임즈가 곧 새로운 소식을 전해드리겠습니다.
+  - contentinfo [ref=e44]:
+    - generic [ref=e46]:
+      - generic [ref=e47]:
+        - paragraph [ref=e48]: 광전타임즈
+        - paragraph [ref=e49]:
+          - text: 전남 함평군 함평읍 영수길 148 2층
+          - text: "등록번호: 전남, 아00607 | 대표: 선종인 | 발행·편집인: 장혁훈"
+          - text: "전화·제보: 010-9428-5361"
+          - text: "팩스: 0504-255-5361"
+          - text: "이메일: jebo@kjtimes.co.kr"
+          - text: "사업자등록번호: 173-91-02454"
+      - generic [ref=e50]:
+        - link "회사소개" [ref=e51] [cursor=pointer]:
+          - /url: /about
+        - link "광고안내" [ref=e52] [cursor=pointer]:
+          - /url: /advertise
+        - link "이용약관" [ref=e53] [cursor=pointer]:
+          - /url: /terms
+        - link "개인정보처리방침" [ref=e54] [cursor=pointer]:
+          - /url: /privacy
+        - link "편집원칙" [ref=e55] [cursor=pointer]:
+          - /url: /editorial
+        - link "정정보도/오류신고" [ref=e56] [cursor=pointer]:
+          - /url: /corrections
+      - paragraph [ref=e57]: Copyright © 2026 광전타임즈. All rights reserved.
+  - generic [ref=e62] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e63]:
+      - img [ref=e64]
+    - generic [ref=e68]:
+      - button "Open issues overlay" [ref=e69]:
+        - generic [ref=e70]:
+          - generic [ref=e71]: "0"
+          - generic [ref=e72]: "1"
+        - generic [ref=e73]: Issue
+      - button "Collapse issues badge" [ref=e74]:
+        - img [ref=e75]
+  - alert [ref=e77]
+```

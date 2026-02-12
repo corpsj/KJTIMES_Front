@@ -24,9 +24,8 @@ export function SignupForm() {
     },
   });
 
-  const handleSubmit = async (values: typeof form.values) => {
+  const handleSubmit = async () => {
     setLoading(true);
-    console.log("Signup attempt:", values);
     setTimeout(() => {
       alert("회원가입 기능을 준비 중입니다");
       setLoading(false);
