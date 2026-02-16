@@ -1,5 +1,6 @@
 import { createClient as createBrowserClient } from "@/utils/supabase/client";
 import { Article } from "@/types";
+import { escapeLikePattern } from "@/utils/escape";
 
 export type ApiResult<T> = { data: T | null; error: Error | null };
 
@@ -19,7 +20,7 @@ export async function searchArticlesClient(
 ): Promise<ApiResult<Article[]>> {
   try {
     const supabase = createBrowserClient();
-    const escapedQuery = query.replace(/%/g, "\\%").replace(/_/g, "\\_");
+    const escapedQuery = escapeLikePattern(query);
     const like = `%${escapedQuery}%`;
 
     const { data, error } = await supabase
@@ -70,7 +71,7 @@ export async function fetchAdminArticles(
   }
 ) {
   const { statusFilter, searchTerm, sortFilter, page, pageSize } = options;
-  const term = searchTerm.trim().replace(/[%]/g, "");
+  const term = escapeLikePattern(searchTerm.trim());
 
   let countQuery = supabase
     .from("articles")

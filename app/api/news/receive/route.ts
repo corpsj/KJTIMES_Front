@@ -2,8 +2,12 @@ import { NextResponse } from "next/server";
 import { createServiceClient } from "@/utils/supabase/server";
 import { sanitizeHtmlServer } from "@/utils/sanitize";
 import { NF_CATEGORY_MAP } from "@/constants/news-factory";
+import { rateLimit, getClientIp } from "@/utils/rate-limit";
 
 const WEBHOOK_SECRET = process.env.NEWS_RECEIVE_SECRET;
+
+// 웹훅: 분당 30회 제한
+const WEBHOOK_RATE_LIMIT = { limit: 30, windowMs: 60_000 };
 
 interface NfWebhookArticle {
   id: string;
@@ -43,6 +47,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  // Rate limiting
+  const ip = getClientIp(request);
+  const rl = rateLimit(`webhook:${ip}`, WEBHOOK_RATE_LIMIT);
+  if (!rl.success) {
+    return NextResponse.json(
+      { error: "Too many requests" },
+      { status: 429, headers: { "Retry-After": String(Math.ceil((rl.resetAt - Date.now()) / 1000)) } }
+    );
+  }
+
   try {
     const body = (await request.json()) as NfWebhookPayload;
 
@@ -59,6 +73,19 @@ export async function POST(request: Request) {
     for (const art of body.articles) {
       if (!art.title || !art.content) {
         results.push({ nf_id: art.id, error: "Missing title or content" });
+        continue;
+      }
+
+      // 중복 감지: 동일 제목 기사가 24시간 내에 있으면 스킵
+      const { data: existing } = await supabase
+        .from("articles")
+        .select("id")
+        .eq("title", art.title)
+        .gte("created_at", new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
+        .limit(1);
+
+      if (existing && existing.length > 0) {
+        results.push({ nf_id: art.id, local_id: existing[0].id, error: "Duplicate (skipped)" });
         continue;
       }
 
