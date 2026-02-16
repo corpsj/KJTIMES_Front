@@ -2,8 +2,10 @@ import { NextResponse } from "next/server";
 import { createServiceClient } from "@/utils/supabase/server";
 import { sanitizeHtmlServer } from "@/utils/sanitize";
 import { NF_CATEGORY_MAP } from "@/constants/news-factory";
+import { createRateLimiter } from "@/utils/rate-limit";
 
 const WEBHOOK_SECRET = process.env.NEWS_RECEIVE_SECRET;
+const limiter = createRateLimiter(30, 60_000);
 
 interface NfWebhookArticle {
   id: string;
@@ -43,6 +45,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "anonymous";
+  const rateCheck = limiter(ip);
+  if (!rateCheck.success) {
+    return NextResponse.json(
+      { error: "Too many requests" },
+      { status: 429 }
+    );
+  }
+
   try {
     const body = (await request.json()) as NfWebhookPayload;
 
@@ -59,6 +70,19 @@ export async function POST(request: Request) {
     for (const art of body.articles) {
       if (!art.title || !art.content) {
         results.push({ nf_id: art.id, error: "Missing title or content" });
+        continue;
+      }
+
+      const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+      const { data: existing } = await supabase
+        .from("articles")
+        .select("id")
+        .eq("title", art.title)
+        .gte("created_at", twentyFourHoursAgo)
+        .limit(1);
+
+      if (existing && existing.length > 0) {
+        results.push({ nf_id: art.id, error: "Duplicate article (same title within 24h)" });
         continue;
       }
 
